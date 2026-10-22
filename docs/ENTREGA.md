@@ -12,24 +12,28 @@
 2. En **Propiedades**, agregar, seleccionar o reordenar espacios. Se pueden mantener entre 1 y 30 propiedades; las nuevas empiezan ocultas y se muestran cuando se activa su visibilidad y se guarda. También se puede retirar una propiedad, con confirmación y opción de deshacer durante la edición.
 3. Cada propiedad conserva tres espacios de fotografías JPG, PNG o WebP de hasta 4 MB por archivo. Completar nombre, descripción, características y enlaces específicos de Booking y Airbnb. El enlace de WhatsApp propio es opcional: en blanco usa el número general con un mensaje que incluye el nombre de la propiedad. Los botones de plataformas sin enlace se ocultan.
 4. Pulsar **Guardar y publicar**. Las actualizaciones quedan en Supabase y aparecen en el sitio sin modificar código ni desplegar de nuevo.
-5. **Textos de la página** permite editar menú, títulos, botones, franja animada, textos de las propiedades, mapa, contacto, pie de página, avisos de privacidad y textos auxiliares legales. Los campos son texto simple; para títulos y párrafos se pueden usar saltos de línea. La variable `{habitaciones}` muestra la cantidad de propiedades publicadas; otros campos indicados admiten `{habitacion}`, `{sitio}`, `{anio}`, `{foto}` o `{total}`.
-6. **Preguntas frecuentes** permite agregar, editar, reordenar y quitar preguntas y respuestas. También se pueden gestionar los servicios y los destacados de ubicación desde sus secciones.
+5. **Textos de la página** permite buscar y editar 100 textos agrupados: menú, títulos, botones, franja animada, textos de las propiedades, mapa, contacto, pie de página, avisos de privacidad y textos auxiliares legales. Los campos son texto simple; para títulos y párrafos se pueden usar saltos de línea. La variable `{habitaciones}` muestra la cantidad de propiedades publicadas; otros campos indicados admiten `{habitacion}`, `{sitio}`, `{anio}`, `{foto}` o `{total}`.
+6. **Preguntas frecuentes** permite agregar, editar, reordenar y quitar hasta 20 preguntas y respuestas. En **Contenido del sitio** se pueden gestionar hasta 12 servicios y los destacados de ubicación.
 7. **Contacto y redes** permite cambiar el número general de WhatsApp, mensaje, Instagram, correo y ubicación. **Visibilidad en Google** permite editar título, descripción, imagen social, palabras clave, indexación, token de Search Console e identificador de Google Tag Manager. **Textos legales** contiene privacidad, condiciones y fecha de actualización editables.
+
+El guardado es global: incluye las modificaciones de todas las secciones. Antes de guardar se pueden deshacer las propiedades retiradas o usar **Descartar cambios** para recuperar la última versión guardada. La hora del último guardado usa el horario de Chile, `America/Santiago`, en formato de 24 horas.
 
 ## Privacidad y medición
 
 - Contenedor de Google Tag Manager configurado: `GTM-5LW4VNRP`.
+- Destino de Google Analytics 4 configurado: `G-ZKPRJH1Z3T`.
 - El código carga GTM en producción y en páginas públicas después de aceptar analítica. Rechazar mantiene el contenedor sin cargar; el visitante puede cambiar su elección desde **Preferencias de privacidad**.
 - Los eventos de contacto distinguen WhatsApp, Booking y Airbnb e identifican la propiedad. No incluyen el teléfono, mensaje ni URL de destino.
-- Las etiquetas y destinos de Google Analytics se administran en el contenedor de Tag Manager. Su publicación y recepción de datos deben comprobarse en la vista previa del contenedor y en los informes de Analytics; tener un identificador GTM no prueba por sí solo que se estén recibiendo visitas.
-- Antes de activar la medición en producción, actualizar desde el panel el párrafo de cookies de la política de privacidad para reflejar las herramientas realmente utilizadas.
+- Las etiquetas y destinos de Google Analytics se administran en el contenedor de Tag Manager. La recepción efectiva de visitas y eventos en GA4 queda pendiente de la validación final; tener identificadores configurados no prueba por sí solo que se estén recibiendo datos.
+- Mantener actualizada desde el panel la política de privacidad para reflejar las herramientas realmente utilizadas y sus opciones de consentimiento.
 
 ## Search Console
 
 - Propiedad del dominio verificada mediante DNS.
 - Token de verificación configurado también como metadato editable del sitio.
-- Sitemap inicial enviado: [sitemap.xml](https://alojamientospiffre.cl/sitemap.xml). La primera lectura de Google mostró un error de obtención; queda pendiente revisar su estado después de la actualización de producción.
-- La verificación del dominio y el envío del sitemap no confirman indexación ni posiciones en los resultados.
+- [sitemap.xml](https://alojamientospiffre.cl/sitemap.xml) enviado y procesado por Google: estado **Correcto**, con tres páginas detectadas.
+- La inspección de la portada confirmó **La URL está en Google** y **La página está indexada**, con HTTPS correcto.
+- La indexación de la portada está confirmada. El estado del sitemap no confirma por sí solo la indexación de cada página adicional ni garantiza posiciones en los resultados.
 
 ## Actualización de la base de datos
 
