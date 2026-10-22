@@ -1,5 +1,7 @@
 import { z } from "zod";
-import type { SiteContent } from "./types";
+import { defaultPageCopy, pageCopyFields, type PageCopyKey } from "./copy";
+import { defaultContent } from "./defaults";
+import type { PageCopy, SiteContent } from "./types";
 
 const text = (max: number, min = 1) => z.string().trim().min(min).max(max);
 const httpsUrl = z.string().max(2048).refine((value) => {
@@ -26,13 +28,25 @@ const roomSchema = z.object({
   id: text(50).regex(/^[a-z0-9-]+$/),
   slug: text(80).regex(/^[a-z0-9-]+$/),
   name: text(100),
-  description: text(1800),
-  tag: text(80),
+  description: text(1800, 0),
+  tag: text(80, 0),
   features: z.array(text(120)).max(12),
   photos: z.tuple([photoSchema, photoSchema, photoSchema]),
   bookingUrl: optionalLink(["booking.com"]),
   airbnbUrl: optionalLink(["airbnb.com", "airbnb.cl"]),
-}).strict();
+  published: z.boolean(),
+  whatsappUrl: z.union([z.literal(""), httpsUrl.refine((value) =>
+    ["wa.me", "api.whatsapp.com", "whatsapp.com", "www.whatsapp.com"].includes(new URL(value).hostname.toLowerCase()),
+  "El enlace debe pertenecer a WhatsApp.")]),
+}).strict().superRefine((room, context) => {
+  if (!room.published) return;
+  if (!room.description) context.addIssue({ code: "custom", path: ["description"], message: "Agrega una descripción antes de publicar." });
+  if (!room.tag) context.addIssue({ code: "custom", path: ["tag"], message: "Agrega una etiqueta breve antes de publicar." });
+});
+
+const copyText = z.string().max(3000).refine((value) => !/<\/?[a-z][^>]*>/i.test(value), "Usa texto sin etiquetas HTML.");
+const copyShape = Object.fromEntries(pageCopyFields.map(({ key }) => [key, copyText])) as Record<PageCopyKey, typeof copyText>;
+export const pageCopySchema: z.ZodType<PageCopy> = z.object(copyShape).strict();
 
 export const siteContentSchema: z.ZodType<SiteContent> = z.object({
   site: z.object({ name: text(100), tagline: text(180), description: text(800) }).strict(),
@@ -58,10 +72,13 @@ export const siteContentSchema: z.ZodType<SiteContent> = z.object({
     }, "Ingresa solamente el dominio del sitio."),
     ogImage: imageUrl,
     robotsIndex: z.boolean(),
+    googleSiteVerification: z.string().max(200).regex(/^[A-Za-z0-9_-]*$/, "Pega solo el token de verificación de Google, sin etiquetas HTML."),
+    gtmId: z.union([z.literal(""), z.string().regex(/^GTM-[A-Z0-9]{4,20}$/, "Usa un identificador GTM- válido.")]),
   }).strict(),
-  rooms: z.tuple([roomSchema, roomSchema, roomSchema]).refine((rooms) =>
-    new Set(rooms.map((room) => room.id)).size === 3 && new Set(rooms.map((room) => room.slug)).size === 3,
+  rooms: z.array(roomSchema).min(1, "Conserva al menos una propiedad, aunque esté en borrador.").max(30, "Puedes gestionar hasta 30 propiedades.").refine((rooms) =>
+    new Set(rooms.map((room) => room.id)).size === rooms.length && new Set(rooms.map((room) => room.slug)).size === rooms.length,
   "Cada habitación debe tener identificador y dirección únicos."),
+  copy: pageCopySchema,
   about: z.object({ title: text(180), text: text(4000) }).strict(),
   amenities: z.array(z.object({ title: text(100), description: text(500) }).strict()).max(12),
   location: z.object({ title: text(180), description: text(2000), highlights: z.array(text(180)).max(12) }).strict(),
@@ -74,6 +91,24 @@ export const siteContentSchema: z.ZodType<SiteContent> = z.object({
 }).strict();
 
 export const contentPayloadSchema = z.object({ content: siteContentSchema }).strict();
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** Adds only fields introduced after launch. Existing text, photos, links and order are preserved. */
+export function normalizeSiteContent(value: unknown): SiteContent {
+  if (!isRecord(value)) return siteContentSchema.parse(value);
+  const legacySeo = isRecord(value.seo) ? value.seo : {};
+  const legacyCopy = isRecord(value.copy) ? value.copy : {};
+  const normalized = {
+    ...value,
+    seo: { googleSiteVerification: defaultContent.seo.googleSiteVerification, gtmId: defaultContent.seo.gtmId, ...legacySeo },
+    copy: { ...defaultPageCopy, ...legacyCopy },
+    rooms: Array.isArray(value.rooms) ? value.rooms.map((room) => isRecord(room) ? { published: true, whatsappUrl: "", ...room } : room) : value.rooms,
+  };
+  return siteContentSchema.parse(normalized);
+}
 
 export function isAllowedAdmin(email: unknown, emails: string): boolean {
   if (typeof email !== "string") return false;

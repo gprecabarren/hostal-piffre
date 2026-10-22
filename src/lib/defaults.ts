@@ -1,4 +1,5 @@
 import type { Room, SiteContent } from "./types";
+import { defaultPageCopy } from "./copy";
 
 const makeRoom = (number: number): Room => ({
   id: `habitacion-${number}`,
@@ -15,6 +16,8 @@ const makeRoom = (number: number): Room => ({
   ],
   bookingUrl: number === 1 ? "https://www.booking.com/hotel/cl/piffre-de-vauban.es.html" : "",
   airbnbUrl: "",
+  published: true,
+  whatsappUrl: "",
 });
 
 export const defaultContent: SiteContent = {
@@ -28,7 +31,7 @@ export const defaultContent: SiteContent = {
     title: "Tu hogar,",
     titleAccent: "lejos de casa.",
     description:
-      "Tres habitaciones, un barrio por descubrir y la calidez de sentirte en casa. Bienvenido a Hostal Piffre.",
+      "Espacios para descansar, un barrio por descubrir y la calidez de sentirte en casa. Bienvenido a Hostal Piffre.",
   },
   contact: {
     whatsapp: "56954933261",
@@ -44,17 +47,20 @@ export const defaultContent: SiteContent = {
   seo: {
     title: "Hostal Piffre | Alojamiento en Providencia, Santiago",
     description:
-      "Conoce Hostal Piffre, un alojamiento acogedor en Providencia, Santiago. Tres habitaciones, WiFi y atención cercana. Consulta disponibilidad por WhatsApp.",
+      "Conoce Hostal Piffre, un alojamiento acogedor en Providencia, Santiago. Habitaciones, WiFi y atención cercana. Consulta disponibilidad por WhatsApp.",
     keywords: ["alojamiento en Providencia", "hostal en Providencia", "alojamiento Santiago", "Hostal Piffre"],
     siteUrl: "https://alojamientospiffre.cl",
     ogImage: "/og-image.png",
     robotsIndex: true,
+    googleSiteVerification: "Ya29cIRkxvPSmxNZ2ZOyXpgVFEqfyL6K-qN05uiAON0",
+    gtmId: "GTM-5LW4VNRP",
   },
+  copy: { ...defaultPageCopy },
   rooms: [makeRoom(1), makeRoom(2), makeRoom(3)],
   about: {
     title: "Más que una estadía, una bienvenida.",
     text:
-      "En Hostal Piffre nos gusta lo simple: recibirte bien, ayudarte con lo que necesitas y ofrecerte un lugar donde descansar. Somos un alojamiento de tres habitaciones en Providencia, con atención cercana y un barrio lleno de vida a tu alrededor.",
+      "En Hostal Piffre nos gusta lo simple: recibirte bien, ayudarte con lo que necesitas y ofrecerte un lugar donde descansar. Somos un alojamiento en Providencia, con atención cercana y un barrio lleno de vida a tu alrededor.",
   },
   amenities: [
     { title: "WiFi gratis", description: "Mantente conectado durante tu estadía." },

@@ -1,26 +1,69 @@
 "use client";
 
-import { useEffect, useId, useState, type FormEvent, type ReactNode } from "react";
-import type { SiteContent, Room, RoomPhoto } from "@/lib/types";
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
+import type { SiteContent, Room, RoomPhoto, PageCopyKey } from "@/lib/types";
+import { pageCopyGroups, pageCopyFields } from "@/lib/copy";
 import { AdminIcon, type AdminIconName } from "./AdminIcon";
 
-type Section = "overview" | "rooms" | "seo" | "contact" | "content" | "legal";
+type Section = "overview" | "rooms" | "content" | "copy" | "faq" | "seo" | "contact" | "legal";
 type ContentStatus = { configured: boolean; persisted: boolean; error?: string };
 type Notice = { type: "success" | "error"; text: string } | null;
-const sections: { id: Section; label: string; icon: AdminIconName }[] = [
-  { id: "overview", label: "Vista general", icon: "home" },
-  { id: "rooms", label: "Habitaciones", icon: "bed" },
-  { id: "content", label: "Contenido del sitio", icon: "edit" },
-  { id: "seo", label: "Visibilidad en Google", icon: "search" },
-  { id: "contact", label: "Contacto y redes", icon: "phone" },
-  { id: "legal", label: "Textos legales", icon: "document" },
+type Confirmation = { kind: "remove"; room: Room } | { kind: "discard" };
+type RemovedRoom = { room: Room; position: number };
+const MAX_PROPERTIES = 30;
+const MAX_FAQ = 20;
+const MAX_AMENITIES = 12;
+
+const sections: { id: Section; label: string; icon: AdminIconName; description: string }[] = [
+  { id: "overview", label: "Vista general", icon: "home", description: "Un lugar para cuidar cada detalle de tu alojamiento en internet." },
+  { id: "rooms", label: "Propiedades", icon: "bed", description: "Agrega tus espacios, elige su orden y prepara una buena bienvenida." },
+  { id: "content", label: "Contenido del sitio", icon: "edit", description: "Tu historia, tus servicios y el barrio que hace especial tu alojamiento." },
+  { id: "copy", label: "Textos de la página", icon: "document", description: "Personaliza los títulos, botones y pequeños detalles de cada sección." },
+  { id: "faq", label: "Preguntas frecuentes", icon: "question", description: "Resuelve las dudas de tus huéspedes antes de que hagan las maletas." },
+  { id: "seo", label: "Visibilidad en Google", icon: "search", description: "Ayuda a los viajeros a encontrar tu alojamiento en Providencia." },
+  { id: "contact", label: "Contacto y redes", icon: "phone", description: "Mantén siempre abierta la puerta a una nueva conversación." },
+  { id: "legal", label: "Textos legales", icon: "document", description: "Información clara para que tus huéspedes reserven con confianza." },
 ];
+
+function moveItem<T>(items: T[], index: number, direction: -1 | 1): T[] {
+  const destination = index + direction;
+  if (index < 0 || destination < 0 || destination >= items.length) return items;
+  const next = [...items];
+  [next[index], next[destination]] = [next[destination], next[index]];
+  return next;
+}
+
+function newProperty(number: number): Room {
+  const id = crypto.randomUUID();
+  const name = `Nueva propiedad ${number}`;
+  return {
+    id,
+    slug: `propiedad-${id}`,
+    name,
+    description: "",
+    tag: "",
+    features: [],
+    photos: [
+      { url: "", alt: `Vista principal de ${name}` },
+      { url: "", alt: `Segunda fotografía de ${name}` },
+      { url: "", alt: `Detalle de ${name}` },
+    ],
+    bookingUrl: "",
+    airbnbUrl: "",
+    whatsappUrl: "",
+    published: false,
+  };
+}
 
 function issueLabel(path: string): string {
   const parts = path.replace(/^content\./, "").split(".");
-  const labels: Record<string, string> = { name: "nombre", description: "descripción", title: "título", titleAccent: "título destacado", eyebrow: "texto de portada", tagline: "frase de marca", text: "texto", whatsapp: "número de WhatsApp", whatsappMessage: "mensaje de WhatsApp", email: "correo", address: "dirección", city: "ciudad", region: "región", country: "país", instagram: "Instagram", mapUrl: "enlace del mapa", keywords: "palabras clave", siteUrl: "dominio principal", ogImage: "imagen al compartir", bookingUrl: "enlace de Booking", airbnbUrl: "enlace de Airbnb", features: "características", tag: "etiqueta", alt: "descripción de imagen", url: "enlace de imagen", question: "pregunta", answer: "respuesta", privacy: "política de privacidad", terms: "términos y condiciones", updatedAt: "fecha" };
-  const field = labels[parts[parts.length - 1]] || "información";
-  if (parts[0] === "rooms") return `habitación ${Number(parts[1]) + 1}${parts[2] === "photos" ? `, foto ${Number(parts[3]) + 1}` : ""}: ${field}`;
+  const last = parts[parts.length - 1];
+  if (parts[0] === "copy") return pageCopyFields.find(field => field.key === last)?.label || "texto de la página";
+  const labels: Record<string, string> = {
+    name: "nombre", description: "descripción", title: "título", titleAccent: "título destacado", eyebrow: "texto de portada", tagline: "frase de marca", text: "texto", whatsapp: "número de WhatsApp", whatsappUrl: "enlace de WhatsApp", whatsappMessage: "mensaje de WhatsApp", email: "correo", address: "dirección", city: "ciudad", region: "región", country: "país", instagram: "Instagram", mapUrl: "enlace del mapa", keywords: "palabras clave", siteUrl: "dominio principal", ogImage: "imagen al compartir", googleSiteVerification: "verificación de Google", gtmId: "identificador de Tag Manager", bookingUrl: "enlace de Booking", airbnbUrl: "enlace de Airbnb", features: "características", tag: "etiqueta", alt: "descripción de imagen", url: "enlace de imagen", question: "pregunta", answer: "respuesta", privacy: "política de privacidad", terms: "términos y condiciones", updatedAt: "fecha",
+  };
+  const field = labels[last] || "información";
+  if (parts[0] === "rooms") return `propiedad ${Number(parts[1]) + 1}${parts[2] === "photos" ? `, foto ${Number(parts[3]) + 1}` : ""}: ${field}`;
   const group: Record<string, string> = { seo: "Google", contact: "contacto", site: "presentación", hero: "portada", about: "historia", amenities: "servicios", location: "ubicación", faq: "preguntas frecuentes", policies: "textos legales" };
   return `${group[parts[0]] || "contenido"}: ${field}`;
 }
@@ -29,18 +72,57 @@ function TextField({ label, value, onChange, hint, multiline, type = "text", req
   label: string; value: string; onChange: (value: string) => void; hint?: string; multiline?: boolean; type?: string; required?: boolean; placeholder?: string; maxLength?: number;
 }) {
   const id = useId();
-  return <div className="admin-field"><label htmlFor={id}>{label}{required ? <span aria-hidden="true"> *</span> : null}</label>{multiline ? <textarea id={id} aria-describedby={hint ? `${id}-hint` : undefined} value={value} onChange={event => onChange(event.target.value)} rows={4} required={required} placeholder={placeholder} maxLength={maxLength}/> : <input id={id} aria-describedby={hint ? `${id}-hint` : undefined} type={type} value={value} onChange={event => onChange(event.target.value)} required={required} placeholder={placeholder} maxLength={maxLength}/>} {hint ? <p className="admin-field-hint" id={`${id}-hint`}>{hint}</p> : null}</div>;
+  const describedBy = hint ? `${id}-hint` : undefined;
+  return <div className="admin-field">
+    <label htmlFor={id}>{label}{required ? <span aria-hidden="true"> *</span> : null}</label>
+    {multiline ? <textarea id={id} aria-describedby={describedBy} value={value} onChange={event => onChange(event.target.value)} rows={4} required={required} placeholder={placeholder} maxLength={maxLength}/> : <input id={id} aria-describedby={describedBy} type={type} value={value} onChange={event => onChange(event.target.value)} onKeyDown={event => { if (type === "search" && event.key === "Enter") event.preventDefault(); }} required={required} placeholder={placeholder} maxLength={maxLength}/>}
+    {hint ? <p className="admin-field-hint" id={describedBy}>{hint}</p> : null}
+  </div>;
 }
 
 function Panel({ title, description, children, aside }: { title: string; description?: string; children: ReactNode; aside?: ReactNode }) {
   return <section className="admin-panel"><div className="admin-panel-heading"><div><h2>{title}</h2>{description ? <p>{description}</p> : null}</div>{aside}</div><div className="admin-panel-body">{children}</div></section>;
 }
 
+function MoveControls({ label, index, total, disabled, onMove }: { label: string; index: number; total: number; disabled: boolean; onMove: (direction: -1 | 1) => void }) {
+  return <div className="admin-order-controls">
+    <button type="button" className="admin-icon-button" disabled={disabled || index === 0} onClick={() => onMove(-1)} aria-label={`Subir ${label}`} title="Subir una posición"><AdminIcon name="up" size={16}/></button>
+    <button type="button" className="admin-icon-button" disabled={disabled || index === total - 1} onClick={() => onMove(1)} aria-label={`Bajar ${label}`} title="Bajar una posición"><AdminIcon name="down" size={16}/></button>
+  </div>;
+}
+
+function ConfirmDialog({ confirmation, onCancel, onConfirm }: { confirmation: Confirmation; onCancel: () => void; onConfirm: () => void }) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const id = useId();
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    dialog?.showModal();
+    return () => dialog?.close();
+  }, []);
+  const retiring = confirmation.kind === "remove";
+  return <dialog ref={dialogRef} className="admin-confirm-dialog" aria-labelledby={`${id}-title`} aria-describedby={`${id}-description`} onCancel={event => { event.preventDefault(); onCancel(); }} onClick={event => { if (event.target === event.currentTarget) onCancel(); }}>
+    <div className="admin-confirm-content"><span className="admin-confirm-icon"><AdminIcon name={retiring ? "trash" : "undo"} size={25}/></span>
+      <h2 id={`${id}-title`}>{retiring ? "¿Retirar esta propiedad?" : "¿Descartar los cambios?"}</h2>
+      <p id={`${id}-description`}>{retiring ? `«${confirmation.room.name}» se retirará de esta edición. Puedes deshacerlo antes de guardar. El sitio público cambiará cuando guardes y publiques.` : "Se recuperará la última versión guardada de todas las secciones. Los cambios de esta edición se perderán."}</p>
+      <div className="admin-confirm-actions"><button type="button" className="admin-button admin-button-outline" onClick={onCancel} autoFocus>Seguir editando</button><button type="button" className="admin-button admin-button-danger" onClick={onConfirm}>{retiring ? "Retirar propiedad" : "Descartar cambios"}</button></div>
+    </div>
+  </dialog>;
+}
+
 function PhotoEditor({ photo, roomName, index, busy, uploading, onChange, onUpload }: {
   photo: RoomPhoto; roomName: string; index: number; busy: boolean; uploading: boolean; onChange: (photo: RoomPhoto) => void; onUpload: (file: File) => void;
 }) {
   const uploadId = useId();
-  return <div className="admin-photo-editor"><div className="admin-photo-preview">{photo.url ? <img src={photo.url} alt={photo.alt || `Foto ${index + 1} de ${roomName}`} loading="lazy"/> : <div className="admin-photo-empty"><AdminIcon name="image" size={30}/><span>Tu próxima buena foto</span></div>}<span className="admin-photo-number">{index === 0 ? "01 · Foto principal" : `0${index + 1} · Galería`}</span></div><div className="admin-photo-fields"><label className={`admin-button admin-button-outline admin-upload-button ${busy ? "admin-disabled" : ""}`} htmlFor={uploadId}><AdminIcon name="upload" size={17}/>{uploading ? "Subiendo foto…" : "Subir una foto"}</label><input id={uploadId} className="admin-visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={event => { const file = event.target.files?.[0]; if (file) onUpload(file); event.target.value = ""; }}/><TextField label="Descripción de la imagen" value={photo.alt} required onChange={alt => onChange({ ...photo, alt })} placeholder={`Vista de ${roomName.toLowerCase()}`} hint="Explica qué se ve. Ayuda a Google y a personas que usan lectores de pantalla."/><details className="admin-photo-details"><summary>Usar un enlace de imagen</summary><TextField label="URL de la foto" value={photo.url} type="text" onChange={url => onChange({ ...photo, url })} placeholder="https://…"/></details>{photo.url ? <button className="admin-text-button admin-danger" type="button" disabled={busy} onClick={() => onChange({ url: "", alt: photo.alt || `Foto ${index + 1} de ${roomName}` })}>Quitar esta foto</button> : null}</div></div>;
+  return <div className="admin-photo-editor">
+    <div className="admin-photo-preview">{photo.url ? <img src={photo.url} alt={photo.alt || `Foto ${index + 1} de ${roomName}`} loading="lazy"/> : <div className="admin-photo-empty"><AdminIcon name="image" size={30}/><span>Tu próxima buena foto</span></div>}<span className="admin-photo-number">{index === 0 ? "01 · Foto principal" : `0${index + 1} · Galería`}</span></div>
+    <div className="admin-photo-fields">
+      <label className={`admin-button admin-button-outline admin-upload-button ${busy ? "admin-disabled" : ""}`} htmlFor={uploadId}><AdminIcon name="upload" size={17}/>{uploading ? "Subiendo foto…" : "Subir una foto"}</label>
+      <input id={uploadId} className="admin-visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={event => { const file = event.target.files?.[0]; if (file) onUpload(file); event.target.value = ""; }}/>
+      <TextField label="Descripción de la imagen" value={photo.alt} required onChange={alt => onChange({ ...photo, alt })} placeholder={`Vista de ${roomName.toLowerCase()}`} hint="Explica qué se ve. Ayuda a Google y a las personas que usan lectores de pantalla."/>
+      <details className="admin-photo-details"><summary>Usar un enlace de imagen</summary><TextField label="URL de la foto" value={photo.url} onChange={url => onChange({ ...photo, url })} placeholder="https://…"/></details>
+      {photo.url ? <button className="admin-text-button admin-danger" type="button" disabled={busy} onClick={() => onChange({ url: "", alt: photo.alt || `Foto ${index + 1} de ${roomName}` })}>Quitar esta foto</button> : null}
+    </div>
+  </div>;
 }
 
 export function AdminDashboard({ initialContent, status, user, signOutAction }: {
@@ -49,17 +131,24 @@ export function AdminDashboard({ initialContent, status, user, signOutAction }: 
   const [content, setContent] = useState(initialContent);
   const [savedContent, setSavedContent] = useState(() => JSON.stringify(initialContent));
   const [section, setSection] = useState<Section>("overview");
-  const [roomIndex, setRoomIndex] = useState(0);
+  const [selectedRoomId, setSelectedRoomId] = useState(initialContent.rooms[0]?.id || "");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<string | null>(null);
   const [notice, setNotice] = useState<Notice>(null);
+  const feedbackRef = useRef<HTMLDivElement>(null);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
+  const [removedRooms, setRemovedRooms] = useState<RemovedRoom[]>([]);
+  const [copyFilter, setCopyFilter] = useState<{ query: string; matches: PageCopyKey[] | null }>({ query: "", matches: null });
+  const [itemKeys, setItemKeys] = useState(() => ({ faq: initialContent.faq.map((_, index) => `faq-${index}`), amenities: initialContent.amenities.map((_, index) => `amenity-${index}`) }));
   const dirty = JSON.stringify(content) !== savedContent;
   const photoCount = content.rooms.reduce((total, room) => total + room.photos.filter(photo => Boolean(photo.url)).length, 0);
   const linkCount = content.rooms.reduce((total, room) => total + Number(Boolean(room.bookingUrl)) + Number(Boolean(room.airbnbUrl)), 0);
-  const activeRoom = content.rooms[roomIndex];
+  const publishedCount = content.rooms.filter(room => room.published).length;
+  const activeRoom = content.rooms.find(room => room.id === selectedRoomId) || content.rooms[0];
   const currentSection = sections.find(item => item.id === section)!;
   const busy = saving || uploading !== null;
+  const copyGroups = pageCopyGroups.map(group => ({ ...group, fields: group.fields.filter(field => copyFilter.matches === null || copyFilter.matches.includes(field.key)) })).filter(group => group.fields.length);
 
   useEffect(() => {
     if (!dirty) return;
@@ -68,40 +157,117 @@ export function AdminDashboard({ initialContent, status, user, signOutAction }: 
     return () => window.removeEventListener("beforeunload", preventLeave);
   }, [dirty]);
 
+  useEffect(() => {
+    if (notice?.type === "error") feedbackRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
+  }, [notice]);
+
+  function editContent(edit: (previous: SiteContent) => SiteContent) {
+    setContent(edit);
+    setNotice(null);
+  }
   function update<T extends keyof SiteContent>(key: T, patch: Partial<SiteContent[T]>) {
-    setContent(previous => ({ ...previous, [key]: { ...previous[key], ...patch } }));
-    setNotice(null);
+    editContent(previous => ({ ...previous, [key]: { ...previous[key], ...patch } }));
   }
-  function updateRoom(index: number, patch: Partial<Room>) {
-    setContent(previous => ({ ...previous, rooms: previous.rooms.map((room, current) => current === index ? { ...room, ...patch } : room) as SiteContent["rooms"] }));
-    setNotice(null);
+  function updateRoom(id: string, patch: Partial<Room>) {
+    editContent(previous => ({ ...previous, rooms: previous.rooms.map(room => room.id === id ? { ...room, ...patch } : room) }));
   }
-  function updatePhoto(roomPosition: number, photoPosition: number, photo: RoomPhoto) {
-    setContent(previous => ({ ...previous, rooms: previous.rooms.map((room, current) => current === roomPosition ? { ...room, photos: room.photos.map((existing, position) => position === photoPosition ? photo : existing) as Room["photos"] } : room) as SiteContent["rooms"] }));
-    setNotice(null);
+  function updatePhoto(roomId: string, photoPosition: number, photo: RoomPhoto) {
+    editContent(previous => ({ ...previous, rooms: previous.rooms.map(room => room.id === roomId ? { ...room, photos: room.photos.map((existing, position) => position === photoPosition ? photo : existing) as Room["photos"] } : room) }));
   }
-  async function uploadPhoto(file: File, roomPosition: number, photoPosition: number) {
+  function addRoom() {
+    if (busy || content.rooms.length >= MAX_PROPERTIES) return;
+    const room = newProperty(content.rooms.length + 1);
+    editContent(previous => ({ ...previous, rooms: [...previous.rooms, room] }));
+    setSelectedRoomId(room.id);
+    setNotice({ type: "success", text: "Nueva propiedad creada como oculta. Completa sus datos y activa su visibilidad cuando esté lista." });
+  }
+  function moveRoom(index: number, direction: -1 | 1) {
+    editContent(previous => ({ ...previous, rooms: moveItem(previous.rooms, index, direction) }));
+  }
+  function undoRemoval() {
+    const last = removedRooms[removedRooms.length - 1];
+    if (!last || busy) return;
+    if (content.rooms.length >= MAX_PROPERTIES) { setNotice({ type: "error", text: "Retira otra propiedad para poder reponer esta. Puedes tener hasta 30 propiedades." }); return; }
+    editContent(previous => {
+      const rooms = [...previous.rooms];
+      rooms.splice(Math.min(last.position, rooms.length), 0, last.room);
+      return { ...previous, rooms };
+    });
+    setRemovedRooms(previous => previous.slice(0, -1));
+    setSelectedRoomId(last.room.id);
+  }
+  function confirmChange() {
+    if (!confirmation || busy) return;
+    if (confirmation.kind === "discard") {
+      const restored: SiteContent = JSON.parse(savedContent);
+      setContent(restored);
+      setSelectedRoomId(restored.rooms[0]?.id || "");
+      setItemKeys({ faq: restored.faq.map((_, index) => `faq-${index}`), amenities: restored.amenities.map((_, index) => `amenity-${index}`) });
+      setRemovedRooms([]);
+      setNotice({ type: "success", text: "Se recuperó la última versión guardada." });
+    } else if (content.rooms.length > 1) {
+      const position = content.rooms.findIndex(room => room.id === confirmation.room.id);
+      if (position >= 0) {
+        setRemovedRooms(previous => [...previous, { room: confirmation.room, position }]);
+        const rooms = content.rooms.filter(room => room.id !== confirmation.room.id);
+        setContent(previous => ({ ...previous, rooms }));
+        if (selectedRoomId === confirmation.room.id) setSelectedRoomId(rooms[Math.min(position, rooms.length - 1)].id);
+        setNotice(null);
+      }
+    }
+    setConfirmation(null);
+  }
+  function moveCollection(collection: "faq" | "amenities", index: number, direction: -1 | 1) {
+    editContent(previous => collection === "faq" ? { ...previous, faq: moveItem(previous.faq, index, direction) } : { ...previous, amenities: moveItem(previous.amenities, index, direction) });
+    setItemKeys(previous => ({ ...previous, [collection]: moveItem(previous[collection], index, direction) }));
+  }
+  function removeCollectionItem(collection: "faq" | "amenities", index: number) {
+    editContent(previous => collection === "faq" ? { ...previous, faq: previous.faq.filter((_, current) => current !== index) } : { ...previous, amenities: previous.amenities.filter((_, current) => current !== index) });
+    setItemKeys(previous => ({ ...previous, [collection]: previous[collection].filter((_, current) => current !== index) }));
+  }
+  function addCollectionItem(collection: "faq" | "amenities") {
+    if (busy) return;
+    if (collection === "faq" && content.faq.length < MAX_FAQ) editContent(previous => ({ ...previous, faq: [...previous.faq, { question: "", answer: "" }] }));
+    else if (collection === "amenities" && content.amenities.length < MAX_AMENITIES) editContent(previous => ({ ...previous, amenities: [...previous.amenities, { title: "", description: "" }] }));
+    else return;
+    setItemKeys(previous => ({ ...previous, [collection]: [...previous[collection], `${collection}-${crypto.randomUUID()}`] }));
+  }
+  function updateCopy(key: PageCopyKey, value: string) {
+    update("copy", { [key]: value });
+  }
+  function searchCopy(query: string) {
+    const normalize = (value: string) => value.toLocaleLowerCase("es").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const search = normalize(query.trim());
+    const matches: PageCopyKey[] | null = search ? pageCopyGroups.flatMap(group => group.fields.filter(field => normalize(`${group.label} ${field.label} ${field.defaultValue} ${content.copy[field.key]}`).includes(search)).map(field => field.key)) : null;
+    // Keep the search result stable while a matching text is being edited.
+    setCopyFilter({ query, matches });
+  }
+  async function uploadPhoto(file: File, roomId: string, photoPosition: number) {
     if (file.size > 4 * 1024 * 1024) { setNotice({ type: "error", text: "Esta foto pesa más de 4 MB. Elige una versión más liviana." }); return; }
-    setUploading(`${roomPosition}-${photoPosition}`);
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) { setNotice({ type: "error", text: "Elige una fotografía JPG, PNG o WebP." }); return; }
+    setUploading(`${roomId}-${photoPosition}`);
     setNotice(null);
     try {
-      const data = new FormData(); data.append("file", file);
+      const data = new FormData();
+      data.append("file", file);
       const response = await fetch("/api/upload", { method: "POST", body: data });
       const result = await response.json();
       if (!response.ok || !result.url) throw new Error(result.error || "No pudimos subir esta foto. Intenta nuevamente.");
-      setContent(previous => ({ ...previous, rooms: previous.rooms.map((room, current) => current === roomPosition ? { ...room, photos: room.photos.map((photo, position) => position === photoPosition ? { url: result.url, alt: photo.alt || `Habitación ${room.name}, Hostal Piffre en Providencia` } : photo) as Room["photos"] } : room) as SiteContent["rooms"] }));
+      setContent(previous => ({ ...previous, rooms: previous.rooms.map(room => room.id === roomId ? { ...room, photos: room.photos.map((photo, position) => position === photoPosition ? { url: result.url, alt: photo.alt || `${room.name}, Hostal Piffre en Providencia` } : photo) as Room["photos"] } : room) }));
       setNotice({ type: "success", text: "Foto subida. Guarda los cambios para mostrarla en tu sitio." });
-    } catch (error) { setNotice({ type: "error", text: error instanceof Error ? error.message : "No pudimos subir la foto." }); }
-    finally { setUploading(null); }
+    } catch (error) {
+      setNotice({ type: "error", text: error instanceof Error ? error.message : "No pudimos subir la foto." });
+    } finally { setUploading(null); }
   }
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy || !status.configured || status.error) return;
-    setSaving(true); setNotice(null);
+    setSaving(true);
+    setNotice(null);
     try {
       const submitted: SiteContent = {
         ...content,
-        rooms: content.rooms.map(room => ({ ...room, features: room.features.map(value => value.trim()).filter(Boolean) })) as SiteContent["rooms"],
+        rooms: content.rooms.map(room => ({ ...room, features: room.features.map(value => value.trim()).filter(Boolean) })),
         seo: { ...content.seo, keywords: content.seo.keywords.map(value => value.trim()).filter(Boolean) },
         location: { ...content.location, highlights: content.location.highlights.map(value => value.trim()).filter(Boolean) },
       };
@@ -110,46 +276,132 @@ export function AdminDashboard({ initialContent, status, user, signOutAction }: 
       if (!response.ok) {
         if (Array.isArray(result.issues) && result.issues.length) {
           const path = String(result.issues[0].path || "").replace(/^content\./, "");
-          if (path.startsWith("rooms.")) { setSection("rooms"); setRoomIndex(Math.min(2, Math.max(0, Number(path.split(".")[1]) || 0))); }
+          if (path.startsWith("rooms.")) { setSection("rooms"); setSelectedRoomId(content.rooms[Number(path.split(".")[1]) || 0]?.id || content.rooms[0].id); }
           else if (path.startsWith("seo.")) setSection("seo");
           else if (path.startsWith("contact.")) setSection("contact");
           else if (path.startsWith("policies.")) setSection("legal");
+          else if (path.startsWith("faq.")) setSection("faq");
+          else if (path.startsWith("copy.")) { setSection("copy"); setCopyFilter({ query: "", matches: null }); }
           else setSection("content");
           const fields = [...new Set(result.issues.slice(0, 4).map((issue: { path?: string }) => issueLabel(String(issue.path || ""))))].join("; ");
           throw new Error(`Revisa y completa estos campos: ${fields}. Los enlaces deben usar HTTPS y pertenecer a la plataforma indicada.`);
         }
         throw new Error(result.error || "No pudimos guardar. Tus cambios siguen aquí para que vuelvas a intentarlo.");
       }
-      const nextContent = result.content ?? submitted;
-      setContent(nextContent); setSavedContent(JSON.stringify(nextContent));
+      const nextContent: SiteContent = result.content ?? submitted;
+      setContent(nextContent);
+      setSavedContent(JSON.stringify(nextContent));
+      setRemovedRooms([]);
       setLastSaved(new Date().toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", timeZone: "America/Santiago" }));
-      setNotice({ type: "success", text: "Cambios guardados y publicados. Ya puedes verlos en tu sitio." });
-    } catch (error) { setNotice({ type: "error", text: error instanceof Error ? error.message : "Ocurrió un error al guardar." }); }
-    finally { setSaving(false); }
+      setNotice({ type: "success", text: "Cambios guardados y publicados. Las propiedades ocultas se mantienen fuera del sitio." });
+    } catch (error) {
+      setNotice({ type: "error", text: error instanceof Error ? error.message : "Ocurrió un error al guardar." });
+    } finally { setSaving(false); }
   }
 
-  return <div className="admin-shell"><aside className="admin-sidebar"><a href="/" className="admin-brand" aria-label="Hostal Piffre, ir al sitio"><span className="admin-brand-monogram">P.</span><span>Hostal Piffre<small>EL ESPACIO DE TU HOSTAL</small></span></a><p className="admin-sidebar-label">TU SITIO, A TU MANERA</p><nav aria-label="Secciones de administración" className="admin-navigation">{sections.map(item => <button type="button" key={item.id} onClick={() => setSection(item.id)} aria-current={section === item.id ? "page" : undefined} className={section === item.id ? "admin-nav-active" : ""}><AdminIcon name={item.icon}/>{item.label}{section === item.id ? <span className="admin-nav-dot"/> : null}</button>)}</nav><div className="admin-sidebar-bottom"><a className="admin-site-link" href="/" target="_blank" rel="noopener noreferrer">Visitar mi sitio<AdminIcon name="external" size={16}/></a><div className="admin-user"><span className="admin-avatar">{(user.name || user.email || "P").charAt(0).toUpperCase()}</span><span><strong>{user.name || "Administración Piffre"}</strong><small>{user.email || "Sesión con Vercel"}</small></span></div><form action={signOutAction}><button className="admin-signout" type="submit"><AdminIcon name="logout" size={16}/>Cerrar sesión</button></form></div></aside>
-    <main className="admin-main"><header className="admin-topbar"><span>Administración <span className="admin-breadcrumb-divider">/</span> <strong>{currentSection.label}</strong></span><span className="admin-private-label"><span/>Espacio privado</span></header><form onSubmit={save} className="admin-edit-form"><fieldset className="admin-fieldset" disabled={saving}><div className="admin-page-heading"><div><p className="admin-eyebrow">BIENVENIDO A CASA</p><h1>{section === "overview" ? "Todo listo para recibir." : currentSection.label}</h1><p>{section === "overview" ? "Un lugar para cuidar cada detalle de tu hostal en internet." : section === "rooms" ? "Muestra lo que hace especial a cada uno de tus espacios." : section === "seo" ? "Ayuda a los viajeros a encontrar tu alojamiento en Providencia." : section === "contact" ? "Mantén siempre abierta la puerta a una nueva conversación." : section === "legal" ? "Información clara para que tus huéspedes reserven con confianza." : "Tu historia, tus palabras. Haz que se sienta como Piffre."}</p></div><a className="admin-button admin-button-outline" href="/" target="_blank" rel="noopener noreferrer">Ver mi sitio<AdminIcon name="external" size={16}/></a></div>
-      {!status.configured ? <div className="admin-notice admin-notice-error" role="status"><AdminIcon name="warning"/><div><strong>Falta conectar la base de datos</strong><p>La edición y las fotos estarán disponibles cuando se complete la conexión a Supabase. Aún no es posible publicar cambios desde este panel.</p></div></div> : status.error ? <div className="admin-notice admin-notice-error" role="alert"><AdminIcon name="warning"/><div><strong>No pudimos cargar los cambios guardados</strong><p>Se muestra el contenido inicial. Recarga antes de editar para evitar reemplazar tus cambios anteriores.</p></div></div> : !status.persisted ? <div className="admin-notice admin-notice-neutral" role="status"><AdminIcon name="edit"/><div><strong>Tu sitio está listo para personalizar</strong><p>Este es el contenido inicial. Tus cambios se guardarán al pulsar «Guardar y publicar».</p></div></div> : null}
-      {notice ? <div className={`admin-notice admin-notice-${notice.type}`} role={notice.type === "error" ? "alert" : "status"}><AdminIcon name={notice.type === "success" ? "check" : "warning"}/><p>{notice.text}</p><button type="button" aria-label="Cerrar aviso" onClick={() => setNotice(null)}><AdminIcon name="close" size={17}/></button></div> : null}
+  return <div className="admin-shell">
+    <aside className="admin-sidebar">
+      <a href="/" className="admin-brand" aria-label="Hostal Piffre, ir al sitio"><span className="admin-brand-monogram">P.</span><span>Hostal Piffre<small>EL ESPACIO DE TU HOSTAL</small></span></a>
+      <p className="admin-sidebar-label">TU SITIO, A TU MANERA</p>
+      <nav aria-label="Secciones de administración" className="admin-navigation">{sections.map(item => <button type="button" key={item.id} onClick={() => setSection(item.id)} aria-current={section === item.id ? "page" : undefined} className={section === item.id ? "admin-nav-active" : ""}><AdminIcon name={item.icon}/>{item.label}{section === item.id ? <span className="admin-nav-dot"/> : null}</button>)}</nav>
+      <div className="admin-sidebar-bottom">
+        <a className="admin-site-link" href="/" target="_blank" rel="noopener noreferrer">Visitar mi sitio<AdminIcon name="external" size={16}/></a>
+        <div className="admin-user"><span className="admin-avatar">{(user.name || user.email || "P").charAt(0).toUpperCase()}</span><span><strong>{user.name || "Administración Piffre"}</strong><small>{user.email || "Sesión con Vercel"}</small></span></div>
+        <form action={signOutAction}><button className="admin-signout" type="submit"><AdminIcon name="logout" size={16}/>Cerrar sesión</button></form>
+      </div>
+    </aside>
+    <main className="admin-main">
+      <header className="admin-topbar"><span>Administración <span className="admin-breadcrumb-divider">/</span> <strong>{currentSection.label}</strong></span><span className="admin-private-label"><span/>Espacio privado</span></header>
+      <form onSubmit={save} className="admin-edit-form"><fieldset className="admin-fieldset" disabled={saving}>
+        <div className="admin-page-heading"><div><p className="admin-eyebrow">BIENVENIDO A CASA</p><h1>{section === "overview" ? "Todo listo para recibir." : currentSection.label}</h1><p>{currentSection.description}</p></div><a className="admin-button admin-button-outline" href="/" target="_blank" rel="noopener noreferrer">Ver mi sitio<AdminIcon name="external" size={16}/></a></div>
+        {!status.configured ? <div className="admin-notice admin-notice-error" role="status"><AdminIcon name="warning"/><div><strong>Falta conectar la base de datos</strong><p>Aún no es posible publicar cambios desde este panel. La edición y las fotos se guardarán cuando se complete la conexión a Supabase.</p></div></div> : status.error ? <div className="admin-notice admin-notice-error" role="alert"><AdminIcon name="warning"/><div><strong>No pudimos cargar los cambios guardados</strong><p>Se muestra el contenido inicial. Recarga antes de editar para evitar reemplazar tus cambios anteriores.</p></div></div> : !status.persisted && !lastSaved ? <div className="admin-notice admin-notice-neutral" role="status"><AdminIcon name="edit"/><div><strong>Tu sitio está listo para personalizar</strong><p>Este es el contenido inicial. Tus cambios se guardarán al pulsar «Guardar y publicar».</p></div></div> : null}
+        {notice ? <div ref={feedbackRef} className={`admin-notice admin-notice-${notice.type}`} role={notice.type === "error" ? "alert" : "status"}><AdminIcon name={notice.type === "success" ? "check" : "warning"}/><p>{notice.text}</p><button type="button" aria-label="Cerrar aviso" onClick={() => setNotice(null)}><AdminIcon name="close" size={17}/></button></div> : null}
+        {removedRooms.length ? <div className="admin-notice admin-notice-neutral admin-removal-notice" role="status"><AdminIcon name="undo"/><p>{removedRooms.length === 1 ? "Una propiedad retirada" : `${removedRooms.length} propiedades retiradas`} en esta edición. El sitio cambiará al guardar.</p><button type="button" className="admin-text-button" onClick={undoRemoval} disabled={busy}>Deshacer última retirada</button></div> : null}
 
-      {section === "overview" ? <><div className="admin-stat-grid"><div className="admin-stat-card"><span className="admin-stat-icon"><AdminIcon name="bed"/></span><strong>3<span>habitaciones con historia</span></strong><button type="button" onClick={() => setSection("rooms")} aria-label="Editar habitaciones"><AdminIcon name="arrow"/></button></div><div className="admin-stat-card"><span className="admin-stat-icon"><AdminIcon name="image"/></span><strong>{photoCount}<span>de 9 fotos preparadas</span></strong><button type="button" onClick={() => setSection("rooms")} aria-label="Administrar fotos"><AdminIcon name="arrow"/></button></div><div className="admin-stat-card"><span className="admin-stat-icon"><AdminIcon name="external"/></span><strong>{linkCount}<span>de 6 enlaces de reserva</span></strong><button type="button" onClick={() => setSection("rooms")} aria-label="Editar enlaces de reserva"><AdminIcon name="arrow"/></button></div></div><section className="admin-welcome-card"><div><span className="admin-welcome-overline">LOS PEQUEÑOS DETALLES IMPORTAN</span><h2>Tu próxima reserva<br/>empieza con una buena foto.</h2><p>Agrega tres fotografías por habitación, cuenta qué la hace única y conecta tus enlaces de Booking y Airbnb.</p><button type="button" className="admin-button admin-button-cream" onClick={() => setSection("rooms")}>Preparar mis habitaciones<AdminIcon name="arrow" size={18}/></button></div><div className="admin-welcome-illustration" aria-hidden="true"><span className="admin-arch"><span>P.</span></span><span className="admin-welcome-star">✳</span><span className="admin-welcome-caption">HECHO PARA SENTIRSE EN CASA</span></div></section><div className="admin-overview-bottom"><Panel title="Tus tres espacios" description="Cada habitación tiene su propia personalidad.">{content.rooms.map((room, index) => <button type="button" key={room.id} className="admin-room-shortcut" onClick={() => { setRoomIndex(index); setSection("rooms"); }}><span className="admin-room-shortcut-number">0{index + 1}</span><span><strong>{room.name}</strong><small>{room.photos.filter(photo => photo.url).length} de 3 fotos · {room.bookingUrl && room.airbnbUrl ? "Enlaces completos" : "Enlaces por completar"}</small></span><AdminIcon name="arrow" size={18}/></button>)}</Panel><Panel title="Antes de recibir visitas" description="Una lista pequeña para una gran bienvenida."><div className="admin-checklist">{[{ done: photoCount === 9, label: "Agregar las 9 fotos de las habitaciones", target: "rooms" as Section }, { done: linkCount === 6, label: "Conectar Booking y Airbnb", target: "rooms" as Section }, { done: Boolean(content.contact.whatsapp && content.contact.instagram), label: "Revisar WhatsApp e Instagram", target: "contact" as Section }, { done: Boolean(content.seo.title && content.seo.description), label: "Completar la presentación en Google", target: "seo" as Section }].map(item => <button type="button" key={item.label} onClick={() => setSection(item.target)}><span className={item.done ? "admin-check-circle admin-check-done" : "admin-check-circle"}>{item.done ? <AdminIcon name="check" size={13}/> : null}</span>{item.label}<AdminIcon name="arrow" size={15}/></button>)}</div><p className="admin-muted-note">Los datos de visitas y reservas se podrán incorporar cuando se configure Google Analytics.</p></Panel></div></> : null}
+        {section === "overview" ? <>
+          <div className="admin-stat-grid admin-stat-grid-four">
+            <div className="admin-stat-card"><span className="admin-stat-icon"><AdminIcon name="bed"/></span><strong>{content.rooms.length}<span>{content.rooms.length === 1 ? "propiedad" : "propiedades"} · {publishedCount} visibles</span></strong><button type="button" onClick={() => setSection("rooms")} aria-label="Editar propiedades"><AdminIcon name="arrow"/></button></div>
+            <div className="admin-stat-card"><span className="admin-stat-icon"><AdminIcon name="image"/></span><strong>{photoCount}<span>de {content.rooms.length * 3} fotos preparadas</span></strong><button type="button" onClick={() => setSection("rooms")} aria-label="Administrar fotos"><AdminIcon name="arrow"/></button></div>
+            <div className="admin-stat-card"><span className="admin-stat-icon"><AdminIcon name="external"/></span><strong>{linkCount}<span>de {content.rooms.length * 2} enlaces de reserva</span></strong><button type="button" onClick={() => setSection("rooms")} aria-label="Editar enlaces de reserva"><AdminIcon name="arrow"/></button></div>
+            <div className="admin-stat-card"><span className="admin-stat-icon"><AdminIcon name="question"/></span><strong>{content.faq.length}<span>preguntas respondidas</span></strong><button type="button" onClick={() => setSection("faq")} aria-label="Editar preguntas frecuentes"><AdminIcon name="arrow"/></button></div>
+          </div>
+          <section className="admin-welcome-card"><div><span className="admin-welcome-overline">LOS PEQUEÑOS DETALLES IMPORTAN</span><h2>Tu próxima reserva<br/>empieza con una buena foto.</h2><p>Agrega tres fotografías por propiedad, cuenta qué la hace única y conecta tus enlaces de Booking, Airbnb y WhatsApp.</p><button type="button" className="admin-button admin-button-cream" onClick={() => setSection("rooms")}>Preparar mis propiedades<AdminIcon name="arrow" size={18}/></button></div><div className="admin-welcome-illustration" aria-hidden="true"><span className="admin-arch"><span>P.</span></span><span className="admin-welcome-star">✳</span><span className="admin-welcome-caption">HECHO PARA SENTIRSE EN CASA</span></div></section>
+          <div className="admin-overview-bottom">
+            <Panel title="Tus espacios" description="Cada propiedad tiene su propia personalidad.">{content.rooms.map((room, index) => <button type="button" key={room.id} className="admin-room-shortcut" onClick={() => { setSelectedRoomId(room.id); setSection("rooms"); }}><span className="admin-room-shortcut-number">{String(index + 1).padStart(2, "0")}</span><span><strong>{room.name}</strong><small>{room.published ? "Visible" : "Oculta"} · {room.photos.filter(photo => photo.url).length} de 3 fotos</small></span><AdminIcon name="arrow" size={18}/></button>)}</Panel>
+            <Panel title="Antes de recibir visitas" description="Una lista pequeña para una gran bienvenida."><div className="admin-checklist">{[
+              { done: photoCount === content.rooms.length * 3, label: `Preparar las ${content.rooms.length * 3} fotos de tus propiedades`, target: "rooms" as Section },
+              { done: linkCount === content.rooms.length * 2, label: "Conectar Booking y Airbnb", target: "rooms" as Section },
+              { done: Boolean(content.contact.whatsapp && content.contact.instagram), label: "Revisar WhatsApp e Instagram", target: "contact" as Section },
+              { done: content.faq.length > 0, label: "Responder las dudas frecuentes", target: "faq" as Section },
+              { done: Boolean(content.seo.title && content.seo.description), label: "Completar la presentación en Google", target: "seo" as Section },
+            ].map(item => <button type="button" key={item.label} onClick={() => setSection(item.target)}><span className={item.done ? "admin-check-circle admin-check-done" : "admin-check-circle"}>{item.done ? <AdminIcon name="check" size={13}/> : null}</span>{item.label}<AdminIcon name="arrow" size={15}/></button>)}</div><p className="admin-muted-note">Estas cifras reflejan tu edición actual. Los cambios se publican cuando guardas.</p></Panel>
+          </div>
+        </> : null}
 
-      {section === "rooms" ? <><div className="admin-room-tabs" aria-label="Elegir habitación">{content.rooms.map((room, index) => <button type="button" key={room.id} className={roomIndex === index ? "admin-room-tab-active" : ""} aria-pressed={roomIndex === index} onClick={() => setRoomIndex(index)}><span>0{index + 1}</span>{room.name}</button>)}</div><Panel title="La primera impresión" description="Tres fotografías para que tus huéspedes imaginen su estadía."><div className="admin-photo-grid">{activeRoom.photos.map((photo, index) => <PhotoEditor key={`${activeRoom.id}-${index}`} photo={photo} roomName={activeRoom.name} index={index} busy={busy || !status.configured || Boolean(status.error)} uploading={uploading === `${roomIndex}-${index}`} onChange={next => updatePhoto(roomIndex, index, next)} onUpload={file => void uploadPhoto(file, roomIndex, index)}/>)}</div><p className="admin-muted-note">La primera foto será la portada de la habitación. Usa fotos reales, horizontales y de buena luz. Formatos JPG, PNG o WebP; máximo 4 MB.</p></Panel><Panel title="Cuéntanos sobre este espacio" description="Mantén la información fiel a lo que encontrará el huésped."><div className="admin-fields-grid"><TextField label="Nombre de la habitación" value={activeRoom.name} onChange={name => updateRoom(roomIndex, { name })} required/><TextField label="Etiqueta breve" value={activeRoom.tag} onChange={tag => updateRoom(roomIndex, { tag })} placeholder="Un rincón para descansar"/></div><TextField label="Descripción" value={activeRoom.description} onChange={description => updateRoom(roomIndex, { description })} multiline/><TextField label="Características" value={activeRoom.features.join(", ")} onChange={value => updateRoom(roomIndex, { features: value.split(",").map(item => item.trimStart()) })} hint="Separa cada característica con una coma. Por ejemplo: WiFi, Cocina equipada, Terraza."/></Panel><Panel title="De la inspiración a la reserva" description="Copia el enlace específico de esta habitación en cada plataforma."><div className="admin-fields-grid"><TextField label="Enlace de Booking" value={activeRoom.bookingUrl} onChange={bookingUrl => updateRoom(roomIndex, { bookingUrl })} type="url" placeholder="https://www.booking.com/…"/><TextField label="Enlace de Airbnb" value={activeRoom.airbnbUrl} onChange={airbnbUrl => updateRoom(roomIndex, { airbnbUrl })} type="url" placeholder="https://www.airbnb.cl/rooms/…"/></div><p className="admin-muted-note">Cuando un enlace esté vacío, tus huéspedes podrán consultar la disponibilidad por WhatsApp.</p></Panel></> : null}
+        {section === "rooms" ? <>
+          <Panel title={`Tus propiedades · ${content.rooms.length} de ${MAX_PROPERTIES}`} description="El orden de esta lista será el orden de aparición en la página." aside={<button type="button" className="admin-button admin-button-primary" onClick={addRoom} disabled={busy || content.rooms.length >= MAX_PROPERTIES}><AdminIcon name="plus" size={17}/>Agregar propiedad</button>}>
+            <div className="admin-property-list">{content.rooms.map((room, index) => <div key={room.id} className={`admin-property-row ${activeRoom?.id === room.id ? "admin-property-row-active" : ""}`}>
+              <button type="button" className="admin-property-select" aria-pressed={activeRoom?.id === room.id} onClick={() => setSelectedRoomId(room.id)}><span className="admin-property-position">{String(index + 1).padStart(2, "0")}</span><span><strong>{room.name}</strong><small>{room.photos.filter(photo => photo.url).length} de 3 fotos · {room.published ? "Se muestra en el sitio" : "Oculta del sitio"}</small></span></button>
+              <span className={`admin-status-badge ${room.published ? "admin-status-visible" : ""}`}>{room.published ? "Visible" : "Oculta"}</span>
+              <div className="admin-property-actions"><MoveControls label={room.name} index={index} total={content.rooms.length} disabled={busy} onMove={direction => moveRoom(index, direction)}/><button type="button" className="admin-icon-button" disabled={busy} aria-label={`${room.published ? "Ocultar" : "Publicar"} ${room.name}`} title={room.published ? "Ocultar propiedad" : "Mostrar propiedad al guardar"} onClick={() => updateRoom(room.id, { published: !room.published })}><AdminIcon name={room.published ? "eye" : "eyeOff"} size={17}/></button><button type="button" className="admin-icon-button admin-danger" disabled={busy || content.rooms.length === 1} aria-label={`Retirar ${room.name}`} title={content.rooms.length === 1 ? "Conserva al menos una propiedad" : "Retirar propiedad"} onClick={() => setConfirmation({ kind: "remove", room })}><AdminIcon name="trash" size={16}/></button></div>
+            </div>)}</div>
+            <p className="admin-muted-note">Las propiedades nuevas empiezan ocultas. Puedes mantener entre 1 y 30 espacios y elegir cuáles mostrar.</p>
+          </Panel>
+          {activeRoom ? <>
+            <Panel title={`Editando: ${activeRoom.name}`} description="Puedes guardar una propiedad oculta y completar su información más adelante." aside={<span className={`admin-status-badge ${activeRoom.published ? "admin-status-visible" : ""}`}>{activeRoom.published ? "Visible" : "Oculta"}</span>}>
+              <div className="admin-fields-grid"><TextField label="Nombre de la propiedad" value={activeRoom.name} onChange={name => updateRoom(activeRoom.id, { name })} required maxLength={100}/><TextField label="Etiqueta breve" value={activeRoom.tag} onChange={tag => updateRoom(activeRoom.id, { tag })} placeholder="Un rincón para descansar" required={activeRoom.published} maxLength={80}/></div>
+              <TextField label="Descripción" value={activeRoom.description} onChange={description => updateRoom(activeRoom.id, { description })} multiline required={activeRoom.published} maxLength={1800}/>
+              <TextField label="Características" value={activeRoom.features.join(", ")} onChange={value => updateRoom(activeRoom.id, { features: value.split(",").map(item => item.trimStart()) })} hint="Separa cada característica con una coma. Por ejemplo: WiFi, Cocina equipada, Terraza."/>
+              <label className="admin-toggle-row"><span><strong>Mostrar esta propiedad en el sitio</strong><small>{activeRoom.published ? "Aparecerá en la página cuando guardes y publiques." : "Solo tú la ves en este panel. Actívala cuando esté lista."}</small></span><input type="checkbox" checked={activeRoom.published} onChange={event => updateRoom(activeRoom.id, { published: event.target.checked })} disabled={busy}/></label>
+            </Panel>
+            <Panel title="La primera impresión" description="Tres fotografías para que tus huéspedes imaginen su estadía."><div className="admin-photo-grid">{activeRoom.photos.map((photo, index) => <PhotoEditor key={`${activeRoom.id}-${index}`} photo={photo} roomName={activeRoom.name} index={index} busy={busy || !status.configured || Boolean(status.error)} uploading={uploading === `${activeRoom.id}-${index}`} onChange={next => updatePhoto(activeRoom.id, index, next)} onUpload={file => void uploadPhoto(file, activeRoom.id, index)}/>)}</div><p className="admin-muted-note">La primera foto será la portada de la propiedad. Usa fotos reales, horizontales y de buena luz. Formatos JPG, PNG o WebP; máximo 4 MB.</p></Panel>
+            <Panel title="De la inspiración a la reserva" description="Cada propiedad puede tener sus propios enlaces de reserva y contacto."><div className="admin-fields-grid"><TextField label="Enlace de Booking" value={activeRoom.bookingUrl} onChange={bookingUrl => updateRoom(activeRoom.id, { bookingUrl })} type="url" placeholder="https://www.booking.com/…"/><TextField label="Enlace de Airbnb" value={activeRoom.airbnbUrl} onChange={airbnbUrl => updateRoom(activeRoom.id, { airbnbUrl })} type="url" placeholder="https://www.airbnb.cl/rooms/…"/></div><TextField label="Enlace de WhatsApp de esta propiedad (opcional)" value={activeRoom.whatsappUrl} onChange={whatsappUrl => updateRoom(activeRoom.id, { whatsappUrl })} type="url" placeholder="https://wa.me/569…" hint="Si lo dejas vacío, el botón usará tu número general con un mensaje que incluye el nombre de esta propiedad."/><p className="admin-muted-note">Los botones de Booking y Airbnb se muestran cuando agregas su enlace. El mensaje automático de WhatsApp se edita en «Textos de la página → Propiedades y reservas».</p></Panel>
+          </> : null}
+        </> : null}
 
-      {section === "seo" ? <><Panel title="Así te encontrarán en Google" description="Una presentación clara, local y escrita para personas."><TextField label="Título del sitio" value={content.seo.title} onChange={title => update("seo", { title })} hint={`${content.seo.title.length} caracteres. Como referencia, intenta usar entre 50 y 60.`} required/><TextField label="Descripción para buscadores" value={content.seo.description} onChange={description => update("seo", { description })} multiline hint={`${content.seo.description.length} caracteres. Describe tu alojamiento y ubicación de forma natural.`} required/><div className="admin-search-preview"><span>VISTA PREVIA ORIENTATIVA</span><p className="admin-search-url">{content.seo.siteUrl || "https://alojamientospiffre.cl"}</p><p className="admin-search-title">{content.seo.title || "Nombre de tu sitio"}</p><p className="admin-search-description">{content.seo.description || "Agrega una descripción para tus futuros huéspedes."}</p></div><p className="admin-muted-note">Google puede adaptar el título y la descripción de sus resultados. Los cambios pueden tardar en reflejarse.</p></Panel><Panel title="Configuración de visibilidad" description="Estos datos ayudan a identificar y compartir tu sitio."><TextField label="Dirección principal del sitio (URL canónica)" value={content.seo.siteUrl} onChange={siteUrl => update("seo", { siteUrl })} type="url" required/><TextField label="Palabras clave de referencia" value={content.seo.keywords.join(", ")} onChange={value => update("seo", { keywords: value.split(",").map(item => item.trimStart()) })} hint="Separadas por comas. Sirven como guía editorial; no garantizan posiciones en Google."/><TextField label="Imagen al compartir el sitio" value={content.seo.ogImage} onChange={ogImage => update("seo", { ogImage })} type="text" placeholder="https://…" hint="URL pública o ruta del sitio (por ejemplo, /og-image.png). Idealmente de 1200 × 630 píxeles."/><label className="admin-toggle-row"><span><strong>Permitir que Google indexe el sitio</strong><small>Desactívalo solo si necesitas ocultar el sitio de los buscadores.</small></span><input type="checkbox" checked={content.seo.robotsIndex} onChange={event => update("seo", { robotsIndex: event.target.checked })}/></label></Panel></> : null}
+        {section === "copy" ? <>
+          <Panel title="Cada palabra, a tu manera" description={`${pageCopyFields.length} textos agrupados por sección. Los títulos principales, servicios y datos del alojamiento se editan en «Contenido del sitio».`}>
+            <TextField label="Buscar un texto o una sección" value={copyFilter.query} onChange={searchCopy} type="search" placeholder="Por ejemplo: botón, mapa, WhatsApp…"/>
+            <p className="admin-muted-note">Puedes usar variables como {"{habitaciones}"}, {"{habitacion}"}, {"{sitio}"} y {"{anio}"} donde se indiquen. Se reemplazan automáticamente en tu página.</p>
+          </Panel>
+          {copyGroups.length ? copyGroups.map(group => <details key={group.id} className="admin-copy-group" open={Boolean(copyFilter.query.trim())}><summary><span><strong>{group.label}</strong><small>{group.fields.length} textos</small></span><AdminIcon name="plus" size={18}/></summary><div className="admin-copy-body"><p className="admin-copy-description">{group.description}</p>{group.fields.map(field => <TextField key={field.key} label={field.label} value={content.copy[field.key]} onChange={value => updateCopy(field.key, value)} multiline={field.multiline} placeholder={field.defaultValue} maxLength={3000} hint={field.defaultValue.includes("{") ? `Variables disponibles en este texto: ${[...new Set(field.defaultValue.match(/\{[a-zA-Z]+\}/g) || [])].join(", ")}.` : undefined}/>)}<button type="button" className="admin-text-button" onClick={() => update("copy", Object.fromEntries(group.fields.map(field => [field.key, field.defaultValue])))}>{copyFilter.query.trim() ? "Restaurar los textos iniciales que se muestran" : "Restaurar los textos iniciales de esta sección"}</button></div></details>) : <div className="admin-empty-state"><AdminIcon name="search" size={28}/><h2>No encontramos ese texto</h2><p>Prueba con otra palabra o revisa una sección diferente.</p></div>}
+        </> : null}
 
-      {section === "contact" ? <><Panel title="Una conversación, una nueva estadía" description="El botón flotante y los botones de contacto usarán este número."><div className="admin-fields-grid"><TextField label="Número de WhatsApp" value={content.contact.whatsapp} onChange={whatsapp => update("contact", { whatsapp: whatsapp.replace(/\D/g, "") })} type="tel" hint="Incluye el código de país, sin + ni espacios. Por ejemplo: 56954933261." required/><TextField label="Correo electrónico" value={content.contact.email} onChange={email => update("contact", { email })} type="email"/></div><TextField label="Mensaje inicial de WhatsApp" value={content.contact.whatsappMessage} onChange={whatsappMessage => update("contact", { whatsappMessage })} multiline hint="Es el mensaje que verá el huésped al abrir WhatsApp."/><TextField label="Perfil de Instagram" value={content.contact.instagram} onChange={instagram => update("contact", { instagram })} type="url" placeholder="https://www.instagram.com/…"/></Panel><Panel title="Que llegar sea fácil" description="Esta dirección también ayuda al posicionamiento local del hostal."><TextField label="Dirección" value={content.contact.address} onChange={address => update("contact", { address })}/><div className="admin-fields-grid"><TextField label="Comuna y ciudad" value={content.contact.city} onChange={city => update("contact", { city })}/><TextField label="Región" value={content.contact.region} onChange={region => update("contact", { region })}/></div><div className="admin-fields-grid"><TextField label="País" value={content.contact.country} onChange={country => update("contact", { country })}/><TextField label="Enlace de Google Maps" value={content.contact.mapUrl} onChange={mapUrl => update("contact", { mapUrl })} type="url"/></div></Panel></> : null}
+        {section === "faq" ? <Panel title={`Preguntas frecuentes · ${content.faq.length} de ${MAX_FAQ}`} description="Edita las respuestas y cambia su orden. Los cambios se publican al guardar." aside={<button type="button" className="admin-button admin-button-primary" disabled={busy || content.faq.length >= MAX_FAQ} onClick={() => addCollectionItem("faq")}><AdminIcon name="plus" size={17}/>Agregar pregunta</button>}>
+          {content.faq.length ? content.faq.map((faq, index) => <div className="admin-collection-card" key={itemKeys.faq[index]}><div className="admin-collection-heading"><span>Pregunta {index + 1}</span><div><MoveControls label={`pregunta ${index + 1}${faq.question ? `: ${faq.question}` : ""}`} index={index} total={content.faq.length} disabled={busy} onMove={direction => moveCollection("faq", index, direction)}/><button type="button" className="admin-icon-button admin-danger" disabled={busy} aria-label={`Quitar pregunta ${index + 1}${faq.question ? `: ${faq.question}` : ""}`} title="Quitar pregunta" onClick={() => removeCollectionItem("faq", index)}><AdminIcon name="trash" size={16}/></button></div></div><TextField label={`Pregunta ${index + 1}`} value={faq.question} onChange={question => editContent(previous => ({ ...previous, faq: previous.faq.map((item, current) => current === index ? { ...item, question } : item) }))} required maxLength={250}/><TextField label={`Respuesta a la pregunta ${index + 1}`} value={faq.answer} onChange={answer => editContent(previous => ({ ...previous, faq: previous.faq.map((item, current) => current === index ? { ...item, answer } : item) }))} multiline required maxLength={1500}/></div>) : <div className="admin-empty-state"><AdminIcon name="question" size={30}/><h2>Una buena respuesta abre puertas</h2><p>Agrega tu primera pregunta para ayudar a tus futuros huéspedes.</p></div>}
+          <p className="admin-muted-note">Puedes añadir hasta 20 preguntas. Los títulos y la introducción de esta sección se editan en «Textos de la página».</p>
+        </Panel> : null}
 
-      {section === "content" ? <><Panel title="El nombre y la bienvenida" description="Las palabras con las que comienza la experiencia Piffre."><div className="admin-fields-grid"><TextField label="Nombre del alojamiento" value={content.site.name} onChange={name => update("site", { name })} required/><TextField label="Frase de marca" value={content.site.tagline} onChange={tagline => update("site", { tagline })}/></div><TextField label="Descripción general del hostal" value={content.site.description} onChange={description => update("site", { description })} multiline/><TextField label="Texto pequeño de portada" value={content.hero.eyebrow} onChange={eyebrow => update("hero", { eyebrow })}/><div className="admin-fields-grid"><TextField label="Título principal" value={content.hero.title} onChange={title => update("hero", { title })}/><TextField label="Parte destacada del título" value={content.hero.titleAccent} onChange={titleAccent => update("hero", { titleAccent })}/></div><TextField label="Texto de portada" value={content.hero.description} onChange={description => update("hero", { description })} multiline/></Panel><Panel title="La historia del hostal"><TextField label="Título de presentación" value={content.about.title} onChange={title => update("about", { title })}/><TextField label="Descripción" value={content.about.text} onChange={text => update("about", { text })} multiline/></Panel><Panel title="Comodidades y servicios" description="Publica solo los servicios que efectivamente ofreces.">{content.amenities.map((amenity, index) => <div className="admin-repeat-row" key={index}><span className="admin-repeat-number">0{index + 1}</span><TextField label="Servicio" value={amenity.title} onChange={title => setContent(previous => ({ ...previous, amenities: previous.amenities.map((item, current) => current === index ? { ...item, title } : item) }))}/><TextField label="Descripción" value={amenity.description} onChange={description => setContent(previous => ({ ...previous, amenities: previous.amenities.map((item, current) => current === index ? { ...item, description } : item) }))}/></div>)}</Panel><Panel title="El barrio también es parte del viaje"><TextField label="Título de ubicación" value={content.location.title} onChange={title => update("location", { title })}/><TextField label="Descripción del entorno" value={content.location.description} onChange={description => update("location", { description })} multiline/><TextField label="Puntos destacados" value={content.location.highlights.join("\n")} onChange={value => update("location", { highlights: value.split("\n") })} multiline hint="Escribe un punto por línea."/></Panel><Panel title="Preguntas que se hacen tus huéspedes" description="Respuestas breves, útiles y siempre actualizadas.">{content.faq.map((faq, index) => <div className="admin-faq-editor" key={index}><div className="admin-fields-grid"><TextField label={`Pregunta ${index + 1}`} value={faq.question} onChange={question => setContent(previous => ({ ...previous, faq: previous.faq.map((item, current) => current === index ? { ...item, question } : item) }))}/><TextField label="Respuesta" value={faq.answer} onChange={answer => setContent(previous => ({ ...previous, faq: previous.faq.map((item, current) => current === index ? { ...item, answer } : item) }))} multiline/></div><button type="button" className="admin-text-button admin-danger" onClick={() => setContent(previous => ({ ...previous, faq: previous.faq.filter((_, current) => current !== index) }))}>Quitar pregunta</button></div>)}<button type="button" className="admin-button admin-button-outline" onClick={() => setContent(previous => ({ ...previous, faq: [...previous.faq, { question: "", answer: "" }] }))}><AdminIcon name="plus" size={17}/>Agregar pregunta</button></Panel></> : null}
+        {section === "seo" ? <>
+          <Panel title="Así te encontrarán en Google" description="Una presentación clara, local y escrita para personas."><TextField label="Título del sitio" value={content.seo.title} onChange={title => update("seo", { title })} hint={`${content.seo.title.length} caracteres. Como referencia, intenta usar entre 50 y 60.`} required maxLength={160}/><TextField label="Descripción para buscadores" value={content.seo.description} onChange={description => update("seo", { description })} multiline hint={`${content.seo.description.length} caracteres. Describe tu alojamiento y ubicación de forma natural.`} required maxLength={500}/><div className="admin-search-preview"><span>VISTA PREVIA ORIENTATIVA</span><p className="admin-search-url">{content.seo.siteUrl || "https://alojamientospiffre.cl"}</p><p className="admin-search-title">{content.seo.title || "Nombre de tu sitio"}</p><p className="admin-search-description">{content.seo.description || "Agrega una descripción para tus futuros huéspedes."}</p></div><p className="admin-muted-note">Google puede adaptar el título y la descripción de sus resultados. Los cambios pueden tardar en reflejarse.</p></Panel>
+          <Panel title="Configuración de visibilidad" description="Estos datos ayudan a identificar y compartir tu sitio."><TextField label="Dirección principal del sitio (URL canónica)" value={content.seo.siteUrl} onChange={siteUrl => update("seo", { siteUrl })} type="url" required/><TextField label="Palabras clave de referencia" value={content.seo.keywords.join(", ")} onChange={value => update("seo", { keywords: value.split(",").map(item => item.trimStart()) })} hint="Separadas por comas. Sirven como guía editorial; no garantizan posiciones en Google."/><TextField label="Imagen al compartir el sitio" value={content.seo.ogImage} onChange={ogImage => update("seo", { ogImage })} placeholder="https://…" hint="URL pública o ruta del sitio (por ejemplo, /og-image.png). Idealmente de 1200 × 630 píxeles."/><label className="admin-toggle-row"><span><strong>Permitir que Google indexe el sitio</strong><small>Desactívalo solo si necesitas ocultar el sitio de los buscadores.</small></span><input type="checkbox" checked={content.seo.robotsIndex} onChange={event => update("seo", { robotsIndex: event.target.checked })}/></label></Panel>
+          <Panel title="Google Search Console y Tag Manager" description="Completa estos campos cuando tengas tus cuentas y códigos preparados."><TextField label="Código de verificación de Google Search Console" value={content.seo.googleSiteVerification} onChange={googleSiteVerification => update("seo", { googleSiteVerification })} maxLength={200} placeholder="Código de la etiqueta de verificación" hint="Pega solo el valor del atributo content de la etiqueta google-site-verification, sin las comillas ni el HTML."/><TextField label="Identificador de Google Tag Manager" value={content.seo.gtmId} onChange={gtmId => update("seo", { gtmId: gtmId.toUpperCase().trim() })} placeholder="GTM-XXXXXXX" hint="Puedes dejarlo vacío. Publica únicamente el contenedor y las etiquetas que hayas revisado para este sitio."/></Panel>
+        </> : null}
 
-      {section === "legal" ? <><div className="admin-notice admin-notice-neutral"><AdminIcon name="document"/><p>Los textos iniciales son un borrador. Revisa que reflejen las prácticas, las condiciones y los datos reales de tu alojamiento antes de publicarlos.</p></div><Panel title="Política de privacidad" description="Explica qué datos recibes y cómo los utilizas."><TextField label="Título de la página" value={content.policies.privacyTitle} onChange={privacyTitle => update("policies", { privacyTitle })}/><TextField label="Contenido de privacidad" value={content.policies.privacy} onChange={privacy => update("policies", { privacy })} multiline hint="Usa párrafos separados por una línea en blanco."/></Panel><Panel title="Términos y condiciones" description="La información importante para acordar una estadía."><TextField label="Título de la página" value={content.policies.termsTitle} onChange={termsTitle => update("policies", { termsTitle })}/><TextField label="Contenido de términos" value={content.policies.terms} onChange={terms => update("policies", { terms })} multiline hint="Confirma horarios, cancelaciones, pagos y condiciones con el anfitrión."/><TextField label="Fecha de última actualización" value={content.policies.updatedAt} onChange={updatedAt => update("policies", { updatedAt })} type="date"/></Panel></> : null}
+        {section === "contact" ? <>
+          <Panel title="Una conversación, una nueva estadía" description="El botón flotante y el contacto general usarán este número."><div className="admin-fields-grid"><TextField label="Número de WhatsApp" value={content.contact.whatsapp} onChange={whatsapp => update("contact", { whatsapp: whatsapp.replace(/\D/g, "") })} type="tel" hint="Incluye el código de país, sin + ni espacios. Por ejemplo: 56954933261." required/><TextField label="Correo electrónico" value={content.contact.email} onChange={email => update("contact", { email })} type="email" required/></div><TextField label="Mensaje inicial de WhatsApp" value={content.contact.whatsappMessage} onChange={whatsappMessage => update("contact", { whatsappMessage })} multiline hint="Es el mensaje que verá el huésped al abrir el contacto general de WhatsApp."/><TextField label="Perfil de Instagram" value={content.contact.instagram} onChange={instagram => update("contact", { instagram })} type="url" placeholder="https://www.instagram.com/…"/></Panel>
+          <Panel title="Que llegar sea fácil" description="Esta dirección también ayuda al posicionamiento local del alojamiento."><TextField label="Dirección" value={content.contact.address} onChange={address => update("contact", { address })}/><div className="admin-fields-grid"><TextField label="Comuna y ciudad" value={content.contact.city} onChange={city => update("contact", { city })}/><TextField label="Región" value={content.contact.region} onChange={region => update("contact", { region })}/></div><div className="admin-fields-grid"><TextField label="País" value={content.contact.country} onChange={country => update("contact", { country })}/><TextField label="Enlace de Google Maps" value={content.contact.mapUrl} onChange={mapUrl => update("contact", { mapUrl })} type="url"/></div></Panel>
+        </> : null}
 
-      <footer className="admin-savebar"><div><span className={dirty ? "admin-save-indicator admin-save-dirty" : "admin-save-indicator"}/><span>{!status.configured ? "Publicación pendiente de conexión" : status.error ? "Revisa la conexión de tu sitio" : saving ? "Publicando tus cambios…" : dirty ? "Tienes cambios sin guardar" : lastSaved ? `Último guardado a las ${lastSaved} h` : !status.persisted ? "Contenido inicial por personalizar" : "Tu contenido está al día"}<small>Los cambios se publican al guardar.</small></span></div><button className="admin-button admin-button-primary" type="submit" disabled={!dirty || busy || !status.configured || Boolean(status.error)}><AdminIcon name="save" size={18}/>{saving ? "Guardando…" : uploading ? "Subiendo foto…" : "Guardar y publicar"}</button></footer>
-    </fieldset></form><div className="admin-footer-note">Hecho con cariño para Hostal Piffre <span>Providencia, Santiago</span></div></main></div>;
+        {section === "content" ? <>
+          <Panel title="El nombre y la bienvenida" description="Las palabras con las que comienza la experiencia Piffre."><div className="admin-fields-grid"><TextField label="Nombre del alojamiento" value={content.site.name} onChange={name => update("site", { name })} required/><TextField label="Frase de marca" value={content.site.tagline} onChange={tagline => update("site", { tagline })}/></div><TextField label="Descripción general del alojamiento" value={content.site.description} onChange={description => update("site", { description })} multiline/><TextField label="Texto pequeño de portada" value={content.hero.eyebrow} onChange={eyebrow => update("hero", { eyebrow })}/><div className="admin-fields-grid"><TextField label="Título principal" value={content.hero.title} onChange={title => update("hero", { title })}/><TextField label="Parte destacada del título" value={content.hero.titleAccent} onChange={titleAccent => update("hero", { titleAccent })}/></div><TextField label="Texto de portada" value={content.hero.description} onChange={description => update("hero", { description })} multiline/></Panel>
+          <Panel title="La historia del alojamiento"><TextField label="Título de presentación" value={content.about.title} onChange={title => update("about", { title })}/><TextField label="Descripción" value={content.about.text} onChange={text => update("about", { text })} multiline/></Panel>
+          <Panel title={`Comodidades y servicios · ${content.amenities.length} de ${MAX_AMENITIES}`} description="Publica solo los servicios que efectivamente ofreces." aside={<button type="button" className="admin-button admin-button-outline" disabled={busy || content.amenities.length >= MAX_AMENITIES} onClick={() => addCollectionItem("amenities")}><AdminIcon name="plus" size={17}/>Agregar servicio</button>}>
+            {content.amenities.length ? content.amenities.map((amenity, index) => <div className="admin-collection-card" key={itemKeys.amenities[index]}><div className="admin-collection-heading"><span>Servicio {index + 1}</span><div><MoveControls label={`servicio ${index + 1}${amenity.title ? `: ${amenity.title}` : ""}`} index={index} total={content.amenities.length} disabled={busy} onMove={direction => moveCollection("amenities", index, direction)}/><button type="button" className="admin-icon-button admin-danger" disabled={busy} aria-label={`Quitar servicio ${index + 1}`} onClick={() => removeCollectionItem("amenities", index)}><AdminIcon name="trash" size={16}/></button></div></div><div className="admin-fields-grid"><TextField label={`Nombre del servicio ${index + 1}`} value={amenity.title} onChange={title => editContent(previous => ({ ...previous, amenities: previous.amenities.map((item, current) => current === index ? { ...item, title } : item) }))} required maxLength={100}/><TextField label={`Descripción del servicio ${index + 1}`} value={amenity.description} onChange={description => editContent(previous => ({ ...previous, amenities: previous.amenities.map((item, current) => current === index ? { ...item, description } : item) }))} required maxLength={500}/></div></div>) : <p className="admin-muted-note">Todavía no agregaste servicios. Puedes comenzar con los que tus huéspedes más valoran.</p>}
+          </Panel>
+          <Panel title="El barrio también es parte del viaje"><TextField label="Título de ubicación" value={content.location.title} onChange={title => update("location", { title })}/><TextField label="Descripción del entorno" value={content.location.description} onChange={description => update("location", { description })} multiline/><TextField label="Puntos destacados" value={content.location.highlights.join("\n")} onChange={value => update("location", { highlights: value.split("\n") })} multiline hint="Escribe un punto por línea. Puedes agregar hasta 12."/></Panel>
+        </> : null}
+
+        {section === "legal" ? <>
+          <div className="admin-notice admin-notice-neutral"><AdminIcon name="document"/><p>Los textos iniciales son un borrador. Revisa que reflejen las prácticas, las condiciones y los datos reales de tu alojamiento antes de publicarlos.</p></div>
+          <Panel title="Política de privacidad" description="Explica qué datos recibes y cómo los utilizas."><TextField label="Título de la página" value={content.policies.privacyTitle} onChange={privacyTitle => update("policies", { privacyTitle })}/><TextField label="Contenido de privacidad" value={content.policies.privacy} onChange={privacy => update("policies", { privacy })} multiline hint="Usa párrafos separados por una línea en blanco."/></Panel>
+          <Panel title="Términos y condiciones" description="La información importante para acordar una estadía."><TextField label="Título de la página" value={content.policies.termsTitle} onChange={termsTitle => update("policies", { termsTitle })}/><TextField label="Contenido de términos" value={content.policies.terms} onChange={terms => update("policies", { terms })} multiline hint="Confirma horarios, cancelaciones, pagos y condiciones con el anfitrión."/><TextField label="Fecha de última actualización" value={content.policies.updatedAt} onChange={updatedAt => update("policies", { updatedAt })} type="date"/></Panel>
+        </> : null}
+
+        <footer className="admin-savebar"><div><span className={dirty ? "admin-save-indicator admin-save-dirty" : "admin-save-indicator"}/><span>{!status.configured ? "Publicación pendiente de conexión" : status.error ? "Revisa la conexión de tu sitio" : saving ? "Publicando tus cambios…" : dirty ? "Tienes cambios sin guardar" : lastSaved ? `Último guardado a las ${lastSaved} h` : !status.persisted ? "Contenido inicial por personalizar" : "Tu contenido está al día"}<small>Se guardan los cambios de todas las secciones.</small></span></div><div className="admin-save-actions">{dirty ? <button type="button" className="admin-text-button" disabled={busy} onClick={() => setConfirmation({ kind: "discard" })}>Descartar cambios</button> : null}<button className="admin-button admin-button-primary" type="submit" disabled={!dirty || busy || !status.configured || Boolean(status.error)}><AdminIcon name="save" size={18}/>{saving ? "Guardando…" : uploading ? "Subiendo foto…" : "Guardar y publicar"}</button></div></footer>
+      </fieldset></form>
+      <div className="admin-footer-note">Hecho con cariño para Hostal Piffre <span>Providencia, Santiago</span></div>
+      {confirmation ? <ConfirmDialog confirmation={confirmation} onCancel={() => setConfirmation(null)} onConfirm={confirmChange}/> : null}
+    </main>
+  </div>;
 }
-
-
-
-
-

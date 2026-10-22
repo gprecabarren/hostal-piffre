@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { defaultContent } from "./defaults";
-import { siteContentSchema } from "./validation";
+import { normalizeSiteContent, siteContentSchema } from "./validation";
 import type { ContentStatus, SiteContent } from "./types";
 
 export const ROOM_IMAGES_BUCKET = "room-images";
@@ -30,9 +30,8 @@ const readContent = cache(async (): Promise<{ content: SiteContent; status: Cont
     const db = supabaseClient(process.env.SUPABASE_PUBLISHABLE_KEY);
     const { data, error } = await db.from("site_content").select("content,updated_at").eq("id", "main").maybeSingle();
     if (error || !data) throw new Error("El contenido aún no está disponible en Supabase.");
-    const parsed = siteContentSchema.safeParse(data.content);
-    if (!parsed.success) throw new Error("El contenido guardado necesita revisión.");
-    return { content: parsed.data, status: { configured: contentConfigured, persisted: true, updatedAt: data.updated_at } };
+    const content = normalizeSiteContent(data.content);
+    return { content, status: { configured: contentConfigured, persisted: true, updatedAt: data.updated_at } };
   } catch {
     // The public site remains available if the content service is unavailable.
     // The administration displays the failure and never reports a save as successful.
@@ -45,6 +44,7 @@ export async function getSiteContent(): Promise<SiteContent> {
 }
 
 export const getContent = getSiteContent;
+export { normalizeSiteContent } from "./validation";
 
 export async function getContentStatus(): Promise<ContentStatus> {
   return (await readContent()).status;

@@ -6,7 +6,7 @@ begin
   if not (select relrowsecurity from pg_class where oid = 'public.site_content'::regclass) then
     raise exception 'site_content requires RLS';
   end if;
-  if not exists (select 1 from public.site_content where id = 'main' and jsonb_array_length(content->'rooms') = 3) then
+  if not exists (select 1 from public.site_content where id = 'main' and jsonb_array_length(content->'rooms') between 1 and 30) then
     raise exception 'The initial content is missing';
   end if;
   if has_table_privilege('anon', 'public.site_content', 'insert,update,delete,truncate') or

@@ -29,7 +29,7 @@ export function BotanicalArtwork({ variant = 0 }: { variant?: number }) {
   );
 }
 
-export function RoomPlaceholder({ index }: { index: number }) {
+export function RoomPlaceholder({ index, label }: { index: number; label: string }) {
   return <div className={`room-placeholder room-placeholder--${index % 3}`}>
     <svg viewBox="0 0 400 300" fill="none" aria-hidden="true">
       <path d="M95 259V135a105 105 0 0 1 210 0v124H95Z" stroke="currentColor" strokeOpacity=".25" />
@@ -39,6 +39,6 @@ export function RoomPlaceholder({ index }: { index: number }) {
       <g fill="currentColor" opacity=".25"><ellipse cx="283" cy="165" rx="9" ry="20" transform="rotate(25 283 165)" /><ellipse cx="300" cy="195" rx="8" ry="20" transform="rotate(42 300 195)" /><ellipse cx="253" cy="171" rx="8" ry="20" transform="rotate(-14 253 171)" /></g>
       <path d="m253 245 5 29h31l5-29h-41Z" fill="currentColor" opacity=".22" />
     </svg>
-    <span>Fotografías próximamente</span>
+    <span>{label}</span>
   </div>;
 }

@@ -1,6 +1,6 @@
 import type { SVGProps } from "react";
 
-type IconProps = SVGProps<SVGSVGElement> & { name: "arrow" | "arrowUp" | "pin" | "wifi" | "sun" | "leaf" | "heart" | "instagram" | "whatsapp" | "plus" | "chevron" | "menu" | "close" };
+type IconProps = SVGProps<SVGSVGElement> & { name: "arrow" | "arrowUp" | "pin" | "wifi" | "sun" | "leaf" | "heart" | "instagram" | "whatsapp" | "booking" | "airbnb" | "plus" | "chevron" | "menu" | "close" };
 
 export function Icon({ name, ...props }: IconProps) {
   const paths = {
@@ -13,6 +13,8 @@ export function Icon({ name, ...props }: IconProps) {
     heart: <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />,
     instagram: <><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r=".75" fill="currentColor" stroke="none" /></>,
     whatsapp: <><path d="M20.5 11.7a8.5 8.5 0 0 1-12.7 7.4L3 20.5l1.4-4.7a8.5 8.5 0 1 1 16.1-4.1Z" /><path d="m8.1 7.5 1.4 2.4-1 1.1a7.5 7.5 0 0 0 3.8 3.7l1.1-1 2.4 1.4c-.6 2.8-3.5 2.1-6.3-.3s-4.1-5.9-1.4-7.3Z" /></>,
+    booking: <><rect x="1" y="1" width="22" height="22" rx="4" fill="#003b95" stroke="none" /><path d="M6 5h5.2c3 0 4.5 1.3 4.5 3.5 0 1.4-.7 2.4-1.8 2.9 1.6.4 2.5 1.5 2.5 3.1 0 2.6-1.8 4.1-5 4.1H6V5Zm3 2.5v2.9h2c1.2 0 1.8-.5 1.8-1.5s-.6-1.4-1.8-1.4H9Zm0 5.3v3.3h2.2c1.5 0 2.2-.5 2.2-1.7 0-1.1-.7-1.6-2.2-1.6H9Z" fill="white" fillRule="evenodd" stroke="none" /><circle cx="18.9" cy="17.1" r="1.7" fill="#00a9e0" stroke="none" /></>,
+    airbnb: <><path d="M12 3c-1.3 0-2 1.2-2.6 2.5L3.8 17c-1.1 2.2 0 4 1.9 4 2.4 0 4.7-2.8 6.3-5.2 1.6 2.4 3.9 5.2 6.3 5.2 1.9 0 3-1.8 1.9-4L14.6 5.5C14 4.2 13.3 3 12 3Z" stroke="#ff385c" strokeWidth="1.7" /><path d="M12 15.8c-2.7-3.3-3.7-6.1 0-6.1s2.7 2.8 0 6.1Z" stroke="#ff385c" strokeWidth="1.7" /></>,
     plus: <path d="M5 12h14M12 5v14" />,
     chevron: <path d="m9 5 7 7-7 7" />,
     menu: <path d="M4 8h16M4 16h16" />,

@@ -1,3 +1,6 @@
+import type { PageCopy } from "./copy";
+export type { PageCopy, PageCopyKey } from "./copy";
+
 export interface RoomPhoto {
   /** Empty until an actual photograph is uploaded. */
   url: string;
@@ -14,6 +17,8 @@ export interface Room {
   photos: [RoomPhoto, RoomPhoto, RoomPhoto];
   bookingUrl: string;
   airbnbUrl: string;
+  published: boolean;
+  whatsappUrl: string;
 }
 
 export interface SiteContent {
@@ -37,8 +42,11 @@ export interface SiteContent {
     siteUrl: string;
     ogImage: string;
     robotsIndex: boolean;
+    googleSiteVerification: string;
+    gtmId: string;
   };
-  rooms: [Room, Room, Room];
+  rooms: Room[];
+  copy: PageCopy;
   about: { title: string; text: string };
   amenities: { title: string; description: string }[];
   location: { title: string; description: string; highlights: string[] };

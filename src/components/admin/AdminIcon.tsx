@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 
-export type AdminIconName = "home" | "bed" | "search" | "phone" | "edit" | "document" | "arrow" | "external" | "check" | "image" | "upload" | "save" | "logout" | "warning" | "plus" | "close";
+export type AdminIconName = "home" | "bed" | "search" | "phone" | "edit" | "document" | "arrow" | "external" | "check" | "image" | "upload" | "save" | "logout" | "warning" | "plus" | "close" | "up" | "down" | "trash" | "undo" | "eye" | "eyeOff" | "question";
 
 const paths: Record<AdminIconName, React.ReactNode> = {
   home: <><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-8h6v8"/></>,
@@ -19,6 +19,13 @@ const paths: Record<AdminIconName, React.ReactNode> = {
   warning: <><path d="m12 3 10 18H2Z"/><path d="M12 9v5m0 3h.01"/></>,
   plus: <path d="M12 5v14M5 12h14"/>,
   close: <path d="m6 6 12 12M18 6 6 18"/>,
+  up: <><path d="M12 20V4m-6 6 6-6 6 6"/></>,
+  down: <><path d="M12 4v16m-6-6 6 6 6-6"/></>,
+  trash: <><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></>,
+  undo: <><path d="M3 10h11a7 7 0 0 1 0 14M3 10l6-6m-6 6 6 6" transform="translate(0 -2)"/></>,
+  eye: <><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></>,
+  eyeOff: <><path d="m3 3 18 18M10.5 5.1A11 11 0 0 1 12 5c6.5 0 10 7 10 7a19 19 0 0 1-3.1 4.1M6.1 6.1A21 21 0 0 0 2 12s3.5 7 10 7c1.8 0 3.4-.5 4.8-1.3M10 10a2.8 2.8 0 0 0 4 4"/></>,
+  question: <><circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 4m0 3h.01"/></>,
 };
 
 export function AdminIcon({ name, size = 20, style }: { name: AdminIconName; size?: number; style?: CSSProperties }) {

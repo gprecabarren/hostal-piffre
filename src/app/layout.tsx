@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import '@fontsource-variable/manrope';
 import './globals.css';
 import { getContent } from '@/lib/content';
+import SiteAnalytics from '@/components/SiteAnalytics';
 
 export async function generateMetadata(): Promise<Metadata> {
   const c = await getContent();
@@ -15,8 +16,10 @@ export async function generateMetadata(): Promise<Metadata> {
     robots:{index:c.seo.robotsIndex && process.env.VERCEL_ENV !== 'preview',follow:c.seo.robotsIndex && process.env.VERCEL_ENV !== 'preview'},
     icons:{icon:'/favicon.svg',apple:'/apple-touch-icon.png'},
     formatDetection:{telephone:false},
+    verification: c.seo.googleSiteVerification ? {google:c.seo.googleSiteVerification} : undefined,
   };
 }
-export default function RootLayout({children}:{children:React.ReactNode}) {
-  return <html lang="es-CL"><body>{children}</body></html>;
+export default async function RootLayout({children}:{children:React.ReactNode}) {
+  const content = await getContent();
+  return <html lang="es-CL"><body>{children}<SiteAnalytics gtmId={content.seo.gtmId} copy={content.copy} enabled={process.env.VERCEL_ENV === 'production'} /></body></html>;
 }

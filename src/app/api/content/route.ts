@@ -4,6 +4,7 @@ import { getSiteContent, saveSiteContent } from "@/lib/content";
 import { contentPayloadSchema, isSameOrigin } from "@/lib/validation";
 
 export const runtime = "nodejs";
+const MAX_CONTENT_BYTES = 1_000_000;
 
 export async function GET() {
   return Response.json({ content: await getSiteContent() }, { headers: { "Cache-Control": "no-store" } });
@@ -14,10 +15,10 @@ export async function PUT(request: Request) {
   if (!isAdminSession(await auth())) return Response.json({ error: "Inicia sesión con una cuenta autorizada." }, { status: 401 });
   if (!request.headers.get("content-type")?.startsWith("application/json")) return Response.json({ error: "Formato de solicitud inválido." }, { status: 415 });
   const declaredSize = Number(request.headers.get("content-length"));
-  if (declaredSize > 180000) return Response.json({ error: "El contenido es demasiado extenso." }, { status: 413 });
+  if (declaredSize > MAX_CONTENT_BYTES) return Response.json({ error: "El contenido es demasiado extenso." }, { status: 413 });
   let raw: string;
   try { raw = await request.text(); } catch { return Response.json({ error: "No se pudo leer el contenido." }, { status: 400 }); }
-  if (Buffer.byteLength(raw, "utf8") > 180000) return Response.json({ error: "El contenido es demasiado extenso." }, { status: 413 });
+  if (Buffer.byteLength(raw, "utf8") > MAX_CONTENT_BYTES) return Response.json({ error: "El contenido es demasiado extenso." }, { status: 413 });
   let json: unknown;
   try { json = JSON.parse(raw); } catch { return Response.json({ error: "El contenido no es JSON válido." }, { status: 400 }); }
   const parsed = contentPayloadSchema.safeParse(json);

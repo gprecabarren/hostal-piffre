@@ -8,9 +8,16 @@ create table if not exists public.site_content (
   content jsonb not null,
   updated_at timestamptz not null default now(),
   constraint site_content_object check (jsonb_typeof(content) = 'object'),
-  constraint site_content_three_rooms check (
-    jsonb_typeof(content->'rooms') = 'array' and jsonb_array_length(content->'rooms') = 3
+  constraint site_content_room_count check (
+    case when jsonb_typeof(content->'rooms') = 'array' then jsonb_array_length(content->'rooms') between 1 and 30 else false end
   )
+);
+
+-- Upgrade existing installations while preserving the JSON and its photo links.
+alter table public.site_content drop constraint if exists site_content_three_rooms;
+alter table public.site_content drop constraint if exists site_content_room_count;
+alter table public.site_content add constraint site_content_room_count check (
+  case when jsonb_typeof(content->'rooms') = 'array' then jsonb_array_length(content->'rooms') between 1 and 30 else false end
 );
 
 alter table public.site_content enable row level security;
@@ -67,7 +74,7 @@ values ('main', $piffre_seed${
     "eyebrow": "ALOJAMIENTO EN PROVIDENCIA · SANTIAGO",
     "title": "Tu hogar,",
     "titleAccent": "lejos de casa.",
-    "description": "Tres habitaciones, un barrio por descubrir y la calidez de sentirte en casa. Bienvenido a Hostal Piffre."
+    "description": "Espacios para descansar, un barrio por descubrir y la calidez de sentirte en casa. Bienvenido a Hostal Piffre."
   },
   "contact": {
     "whatsapp": "56954933261",
@@ -82,7 +89,7 @@ values ('main', $piffre_seed${
   },
   "seo": {
     "title": "Hostal Piffre | Alojamiento en Providencia, Santiago",
-    "description": "Conoce Hostal Piffre, un alojamiento acogedor en Providencia, Santiago. Tres habitaciones, WiFi y atención cercana. Consulta disponibilidad por WhatsApp.",
+    "description": "Conoce Hostal Piffre, un alojamiento acogedor en Providencia, Santiago. Habitaciones, WiFi y atención cercana. Consulta disponibilidad por WhatsApp.",
     "keywords": [
       "alojamiento en Providencia",
       "hostal en Providencia",
@@ -91,7 +98,111 @@ values ('main', $piffre_seed${
     ],
     "siteUrl": "https://alojamientospiffre.cl",
     "ogImage": "/og-image.png",
-    "robotsIndex": true
+    "robotsIndex": true,
+    "googleSiteVerification": "Ya29cIRkxvPSmxNZ2ZOyXpgVFEqfyL6K-qN05uiAON0",
+    "gtmId": "GTM-5LW4VNRP"
+  },
+  "copy": {
+    "brandPrefix": "HOSTAL",
+    "brandName": "Piffre",
+    "navRooms": "Habitaciones",
+    "navExperience": "La experiencia",
+    "navLocation": "Ubicación",
+    "navFaq": "Preguntas frecuentes",
+    "navContact": "Hablemos",
+    "navWhatsapp": "Escríbenos por WhatsApp",
+    "heroCoordinates": "33°26′ S · 70°36′ O",
+    "heroPrimaryCta": "Encuentra tu habitación",
+    "heroSecondaryCta": "Conversemos",
+    "heroMetaLine": "Un lugar sencillo.",
+    "heroMetaStrong": "Una bienvenida de verdad.",
+    "heroArtKicker": "BIENVENIDO A PROVIDENCIA",
+    "heroArtCaption": "Una casa. Muchas historias.",
+    "heroStamp": "TU HOGAR LEJOS DE CASA · PIFFRE · ",
+    "heroArtNote": "Una ilustración para recibirte.\nLas fotografías reales llegarán pronto.",
+    "heroScroll": "Haz espacio para una pausa",
+    "bannerOne": "Descansa.",
+    "bannerTwo": "Explora.",
+    "bannerThree": "Siéntete en casa.",
+    "bannerFour": "Esto es Piffre.",
+    "roomsLabel": "01 / TU PRÓXIMA ESTADÍA",
+    "roomsNote": "{habitaciones} HABITACIONES, UNA BIENVENIDA",
+    "roomsTitle": "Un lugar para",
+    "roomsTitleAccent": "bajar el ritmo.",
+    "roomsIntro": "{habitaciones} espacios con el espíritu de Piffre. Elige el tuyo y conversemos sobre tus fechas.",
+    "roomsHelpText": "¿No sabes cuál elegir? Cuéntanos cómo será tu viaje y te ayudamos a encontrar tu espacio.",
+    "roomsHelpLink": "Te ayudamos por WhatsApp",
+    "roomAvailabilityCta": "Consultar disponibilidad",
+    "roomBookingLabel": "Booking.com",
+    "roomAirbnbLabel": "Airbnb",
+    "roomWhatsappMessage": "Hola, me gustaría consultar disponibilidad para {habitacion} en {sitio}.",
+    "roomPlaceholder": "Fotografías próximamente",
+    "roomsEmpty": "Estamos preparando nuestros espacios. Escríbenos para consultar disponibilidad.",
+    "experienceLabel": "02 / LA EXPERIENCIA PIFFRE",
+    "experienceNote": "LO SIMPLE, BIEN HECHO",
+    "locationLabel": "03 / EL BARRIO TAMBIÉN ES PARTE",
+    "locationNote": "PROVIDENCIA, SANTIAGO DE CHILE",
+    "locationEyebrow": "TU PUNTO DE PARTIDA",
+    "locationDirections": "Cómo llegar",
+    "locationTagline": "Un barrio para caminar.\nUna casa para volver.",
+    "mapOpen": "Abrir en Google Maps",
+    "mapCaption": "Mapa ilustrativo del barrio",
+    "mapDistrict": "PROVIDENCIA",
+    "mapStreet": "LOS CAPITANES",
+    "mapNeighborhood": "BARRIO ITALIA",
+    "mapAvenue": "AV. PEDRO DE VALDIVIA",
+    "mapPin": "ESTÁS EN PIFFRE",
+    "faqLabel": "04 / ANTES DE HACER LAS MALETAS",
+    "faqNote": "HABLEMOS CON CONFIANZA",
+    "faqTitle": "Las pequeñas",
+    "faqTitleAccent": "grandes dudas.",
+    "faqIntro": "Lo que necesitas saber antes de llegar. Si te queda alguna pregunta, estamos al otro lado del WhatsApp.",
+    "faqCta": "Pregúntanos directamente",
+    "contactEyebrow": "TU PRÓXIMA HISTORIA EMPIEZA AQUÍ",
+    "contactTitle": "Santiago te espera.",
+    "contactTitleAccent": "Nosotros también.",
+    "contactDescription": "Cuéntanos tus fechas.\nLa bienvenida la ponemos nosotros.",
+    "contactCta": "Hablemos por WhatsApp",
+    "footerDiscover": "DESCUBRE PIFFRE",
+    "footerRooms": "Nuestras habitaciones",
+    "footerExperience": "La experiencia",
+    "footerLocation": "El barrio",
+    "footerContact": "ESTEMOS EN CONTACTO",
+    "footerWhatsapp": "WhatsApp",
+    "footerInstagram": "Instagram",
+    "footerCopyright": "© {anio} {sitio}. Hecho para recibirte.",
+    "footerPrivacy": "Privacidad",
+    "footerTerms": "Términos y condiciones",
+    "footerAdmin": "Administración",
+    "footerCountry": "CHILE",
+    "floatingWhatsapp": "¿Hablamos?",
+    "skipLink": "Ir al contenido principal",
+    "brandAria": "{sitio}, inicio",
+    "navAria": "Navegación principal",
+    "mobileNavAria": "Navegación móvil",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "galleryAria": "Fotografías de {habitacion}",
+    "carouselAria": "carrusel",
+    "photoAlt": "{habitacion}, fotografía {foto}",
+    "photoCount": "Imagen {foto} de {total}",
+    "photoPrevious": "Fotografía anterior de {habitacion}",
+    "photoNext": "Fotografía siguiente de {habitacion}",
+    "photoSelect": "Seleccionar fotografía de {habitacion}",
+    "photoView": "Ver fotografía {foto}",
+    "bannerAria": "Descansa, explora y siéntete en casa",
+    "mapAria": "Ver {sitio} en Google Maps",
+    "legalNavAria": "Información legal",
+    "whatsappAria": "Hablar con {sitio} por WhatsApp",
+    "legalBack": "Volver a Hostal Piffre",
+    "legalUpdated": "Última actualización",
+    "privacyDescription": "Política de privacidad de {sitio}. Información sobre datos de contacto y consultas de alojamiento.",
+    "termsDescription": "Condiciones de uso y consultas de reservas de {sitio}, alojamiento en Providencia.",
+    "consentTitle": "Tu privacidad, a tu manera.",
+    "consentMessage": "Con tu permiso, usamos herramientas de analítica para entender cómo se visita el sitio y mejorarlo. Puedes aceptar, rechazar o cambiar tu elección cuando quieras.",
+    "consentAccept": "Aceptar analítica",
+    "consentReject": "Rechazar",
+    "consentPreferences": "Preferencias de privacidad"
   },
   "rooms": [
     {
@@ -119,7 +230,9 @@ values ('main', $piffre_seed${
         }
       ],
       "bookingUrl": "https://www.booking.com/hotel/cl/piffre-de-vauban.es.html",
-      "airbnbUrl": ""
+      "airbnbUrl": "",
+      "published": true,
+      "whatsappUrl": ""
     },
     {
       "id": "habitacion-2",
@@ -146,7 +259,9 @@ values ('main', $piffre_seed${
         }
       ],
       "bookingUrl": "",
-      "airbnbUrl": ""
+      "airbnbUrl": "",
+      "published": true,
+      "whatsappUrl": ""
     },
     {
       "id": "habitacion-3",
@@ -173,12 +288,14 @@ values ('main', $piffre_seed${
         }
       ],
       "bookingUrl": "",
-      "airbnbUrl": ""
+      "airbnbUrl": "",
+      "published": true,
+      "whatsappUrl": ""
     }
   ],
   "about": {
     "title": "Más que una estadía, una bienvenida.",
-    "text": "En Hostal Piffre nos gusta lo simple: recibirte bien, ayudarte con lo que necesitas y ofrecerte un lugar donde descansar. Somos un alojamiento de tres habitaciones en Providencia, con atención cercana y un barrio lleno de vida a tu alrededor."
+    "text": "En Hostal Piffre nos gusta lo simple: recibirte bien, ayudarte con lo que necesitas y ofrecerte un lugar donde descansar. Somos un alojamiento en Providencia, con atención cercana y un barrio lleno de vida a tu alrededor."
   },
   "amenities": [
     {
