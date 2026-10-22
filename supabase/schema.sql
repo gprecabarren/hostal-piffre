@@ -64,9 +64,9 @@ values ('main', $piffre_seed${
     "description": "Alojamiento acogedor en Providencia, Santiago de Chile."
   },
   "hero": {
-    "eyebrow": "PROVIDENCIA · SANTIAGO DE CHILE",
-    "title": "Un pequeño lugar.",
-    "titleAccent": "Una gran bienvenida.",
+    "eyebrow": "ALOJAMIENTO EN PROVIDENCIA · SANTIAGO",
+    "title": "Tu hogar,",
+    "titleAccent": "lejos de casa.",
     "description": "Tres habitaciones, un barrio por descubrir y la calidez de sentirte en casa. Bienvenido a Hostal Piffre."
   },
   "contact": {
@@ -245,3 +245,4 @@ commit;
 -- select schemaname, tablename, policyname, permissive, roles, cmd from pg_policies
 -- where (schemaname = 'public' and tablename = 'site_content')
 -- or (schemaname = 'storage' and tablename = 'objects' and policyname like 'Room images%');
+

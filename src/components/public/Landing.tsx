@@ -14,7 +14,7 @@ function whatsappUrl(content: SiteContent, roomName?: string) {
 }
 
 function Brand({ footer = false }: { footer?: boolean }) {
-  return <Link href="/" className={`brand${footer ? " brand--footer" : ""}`} aria-label="Hostal Piffre, inicio">
+  return <Link href="/#contenido" className={`brand${footer ? " brand--footer" : ""}`} aria-label="Hostal Piffre, inicio">
     <span className="brand-symbol brand-symbol--official" aria-hidden="true"><Image src="/brand/logo.webp" width={720} height={906} alt="" /></span>
     <span className="brand-text"><span>HOSTAL</span>Piffre<span className="brand-period">.</span></span>
   </Link>;
