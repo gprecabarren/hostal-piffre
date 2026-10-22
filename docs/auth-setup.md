@@ -9,13 +9,15 @@ El panel utiliza Sign in with Vercel (OpenID Connect) a través de Auth.js. El a
 - Registrar estos callbacks exactos:
   - `http://localhost:3000/api/auth/callback/vercel`
   - `https://alojamientospiffre.cl/api/auth/callback/vercel`
-- Guardar el identificador y el secreto exclusivamente en las variables `AUTH_VERCEL_ID` y `AUTH_VERCEL_SECRET`. Configurar también `AUTH_SECRET`, `AUTH_URL` y `ADMIN_EMAILS`.
+- Guardar el identificador y el secreto exclusivamente en las variables `AUTH_VERCEL_ID` y `AUTH_VERCEL_SECRET`. Configurar también `AUTH_SECRET` y `ADMIN_EMAILS`. `AUTH_URL` es opcional; Vercel proporciona el host de confianza de cada dominio configurado.
 
 `email` es necesario para autorizar el correo de administración. `profile` permite mostrar su nombre. No se requieren permisos de lectura o escritura de recursos Vercel ni `offline_access`.
 
 ## Diagnóstico
 
-En la prueba local del 22 de octubre de 2026, el proveedor devolvió `invalid_scope` a la URL de callback. Este error ocurre en la autorización, antes del intercambio de tokens y de la validación de firma. Los scopes enviados por el código (`openid email profile`) coinciden con los documentados por Vercel y su discovery público. La revisión pendiente era confirmar que los tres estén habilitados y guardados en **Permissions** de la misma aplicación cuyo identificador usa el sitio, y repetir el inicio desde `/admin`.
+El 22 de octubre de 2026 se verificó el inicio de sesión real con la cuenta del cliente tanto localmente como en producción. El error inicial `invalid_scope` se resolvió habilitando y guardando `email` y `profile` en **Permissions**. Los scopes enviados por el código (`openid email profile`) se mantienen. La aplicación está limitada a miembros del equipo; el servidor además aplica la lista de correos autorizados.
+
+`AUTH_SECRET`, `AUTH_VERCEL_SECRET` y `SUPABASE_SECRET_KEY` quedaron como variables de tipo **Secret**, exclusivamente en **Production**. Los valores públicos de configuración pueden utilizarse en Preview. Nunca copiar las claves privadas de producción a previews.
 
 No eliminar la validación de correo para resolver un error de scope. El backend también verifica firma RS256, emisor, audiencia, expiración y nonce del ID Token; Auth.js administra PKCE, state y la sesión cifrada. No se deben registrar códigos OAuth, tokens, cookies ni secretos en documentación o capturas.
 
