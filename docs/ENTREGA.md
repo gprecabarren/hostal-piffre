@@ -24,8 +24,10 @@ El guardado es global: incluye las modificaciones de todas las secciones. Antes 
 - Destino de Google Analytics 4 configurado: `G-ZKPRJH1Z3T`.
 - El código carga GTM en producción y en páginas públicas después de aceptar analítica. Rechazar mantiene el contenedor sin cargar; el visitante puede cambiar su elección desde **Preferencias de privacidad**.
 - Los eventos de contacto distinguen WhatsApp, Booking y Airbnb e identifican la propiedad. No incluyen el teléfono, mensaje ni URL de destino.
-- Las etiquetas y destinos de Google Analytics se administran en el contenedor de Tag Manager. La recepción efectiva de visitas y eventos en GA4 queda pendiente de la validación final; tener identificadores configurados no prueba por sí solo que se estén recibiendo datos.
+- Contenedor GTM versión 2 publicado con dos etiquetas, un activador, tres variables de capa de datos y dos ajustes de privacidad. La prueba real confirmó solicitudes HTTP 204 de page_view y contact_click a G-ZKPRJH1Z3T; un clic en Booking informó canal booking, ID habitacion-1 y nombre Habitación 1. Analytics también registró la visita en tiempo real.
 - Mantener actualizada desde el panel la política de privacidad para reflejar las herramientas realmente utilizadas y sus opciones de consentimiento.
+
+- En Analytics están registradas las dimensiones de evento contact_channel, room_id y room_name. contact_click se marca como evento clave de consulta; no representa una reserva confirmada. Retención: 14 meses. Google signals y personalización publicitaria desactivados. Search Console vinculado al flujo web.
 
 ## Search Console
 
