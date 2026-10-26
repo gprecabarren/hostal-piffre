@@ -89,5 +89,7 @@
 /* A quiet, autonomous strip of flags, with names available to screen readers. */
 .visitor-strip.visitor-strip--flags{min-height:38px;padding:9px 0;gap:0}.visitor-strip--flags .visitor-window{width:100%}.visitor-strip--flags .visitor-track ul{min-width:max(100vw,800px);justify-content:space-around;gap:20px;padding-right:20px}.visitor-strip--flags .visitor-track li{flex:none;gap:0}.visitor-strip--flags .country-flag{width:30px;height:20px}.visitor-strip--flags:hover .visitor-track,.visitor-strip--flags:focus-within .visitor-track{animation-play-state:running}.locations-section--cards{padding-top:52px;padding-bottom:64px}
 .visitor-strip--flags .visitor-track{gap:0}.visitor-strip--flags .visitor-track>ul{flex:0 0 auto}
+.payments-carousel li{height:64px;min-height:64px;gap:0;padding:10px;background:#fff;border:0;box-shadow:none}
+@media(max-width:650px){.payments-carousel li{height:60px;min-height:60px;padding:8px}}
 @media(max-width:650px){.visitor-strip.visitor-strip--flags{min-height:36px;padding:8px 0}.visitor-strip--flags .country-flag{width:29px;height:19px}.locations-section--cards{padding-top:38px;padding-bottom:44px}}
 @media(prefers-reduced-motion:reduce){.visitor-strip--flags .visitor-track{animation:none!important;transform:none!important}.visitor-strip--flags .visitor-window{overflow-x:auto;mask-image:none}.visitor-strip--flags .visitor-track>ul[aria-hidden=true]{display:none}}
