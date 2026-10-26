@@ -25,7 +25,7 @@ const sections: { id: Section; label: string; icon: AdminIconName; description: 
   { id: "content", label: "Contenido del sitio", icon: "edit", description: "Tu historia, tus servicios y el barrio que hace especial tu alojamiento." },
   { id: "copy", label: "Textos de la página", icon: "document", description: "Personaliza los títulos, botones y pequeños detalles de cada sección." },
   { id: "faq", label: "Preguntas frecuentes", icon: "question", description: "Resuelve las dudas de tus huéspedes antes de que hagan las maletas." },
-  { id: "seo", label: "Visibilidad en Google", icon: "search", description: "Ayuda a los viajeros a encontrar tu alojamiento en Providencia." },
+  { id: "seo", label: "Visibilidad en Google", icon: "search", description: "Ayuda a los viajeros a encontrar tus alojamientos en Providencia y Santiago Centro." },
   { id: "contact", label: "Contacto y redes", icon: "phone", description: "Mantén siempre abierta la puerta a una nueva conversación." },
   { id: "legal", label: "Textos legales", icon: "document", description: "Información clara para que tus huéspedes reserven con confianza." },
 ];
@@ -531,7 +531,7 @@ export function AdminDashboard({ initialContent, status, user, signOutAction }: 
 
         <footer className="admin-savebar"><div><span className={dirty ? "admin-save-indicator admin-save-dirty" : "admin-save-indicator"}/><span>{!status.configured ? "Publicación pendiente de conexión" : status.error ? "Revisa la conexión de tu sitio" : saving ? "Publicando tus cambios…" : dirty ? "Tienes cambios sin guardar" : lastSaved ? `Último guardado a las ${lastSaved}` : !status.persisted ? "Contenido inicial por personalizar" : "Tu contenido está al día"}<small>Se guardan los cambios de todas las secciones.</small></span></div><div className="admin-save-actions">{dirty ? <button type="button" className="admin-text-button" disabled={busy} onClick={() => setConfirmation({ kind: "discard" })}>Descartar cambios</button> : null}<button className="admin-button admin-button-primary" type="submit" disabled={!dirty || busy || !status.configured || Boolean(status.error)}><AdminIcon name="save" size={18}/>{saving ? "Guardando…" : uploading ? "Subiendo foto…" : "Guardar y publicar"}</button></div></footer>
       </fieldset></form>
-      <div className="admin-footer-note">Hecho con cariño para Hostal Piffre <span>Providencia, Santiago</span></div>
+      <div className="admin-footer-note">Hecho con cariño para {content.site.name} <span>{content.locations.map(location => location.name).join(" · ")}</span></div>
       {confirmation ? <ConfirmDialog confirmation={confirmation} onCancel={() => setConfirmation(null)} onConfirm={confirmChange}/> : null}
     </main>
   </div>;

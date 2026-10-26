@@ -8,7 +8,7 @@
 
 ## Ampliación del 26 de octubre de 2026
 
-Se prepararon dos ubicaciones, Providencia y Santiago Centro, y seis propiedades. Cuatro están configuradas para mostrarse; las habitaciones 1 y 3 se conservan ocultas. La publicación de esta ampliación y la revisión de las páginas nuevas en Search Console se confirman por separado al finalizar el despliegue.
+La ampliación está publicada en producción: Providencia y Santiago Centro, con seis propiedades configuradas. Se muestran la habitación 2 y los tres departamentos; las habitaciones 1 y 3 se conservan ocultas. Vercel completó el despliegue del cambio principal `d82821c` en 37 segundos. Supabase confirmó seis propiedades y dos ubicaciones. El sitemap actualizado fue enviado y procesado por Google el 26 de octubre: **Correcto**, con cinco páginas descubiertas.
 
 | Propiedad | Ubicación | Visibilidad configurada | Fotografías de su galería |
 | --- | --- | --- | --- |
@@ -21,7 +21,7 @@ Se prepararon dos ubicaciones, Providencia y Santiago Centro, y seis propiedades
 
 Una propiedad se muestra cuando tanto su publicación como la de su ubicación están activadas. El panel distingue las propiedades ocultas por su ubicación y conserva sus datos y fotografías.
 
-Hay 48 archivos WebP preparados entre fotografías privadas y de áreas comunes. Las tres portadas del departamento 2 recibieron restauración conservadora con IA; el resto se preparó para la web. El alcance, los archivos y el prompt de restauración se documentan en [FOTOGRAFIAS.md](FOTOGRAFIAS.md).
+Hay 48 archivos WebP entre fotografías de interiores y de áreas comunes. Las tres portadas del departamento 2 recibieron restauración conservadora con IA; el resto se preparó para la web. El alcance, los archivos y el prompt de restauración se documentan en [FOTOGRAFIAS.md](FOTOGRAFIAS.md).
 
 ## Para actualizar el sitio
 
@@ -53,10 +53,10 @@ El guardado es global: incluye las modificaciones de todas las secciones. Antes 
 
 - Propiedad del dominio verificada mediante DNS.
 - Token de verificación configurado también como metadato editable del sitio.
-- [sitemap.xml](https://alojamientospiffre.cl/sitemap.xml) enviado y procesado por Google: estado **Correcto**, con tres páginas detectadas.
+- [sitemap.xml](https://alojamientospiffre.cl/sitemap.xml) enviado y procesado el 26 de octubre: estado **Correcto**, con cinco páginas descubiertas.
 - La inspección de la portada confirmó **La URL está en Google** y **La página está indexada**, con HTTPS correcto.
 - La indexación de la portada está confirmada. El estado del sitemap no confirma por sí solo la indexación de cada página adicional ni garantiza posiciones en los resultados.
-- La ampliación incorpora páginas propias para las dos ubicaciones. Su publicación y el procesamiento del sitemap actualizado deben comprobarse al terminar el despliegue; aquí se conserva el último estado de Google confirmado de tres páginas detectadas.
+- Las dos páginas de ubicación están publicadas y presentes en el sitemap. Su descubrimiento por Google está confirmado; eso no equivale a confirmar la indexación individual.
 
 ## Actualización de la base de datos
 
@@ -67,7 +67,9 @@ Para una instalación existente, `supabase/upgrade-dynamic-content.sql` amplía 
 - Compilación de producción de Next.js en Vercel y conexión automática a `main`.
 - Inicio de sesión real con Vercel y guardado persistente desde el panel.
 - Subida de imagen a Supabase, conversión a WebP, guardado y posterior retiro de la imagen de prueba de la galería.
-- Ampliación preparada con seis propiedades, dos ubicaciones, galerías variables y 48 archivos WebP. Se conservan ocultas las habitaciones 1 y 3.
+- Ampliación publicada con seis propiedades, dos ubicaciones, galerías variables y 48 archivos WebP. Se conservan ocultas las habitaciones 1 y 3.
+- Se comprobó HTTP 200 en las siete rutas públicas y los 48 archivos WebP, canonical propio de cada ubicación, cuatro propiedades en la portada y dos entidades de alojamiento en sus datos estructurados.
+- Guardado real desde el panel: etiqueta de la habitación 2 actualizada a «Tu pausa en Providencia» y comprobada tras recargar la portada y el administrador. La prueba de crear una séptima propiedad empezó oculta y se descartó sin publicarla.
 - Vista de escritorio y tamaños móviles de 390 y 320 px; menú, carrusel y preguntas frecuentes.
 - Páginas públicas, privacidad, términos, robots y sitemap con respuesta HTTP 200.
 - Edición sin sesión rechazada con HTTP 401.
@@ -80,7 +82,6 @@ Para una instalación existente, `supabase/upgrade-dynamic-content.sql` amplía 
 
 - Nombres definitivos de las habitaciones, capacidades, camas y servicios particulares.
 - Completar o confirmar los enlaces definitivos de Booking, Airbnb y Vrbo por propiedad. Las fotografías entregadas ya están preparadas; las habitaciones ocultas se pueden completar y publicar más adelante.
-- Dirección exacta y condiciones definitivas de los departamentos de Santiago Centro cuando el anfitrión las confirme.
 - Perfil oficial de Instagram.
 - Confirmación de horarios, mascotas, pagos, cancelaciones y datos legales del responsable. Las condiciones publicadas son una base editable.
 
