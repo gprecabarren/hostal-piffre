@@ -190,3 +190,21 @@ test("page copy preserves multiline text, supports known variables and rejects H
   content.copy.contactTitle = '<img src="x" onerror="alert(1)">';
   assert.equal(siteContentSchema.safeParse(content).success, false);
 });
+
+test("per-page SEO accepts automatic canonicals and rejects unsafe URLs and invalid social settings", () => {
+  const content = structuredClone(defaultContent);
+  content.legalSeo.privacy.canonicalUrl = "";
+  content.legalSeo.privacy.ogImage = "/og-image.png";
+  assert.equal(siteContentSchema.safeParse(content).success, true);
+  for (const canonicalUrl of ["enlace incompleto", "http://example.com/", "javascript:alert(1)", "/privacidad", "https://user:secret@example.com/"]) {
+    content.legalSeo.privacy.canonicalUrl = canonicalUrl;
+    assert.doesNotThrow(() => siteContentSchema.safeParse(content));
+    assert.equal(siteContentSchema.safeParse(content).success, false);
+  }
+  content.legalSeo.privacy.canonicalUrl = "https://alojamientospiffre.cl/politica-de-privacidad";
+  content.locations[0].seo.twitterImage = "//attacker.example/social.svg";
+  assert.equal(siteContentSchema.safeParse(content).success, false);
+  content.locations[0].seo.twitterImage = "";
+  content.locations[0].seo.description = "";
+  assert.equal(siteContentSchema.safeParse(content).success, false);
+});

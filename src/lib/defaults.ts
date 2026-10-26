@@ -1,5 +1,6 @@
 import type { Location, Room, RoomPhoto, SiteContent } from "./types";
-import { defaultPageCopy } from "./copy";
+import { defaultPageCopy, formatCopy } from "./copy";
+import { createPageSeo } from "./page-seo";
 import photoSeed from "./photo-seed.json";
 
 function seedPhotos(scope: "rooms" | "locations", id: string, fallback: RoomPhoto[] = []): RoomPhoto[] {
@@ -59,7 +60,7 @@ export const defaultLocations: Location[] = [
       { title: "Metro Inés de Suárez", description: "Estación de la Línea 6 del Metro de Santiago." },
       { title: "Vida de barrio", description: "Cafés y comercio de barrio para complementar tu visita a Providencia." },
     ], amenities: ["Lavandería", "WiFi"], photos: seedPhotos("locations", "providencia"), published: true,
-    seo: { title: "Hostal en Providencia, Santiago | Alojamientos Piffre", description: "Conoce nuestras habitaciones en Providencia, Santiago. Alojamiento en Los Capitanes 1253 con atención cercana. Consulta disponibilidad por WhatsApp." },
+    seo: createPageSeo("Hostal en Providencia, Santiago | Alojamientos Piffre", "Conoce nuestras habitaciones en Providencia, Santiago. Alojamiento en Los Capitanes 1253 con atención cercana. Consulta disponibilidad por WhatsApp."),
   },
   {
     id: "santiago-centro", slug: "santiago-centro", name: "Santiago Centro",
@@ -74,7 +75,7 @@ export const defaultLocations: Location[] = [
       { title: "Barrio Italia", description: "Cafés, diseño y antigüedades para recorrer durante tu visita." },
       { title: "Centro histórico", description: "Descubre el centro histórico y los panoramas de Santiago según tus intereses." },
     ], amenities: ["Lavandería"], photos: seedPhotos("locations", "santiago-centro"), published: true,
-    seo: { title: "Departamentos en Santiago Centro | Alojamientos Piffre", description: "Descubre los departamentos de Alojamientos Piffre en Santiago Centro. Revisa nuestros espacios y consulta disponibilidad directamente por WhatsApp." },
+    seo: createPageSeo("Departamentos en Santiago Centro | Alojamientos Piffre", "Descubre los departamentos de Alojamientos Piffre en Santiago Centro. Revisa nuestros espacios y consulta disponibilidad directamente por WhatsApp."),
   },
 ];
 
@@ -99,19 +100,23 @@ export const defaultContent: SiteContent = {
     city: "Santiago",
     region: "Región Metropolitana",
     country: "Chile",
-    instagram: "",
+    instagram: "https://www.instagram.com/hostalpiffre/",
     mapUrl: "https://www.google.com/maps/search/?api=1&query=Los+Capitanes+1253+Providencia+Santiago+Chile",
   },
   seo: {
-    title: "Alojamientos Piffre | Hostal Providencia y departamentos Santiago Centro",
-    description:
-      "Habitaciones de hostal en Providencia y departamentos en Santiago Centro. Conoce las dos ubicaciones de Alojamientos Piffre y consulta disponibilidad por WhatsApp.",
-    keywords: ["alojamiento en Providencia", "hostal en Providencia", "departamentos Santiago Centro", "alojamiento Santiago Centro", "Alojamientos Piffre", "Hostal Piffre"],
+    ...createPageSeo("Alojamientos Piffre en Providencia y Santiago Centro",
+      "Habitaciones de hostal en Providencia y departamentos en Santiago Centro. Conoce las dos ubicaciones de Alojamientos Piffre y consulta disponibilidad por WhatsApp.", {
+        keywords: ["alojamiento en Providencia", "hostal en Providencia", "departamentos Santiago Centro", "alojamiento Santiago Centro", "Alojamientos Piffre", "Hostal Piffre"],
+        ogImage: "/og-image.png", ogImageAlt: "Hostal Piffre, tu hogar lejos de casa",
+      }),
     siteUrl: "https://alojamientospiffre.cl",
-    ogImage: "/og-image.png",
     robotsIndex: true,
     googleSiteVerification: "Ya29cIRkxvPSmxNZ2ZOyXpgVFEqfyL6K-qN05uiAON0",
     gtmId: "GTM-5LW4VNRP",
+  },
+  legalSeo: {
+    privacy: createPageSeo("Política de privacidad | Hostal Piffre", formatCopy(defaultPageCopy.privacyDescription, { sitio: "Hostal Piffre", ciudad: "Santiago" })),
+    terms: createPageSeo("Términos y condiciones | Hostal Piffre", formatCopy(defaultPageCopy.termsDescription, { sitio: "Hostal Piffre", ciudad: "Santiago" })),
   },
   copy: { ...defaultPageCopy },
   rooms: [makeRoom(1), makeRoom(2), makeRoom(3), makeApartment(1), makeApartment(2), makeApartment(3)],

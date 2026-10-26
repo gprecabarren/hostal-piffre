@@ -27,10 +27,9 @@ function Header({ content }: { content: SiteContent }) {
 }
 
 export function VisitorStrip({ content }: { content: SiteContent }) {
-  const [paused, setPaused] = useState(false);
   const countries = content.visitorCountries;
   if (!countries.length) return null;
-  return <section className={`visitor-strip${paused ? " is-paused" : ""}`} aria-label={content.copy.visitorCountriesLabel}><p><Icon name="globe" />{content.copy.visitorCountriesLabel}</p><div className="visitor-window"><div className="visitor-track"><ul>{countries.map((country) => <li key={country.code}><CountryFlag code={country.code} /><span>{country.name}</span></li>)}</ul><ul aria-hidden="true">{countries.map((country) => <li key={country.code}><CountryFlag code={country.code} /><span>{country.name}</span></li>)}</ul></div></div><button type="button" className="visitor-pause" aria-pressed={paused} aria-label={paused ? content.copy.visitorPlay : content.copy.visitorPause} onClick={() => setPaused(!paused)}><Icon name={paused ? "play" : "pause"} /></button></section>;
+  return <section className="visitor-strip visitor-strip--flags" aria-label={content.copy.visitorCountriesLabel}><div className="visitor-window"><div className="visitor-track"><ul>{countries.map((country) => <li key={country.code}><CountryFlag code={country.code} /><span className="sr-only">{country.name}</span></li>)}</ul><ul aria-hidden="true">{countries.map((country) => <li key={country.code}><CountryFlag code={country.code} /></li>)}</ul></div></div></section>;
 }
 
 function Payments({ content }: { content: SiteContent }) {

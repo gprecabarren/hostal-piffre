@@ -1,6 +1,6 @@
 # Hostal Piffre
 
-Sitio y panel de administración para Alojamientos Piffre, Providencia, Santiago de Chile.
+Sitio y panel de administración para Alojamientos Piffre, con ubicaciones en Providencia y Santiago Centro, Chile.
 
 Sitio en español con Next.js App Router, Manrope local, animaciones con movimiento reducido, SEO renderizado en servidor, sitemap, robots, Open Graph y datos estructurados. Incluye un panel privado en `/admin` con acceso mediante Vercel.
 
@@ -16,11 +16,13 @@ En Supabase, ejecutar `supabase/schema.sql` en el SQL Editor del proyecto y lueg
 
 El panel permite gestionar entre 1 y 30 propiedades, asignarlas a Providencia o Santiago Centro, reordenar, ocultar y publicar. Las nuevas empiezan ocultas. Cada galería admite hasta 40 fotos: las tres primeras son portadas y el resto se ve en la galería completa. Booking, Airbnb, Vrbo y WhatsApp tienen enlaces individuales editables; las plataformas sin enlace permanecen visibles y desactivadas. Sin enlace propio de WhatsApp se genera un mensaje con el nombre de la propiedad. Las fotografías JPG/PNG/WebP de hasta 4 MB se validan, optimizan a WebP y se les retiran metadatos EXIF antes de subirlas.
 
-También permite editar 100 textos de la página agrupados y buscables, hasta 20 preguntas frecuentes, hasta 12 servicios, destacados de ubicación, WhatsApp, Instagram, dirección, SEO y páginas legales. Las preguntas y los servicios se pueden agregar, editar, reordenar y quitar. Las variables indicadas en los textos muestran automáticamente datos como el número de propiedades publicadas. Los cambios de todas las secciones se guardan juntos; antes de guardar se pueden deshacer las retiradas o descartar la edición completa.
+También permite editar los textos de la página agrupados y buscables, hasta 20 preguntas frecuentes, hasta 12 servicios, destacados de ubicación, WhatsApp, Instagram, dirección, SEO y páginas legales. Las preguntas y los servicios se pueden agregar, editar, reordenar y quitar. Las variables indicadas en los textos muestran automáticamente datos como el número de propiedades publicadas. Los cambios de todas las secciones se guardan juntos; antes de guardar se pueden deshacer las retiradas o descartar la edición completa.
 
 Para una base existente, ejecutar `supabase/upgrade-dynamic-content.sql` antes de guardar propiedades dinámicas. La migración conserva el contenido anterior y amplía la restricción de la tabla a 1–30 propiedades. El lector completa los campos nuevos de contenido y SEO de versiones anteriores.
 
 Las dos páginas de ubicación tienen textos, fotografías, dirección, mapa, lugares cercanos, servicios y SEO editables. También se gestionan los países de la franja de bienvenida y los medios de pago. Se incorporaron 48 fotografías WebP del cliente; tres portadas del departamento 2 se restauraron con IA conservando su contenido ([registro](docs/FOTOGRAFIAS.md)). Los enlaces que faltan se completan desde el panel. El sitio consulta disponibilidad por WhatsApp; no procesa pagos ni confirma reservas automáticamente.
+
+En **Visibilidad en Google**, un selector permite configurar las cinco páginas públicas actuales: inicio, dos ubicaciones, privacidad y términos. Incluye título, descripción, palabras clave, URL canónica, Open Graph, Twitter/X, imagen social, texto alternativo y permisos individuales de indexación y seguimiento de enlaces. Las ubicaciones futuras se incorporan automáticamente al selector. Los campos sociales vacíos heredan los textos e imágenes disponibles. El dominio, el permiso general de indexación, Search Console y GTM se mantienen en una configuración general separada. `/admin` y las rutas de autenticación permanecen excluidos.
 
 ## Publicación
 
@@ -41,3 +43,7 @@ Search Console tiene el dominio verificado. El 26 de octubre se envió y proces�
 Los textos legales son editables y requieren confirmar la identidad del responsable y las condiciones comerciales reales antes de considerarlos definitivos. La política debe reflejar las herramientas de medición utilizadas. Referencia de privacidad: [Ley 19.628, Biblioteca del Congreso Nacional](https://www.bcn.cl/leychile/navegar?idNorma=141599).
 
 Logo recreado en alta resolución con la herramienta integrada ImageGen. Prompt: extracción fiel del emblema y el nombre Hostal Piffre, fondo marfil, sin panel inferior ni frase promocional. Archivo de sitio `public/brand/logo.webp`; versión de alta resolución `public/brand/logo-hd.png`.
+
+El favicon utiliza el emblema oficial del logo existente, encuadrado para que la letra pequeña no pierda legibilidad. `node scripts/create-icons.mjs` genera SVG autónomo, ICO con variantes de 16/32/48/64 px, PNG de 48 y 96 px y Apple Touch Icon de 180 px. El encuadre conserva el dibujo original.
+
+La portada muestra una franja automática sólo de banderas, sin nombres visibles ni controles; respeta la preferencia de movimiento reducido. Las dos fotos de bienvenida no tienen enlaces ni leyendas. Las ubicaciones se presentan una sola vez junto a sus propiedades y conservan sus páginas individuales.

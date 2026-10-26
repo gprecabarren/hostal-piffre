@@ -1,15 +1,10 @@
 import type { Metadata } from "next";
 import { getContent } from "@/lib/content";
-import { formatCopy } from "@/lib/copy";
+import { buildPageMetadata } from "@/lib/page-seo";
 import { LegalPage } from "@/components/legal-page";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const content = await getContent();
-  return {
-    title: content.policies.privacyTitle,
-    description: formatCopy(content.copy.privacyDescription, { sitio: content.site.name, ciudad: content.contact.city }),
-    alternates: { canonical: "/politica-de-privacidad" },
-  };
+  return buildPageMetadata(await getContent(), "privacy", { preview: process.env.VERCEL_ENV === "preview" });
 }
 
 export default async function Page() {

@@ -3,18 +3,18 @@ import '@fontsource-variable/manrope';
 import './globals.css';
 import { getContent } from '@/lib/content';
 import SiteAnalytics from '@/components/SiteAnalytics';
+import { buildPageMetadata } from '@/lib/page-seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const c = await getContent();
   return {
-    metadataBase: new URL(c.seo.siteUrl),
-    title: {default:c.seo.title, template:`%s | ${c.site.name}`},
-    description:c.seo.description, keywords:c.seo.keywords,
-    alternates:{canonical:'/'},
-    openGraph:{type:'website',locale:'es_CL',siteName:c.site.name,title:c.seo.title,description:c.seo.description,url:c.seo.siteUrl,images:[{url:c.seo.ogImage,width:1200,height:630,alt:c.site.name}]},
-    twitter:{card:'summary_large_image',title:c.seo.title,description:c.seo.description,images:[c.seo.ogImage]},
-    robots:{index:c.seo.robotsIndex && process.env.VERCEL_ENV !== 'preview',follow:c.seo.robotsIndex && process.env.VERCEL_ENV !== 'preview'},
-    icons:{icon:'/favicon.svg',apple:'/apple-touch-icon.png'},
+    ...buildPageMetadata(c, 'home', {preview:process.env.VERCEL_ENV === 'preview'}),
+    icons:{icon:[
+      {url:'/favicon.ico',sizes:'16x16 32x32 48x48 64x64',type:'image/x-icon'},
+      {url:'/favicon.svg',sizes:'any',type:'image/svg+xml'},
+      {url:'/favicon-48.png',sizes:'48x48',type:'image/png'},
+      {url:'/favicon-96.png',sizes:'96x96',type:'image/png'},
+    ],apple:[{url:'/apple-touch-icon.png',sizes:'180x180',type:'image/png'}]},
     formatDetection:{telephone:false},
     verification: c.seo.googleSiteVerification ? {google:c.seo.googleSiteVerification} : undefined,
   };

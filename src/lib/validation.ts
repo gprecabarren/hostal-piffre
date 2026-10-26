@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { defaultPageCopy, pageCopyFields, type PageCopyKey } from "./copy";
+import { defaultPageCopy, formatCopy, pageCopyFields, type PageCopyKey } from "./copy";
 import { defaultContent, defaultLocations } from "./defaults";
+import { createPageSeo } from "./page-seo";
 import type { PageCopy, SiteContent } from "./types";
 
 const text = (max: number, min = 1) => z.string().trim().min(min).max(max);
@@ -28,6 +29,13 @@ const imageUrl = z.union([
   z.string().max(2048).regex(/^\/(?!\/)[a-zA-Z0-9/_\-.]+$/).refine((value) => !value.split("/").includes("..")),
 ]);
 const photoSchema = z.object({ url: imageUrl, alt: text(250) }).strict();
+export const pageSeoSchema = z.object({
+  title: text(160), description: text(500), keywords: z.array(text(100)).max(30),
+  canonicalUrl: z.union([z.literal(""), httpsUrl]),
+  ogTitle: text(160, 0), ogDescription: text(500, 0), ogImage: imageUrl, ogImageAlt: text(250, 0),
+  twitterTitle: text(160, 0), twitterDescription: text(500, 0), twitterImage: imageUrl,
+  twitterCard: z.enum(["summary", "summary_large_image"]), index: z.boolean(), follow: z.boolean(),
+}).strict();
 const roomSchema = z.object({
   id: text(50).regex(/^[a-z0-9-]+$/),
   slug: text(80).regex(/^[a-z0-9-]+$/),
@@ -60,15 +68,12 @@ const locationSchema = z.object({
   nearby: z.array(z.object({ title: text(150), description: text(1200) }).strict()).max(20),
   amenities: z.array(text(150)).max(20),
   photos: z.array(photoSchema).max(40),
-  seo: z.object({ title: text(160, 0), description: text(500, 0) }).strict(),
+  seo: pageSeoSchema,
   published: z.boolean(),
 }).strict().superRefine((location, context) => {
   if (!location.published) return;
   for (const key of ["title", "description"] as const) {
     if (!location[key]) context.addIssue({ code: "custom", path: [key], message: "Completa este campo antes de publicar la ubicación." });
-  }
-  for (const key of ["title", "description"] as const) {
-    if (!location.seo[key]) context.addIssue({ code: "custom", path: ["seo", key], message: "Completa el SEO antes de publicar la ubicación." });
   }
 });
 
@@ -90,19 +95,16 @@ export const siteContentSchema: z.ZodType<SiteContent> = z.object({
     instagram: optionalLink(["instagram.com"]),
     mapUrl: z.union([z.literal(""), httpsUrl]),
   }).strict(),
-  seo: z.object({
-    title: text(160),
-    description: text(500),
-    keywords: z.array(text(100)).max(30),
+  seo: pageSeoSchema.extend({
     siteUrl: httpsUrl.refine((value) => {
       const url = parsedUrl(value);
       return url !== undefined && url.pathname === "/" && !url.search && !url.hash;
     }, "Ingresa solamente el dominio del sitio."),
-    ogImage: imageUrl,
     robotsIndex: z.boolean(),
     googleSiteVerification: z.string().max(200).regex(/^[A-Za-z0-9_-]*$/, "Pega solo el token de verificación de Google, sin etiquetas HTML."),
     gtmId: z.union([z.literal(""), z.string().regex(/^GTM-[A-Z0-9]{4,20}$/, "Usa un identificador GTM- válido.")]),
   }).strict(),
+  legalSeo: z.object({ privacy: pageSeoSchema, terms: pageSeoSchema }).strict(),
   rooms: z.array(roomSchema).min(1, "Conserva al menos una propiedad, aunque esté en borrador.").max(30, "Puedes gestionar hasta 30 propiedades.").refine((rooms) =>
     new Set(rooms.map((room) => room.id)).size === rooms.length && new Set(rooms.map((room) => room.slug)).size === rooms.length,
   "Cada habitación debe tener identificador y dirección únicos."),
@@ -136,6 +138,17 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function expandPageSeo(value: unknown, title: string, description: string) {
+  const previous = isRecord(value) ? value : {};
+  return {
+    ...createPageSeo(title.slice(0, 160), description.slice(0, 500)), ...previous,
+    // Older location drafts allowed empty SEO text; give those drafts useful
+    // initial metadata without publishing them or changing their public copy.
+    title: previous.title === undefined || previous.title === "" ? title.slice(0, 160) : previous.title,
+    description: previous.description === undefined || previous.description === "" ? description.slice(0, 500) : previous.description,
+  };
+}
+
 /** Adds only fields introduced after launch. Existing text, photos, links and order are preserved. */
 export function normalizeSiteContent(value: unknown): SiteContent {
   if (!isRecord(value)) return siteContentSchema.parse(value);
@@ -143,6 +156,12 @@ export function normalizeSiteContent(value: unknown): SiteContent {
   const legacyCopy = isRecord(value.copy) ? value.copy : {};
   const legacyContact = isRecord(value.contact) ? value.contact : {};
   const legacyLocation = isRecord(value.location) ? value.location : {};
+  const legacySite = isRecord(value.site) ? value.site : {};
+  const legacyPolicies = isRecord(value.policies) ? value.policies : {};
+  const legacyLegalSeo = isRecord(value.legalSeo) ? value.legalSeo : {};
+  const siteName = typeof legacySite.name === "string" ? legacySite.name : defaultContent.site.name;
+  const city = typeof legacyContact.city === "string" ? legacyContact.city : defaultContent.contact.city;
+  const description = typeof legacySeo.description === "string" ? legacySeo.description : defaultContent.seo.description;
   const locations = value.locations === undefined ? defaultLocations.map((location) => {
     if (location.id !== "providencia") return structuredClone(location);
     return {
@@ -154,9 +173,23 @@ export function normalizeSiteContent(value: unknown): SiteContent {
   }) : value.locations;
   const normalized = {
     ...value,
-    seo: { googleSiteVerification: defaultContent.seo.googleSiteVerification, gtmId: defaultContent.seo.gtmId, ...legacySeo },
+    seo: { googleSiteVerification: defaultContent.seo.googleSiteVerification, gtmId: defaultContent.seo.gtmId,
+      ...expandPageSeo(legacySeo, defaultContent.seo.title, defaultContent.seo.description) },
+    legalSeo: {
+      ...legacyLegalSeo,
+      privacy: expandPageSeo(legacyLegalSeo.privacy,
+        `${typeof legacyPolicies.privacyTitle === "string" ? legacyPolicies.privacyTitle : defaultContent.policies.privacyTitle} | ${siteName}`,
+        formatCopy(typeof legacyCopy.privacyDescription === "string" && legacyCopy.privacyDescription ? legacyCopy.privacyDescription : defaultPageCopy.privacyDescription, { sitio: siteName, ciudad: city })),
+      terms: expandPageSeo(legacyLegalSeo.terms,
+        `${typeof legacyPolicies.termsTitle === "string" ? legacyPolicies.termsTitle : defaultContent.policies.termsTitle} | ${siteName}`,
+        formatCopy(typeof legacyCopy.termsDescription === "string" && legacyCopy.termsDescription ? legacyCopy.termsDescription : defaultPageCopy.termsDescription, { sitio: siteName, ciudad: city })),
+    },
     copy: { ...defaultPageCopy, ...legacyCopy },
-    locations,
+    locations: Array.isArray(locations) ? locations.map((location) => isRecord(location) ? {
+      ...location,
+      seo: expandPageSeo(location.seo, `${typeof location.name === "string" ? location.name : "Alojamiento"} | ${siteName}`,
+        typeof location.description === "string" && location.description ? location.description : description),
+    } : location) : locations,
     visitorCountries: value.visitorCountries ?? [],
     paymentMethods: value.paymentMethods ?? [],
     rooms: Array.isArray(value.rooms) ? value.rooms.map((room) => isRecord(room) ? {

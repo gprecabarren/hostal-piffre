@@ -18,3 +18,7 @@ La franja queda como una lista editable de doce países. Su orden visual no repr
 Estas referencias describen lugares de interés del entorno urbano. Las distancias y los tiempos de traslado desde una propiedad se deben confirmar con su dirección exacta. Los servicios del edificio, como piscina o lavandería, dependen de la información y las condiciones que confirme el anfitrión.
 
 Las fotografías y la restauración de las tres portadas del departamento 2 se documentan por separado en [FOTOGRAFIAS.md](FOTOGRAFIAS.md).
+
+## Identidad y favicon
+
+El Instagram oficial confirmado por el cliente es [@hostalpiffre](https://www.instagram.com/hostalpiffre/). El favicon utiliza el emblema del logo existente. Se incluyen variantes cuadradas PNG de 48 y 96 px, ICO y Apple Touch Icon, con acceso permitido a los rastreadores. Referencia: [guía de favicons de Google Search Central](https://developers.google.com/search/docs/appearance/favicon-in-search?hl=es-419).

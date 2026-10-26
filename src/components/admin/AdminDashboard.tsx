@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
-import type { SiteContent, Room, RoomPhoto, PageCopyKey, Location as SiteLocation } from "@/lib/types";
+import type { SiteContent, Room, RoomPhoto, PageCopyKey, PageSeo, Location as SiteLocation } from "@/lib/types";
 import { pageCopyGroups, pageCopyFields } from "@/lib/copy";
+import { listSeoPages } from "@/lib/page-seo";
 import { AdminIcon, type AdminIconName } from "./AdminIcon";
 
 type Section = "overview" | "rooms" | "locations" | "extras" | "content" | "copy" | "faq" | "seo" | "contact" | "legal";
@@ -12,10 +13,28 @@ type ContentStatus = { configured: boolean; persisted: boolean; error?: string }
 type Notice = { type: "success" | "error"; text: string } | null;
 type Confirmation = { kind: "remove"; room: Room } | { kind: "discard" };
 type RemovedRoom = { room: Room; position: number };
+type SeoPageEntry = ReturnType<typeof listSeoPages>[number];
 const MAX_PROPERTIES = 30;
 const MAX_FAQ = 20;
 const MAX_AMENITIES = 12;
 const MAX_PHOTOS = 40;
+// Keep compatibility data while hiding controls for removed or relocated copy.
+const LEGACY_SEO_COPY_KEYS = new Set<PageCopyKey>([
+  "privacyDescription", "termsDescription", "heroArtKicker", "heroArtCaption", "heroArtNote",
+  "locationsLabel", "locationsTitle", "locationsTitleAccent", "locationsIntro",
+  "visitorCountriesIntro", "internationalWelcome", "internationalDescription", "internationalCta", "visitorPause", "visitorPlay", "roomPlatformUnavailable",
+]);
+const editableCopyFields = pageCopyFields.filter(field => !LEGACY_SEO_COPY_KEYS.has(field.key));
+
+function tidyPageSeo(seo: PageSeo): PageSeo {
+  return { ...seo, keywords: seo.keywords.map(value => value.trim()).filter(Boolean) };
+}
+
+function safeSeoImage(value: string): string {
+  if (/^\/(?!\/)[a-zA-Z0-9/_\-.]+$/.test(value) && !value.split("/").includes("..")) return value;
+  try { const url = new URL(value); return url.protocol === "https:" && !url.username && !url.password ? value : ""; }
+  catch { return ""; }
+}
 
 const sections: { id: Section; label: string; icon: AdminIconName; description: string }[] = [
   { id: "overview", label: "Vista general", icon: "home", description: "Un lugar para cuidar cada detalle de tu alojamiento en internet." },
@@ -25,7 +44,7 @@ const sections: { id: Section; label: string; icon: AdminIconName; description: 
   { id: "content", label: "Contenido del sitio", icon: "edit", description: "Tu historia, tus servicios y el barrio que hace especial tu alojamiento." },
   { id: "copy", label: "Textos de la página", icon: "document", description: "Personaliza los títulos, botones y pequeños detalles de cada sección." },
   { id: "faq", label: "Preguntas frecuentes", icon: "question", description: "Resuelve las dudas de tus huéspedes antes de que hagan las maletas." },
-  { id: "seo", label: "Visibilidad en Google", icon: "search", description: "Ayuda a los viajeros a encontrar tus alojamientos en Providencia y Santiago Centro." },
+  { id: "seo", label: "Visibilidad en Google", icon: "search", description: "Configura cada página para los buscadores y para compartirla en redes." },
   { id: "contact", label: "Contacto y redes", icon: "phone", description: "Mantén siempre abierta la puerta a una nueva conversación." },
   { id: "legal", label: "Textos legales", icon: "document", description: "Información clara para que tus huéspedes reserven con confianza." },
 ];
@@ -68,11 +87,12 @@ function issueLabel(path: string): string {
   const last = parts[parts.length - 1];
   if (parts[0] === "copy") return pageCopyFields.find(field => field.key === last)?.label || "texto de la página";
   const labels: Record<string, string> = {
-    name: "nombre", description: "descripción", title: "título", titleAccent: "título destacado", eyebrow: "texto de portada", tagline: "frase de marca", text: "texto", whatsapp: "número de WhatsApp", whatsappUrl: "enlace de WhatsApp", whatsappMessage: "mensaje de WhatsApp", email: "correo", address: "dirección", city: "ciudad", region: "región", country: "país", instagram: "Instagram", mapUrl: "enlace del mapa", keywords: "palabras clave", siteUrl: "dominio principal", ogImage: "imagen al compartir", googleSiteVerification: "verificación de Google", gtmId: "identificador de Tag Manager", bookingUrl: "enlace de Booking", airbnbUrl: "enlace de Airbnb", vrboUrl: "enlace de Vrbo", locationId: "ubicación de la propiedad", kind: "tipo de alojamiento", features: "características", tag: "etiqueta", alt: "descripción de imagen", url: "enlace de imagen", question: "pregunta", answer: "respuesta", privacy: "política de privacidad", terms: "términos y condiciones", updatedAt: "fecha", code: "código del país", label: "nombre del medio de pago", id: "identificador",
+    name: "nombre", description: "descripción", title: "título", titleAccent: "título destacado", eyebrow: "texto de portada", tagline: "frase de marca", text: "texto", whatsapp: "número de WhatsApp", whatsappUrl: "enlace de WhatsApp", whatsappMessage: "mensaje de WhatsApp", email: "correo", address: "dirección", city: "ciudad", region: "región", country: "país", instagram: "Instagram", mapUrl: "enlace del mapa", keywords: "palabras clave", siteUrl: "dominio principal", canonicalUrl: "URL canónica", ogTitle: "título social", ogDescription: "descripción social", ogImage: "imagen social", ogImageAlt: "texto alternativo de imagen", twitterTitle: "título para X", twitterDescription: "descripción para X", twitterImage: "imagen para X", twitterCard: "formato de tarjeta", index: "permiso de indexación", follow: "seguimiento de enlaces", googleSiteVerification: "verificación de Google", gtmId: "identificador de Tag Manager", bookingUrl: "enlace de Booking", airbnbUrl: "enlace de Airbnb", vrboUrl: "enlace de Vrbo", locationId: "ubicación de la propiedad", kind: "tipo de alojamiento", features: "características", tag: "etiqueta", alt: "descripción de imagen", url: "enlace de imagen", question: "pregunta", answer: "respuesta", privacy: "política de privacidad", terms: "términos y condiciones", updatedAt: "fecha", code: "código del país", label: "nombre del medio de pago", id: "identificador",
   };
   const field = labels[last] || "información";
   if (parts[0] === "rooms") return `propiedad ${Number(parts[1]) + 1}${parts[2] === "photos" ? `, foto ${Number(parts[3]) + 1}` : ""}: ${field}`;
   if (parts[0] === "locations") return `ubicación ${Number(parts[1]) + 1}: ${field}`;
+  if (parts[0] === "legalSeo") return `SEO de ${parts[1] === "privacy" ? "privacidad" : "términos"}: ${field}`;
   if (parts[0] === "visitorCountries") return `país ${Number(parts[1]) + 1}: ${field}`;
   if (parts[0] === "paymentMethods") return `medio de pago ${Number(parts[1]) + 1}: ${field}`;
   const group: Record<string, string> = { seo: "Google", contact: "contacto", site: "presentación", hero: "portada", about: "historia", amenities: "servicios", location: "ubicación", faq: "preguntas frecuentes", policies: "textos legales" };
@@ -98,6 +118,47 @@ function Panel({ title, description, children, aside }: { title: string; descrip
 function SelectField({ label, value, options, onChange, hint }: { label: string; value: string; options: { value: string; label: string }[]; onChange: (value: string) => void; hint?: string }) {
   const id = useId();
   return <div className="admin-field"><label htmlFor={id}>{label}</label><select id={id} value={value} onChange={event => onChange(event.target.value)} aria-describedby={hint ? `${id}-hint` : undefined}>{options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select>{hint ? <p id={`${id}-hint`} className="admin-field-hint">{hint}</p> : null}</div>;
+}
+
+export function PageSeoEditor({ page, siteUrl, defaultImage, masterIndex, onChange }: {
+  page: SeoPageEntry; siteUrl: string; defaultImage: string; masterIndex: boolean; onChange: (patch: Partial<PageSeo>) => void;
+}) {
+  const seo = page.seo;
+  const automaticUrl = `${siteUrl.replace(/\/$/, "")}${page.path}`;
+  const displayUrl = seo.canonicalUrl || automaticUrl;
+  const ogImage = safeSeoImage(seo.ogImage || defaultImage || "/og-image.png");
+  const twitterImage = safeSeoImage(seo.twitterImage || seo.ogImage || defaultImage || "/og-image.png");
+  return <>
+    <Panel title={`Así se presenta: ${page.label}`} description="Estos campos pertenecen únicamente a la página que elegiste.">
+      <TextField label="Título SEO de esta página" value={seo.title} onChange={title => onChange({ title })} hint={`${seo.title.length} caracteres. Como referencia, intenta usar entre 50 y 60.`} required maxLength={160}/>
+      <TextField label="Descripción SEO de esta página" value={seo.description} onChange={description => onChange({ description })} multiline hint={`${seo.description.length} caracteres. Resume lo que encontrará el visitante en esta página.`} required maxLength={500}/>
+      <TextField label="Palabras clave de esta página" value={seo.keywords.join(", ")} onChange={value => onChange({ keywords: value.split(",").map(item => item.trimStart()) })} hint="Separadas por comas, hasta 30. Son una guía editorial; no garantizan posiciones en Google."/>
+      <TextField label="URL canónica de esta página" value={seo.canonicalUrl} onChange={canonicalUrl => onChange({ canonicalUrl })} type="url" placeholder={automaticUrl} hint={`Opcional. Si la dejas vacía, se usará ${automaticUrl}. Una URL propia debe comenzar con https://.`} maxLength={2048}/>
+      <div className="admin-search-preview"><span>VISTA PREVIA ORIENTATIVA EN GOOGLE</span><p className="admin-search-url">{displayUrl}</p><p className="admin-search-title">{seo.title || "Título de la página"}</p><p className="admin-search-description">{seo.description || "Agrega una descripción para tus futuros huéspedes."}</p></div>
+      <p className="admin-muted-note">Google puede adaptar estos textos. Guardar los cambios no garantiza que se reflejen de inmediato en los resultados.</p>
+    </Panel>
+
+    <details className="admin-copy-group admin-seo-social"><summary><span><strong>Al compartir en redes · Open Graph</strong><small>Título, descripción e imagen para enlaces compartidos</small></span><AdminIcon name="plus" size={18}/></summary><div className="admin-copy-body">
+      <TextField label="Título al compartir en redes" value={seo.ogTitle} onChange={ogTitle => onChange({ ogTitle })} placeholder={seo.title} maxLength={160} hint="Déjalo vacío para usar el título SEO de esta página."/>
+      <TextField label="Descripción al compartir en redes" value={seo.ogDescription} onChange={ogDescription => onChange({ ogDescription })} placeholder={seo.description} maxLength={500} multiline hint="Déjala vacía para usar la descripción SEO de esta página."/>
+      <TextField label="Imagen Open Graph" value={seo.ogImage} onChange={ogImage => onChange({ ogImage })} placeholder={defaultImage || "/og-image.png"} maxLength={2048} hint="Usa una URL HTTPS o una ruta pública del sitio. En blanco se usa una foto de la ubicación o la imagen general del sitio. Tamaño recomendado: 1200 × 630 píxeles."/>
+      <TextField label="Texto alternativo de la imagen social" value={seo.ogImageAlt} onChange={ogImageAlt => onChange({ ogImageAlt })} maxLength={250} hint="Describe lo que se ve para lectores de pantalla. En blanco se usa la descripción disponible de la foto o el título de la página."/>
+      <div className="admin-seo-share-preview" aria-label="Vista previa orientativa al compartir">{ogImage ? <img src={ogImage} alt={seo.ogImageAlt || "Vista previa de la imagen social"} loading="lazy"/> : <div className="admin-seo-preview-empty"><AdminIcon name="image" size={30}/></div>}<div><small>{displayUrl}</small><strong>{seo.ogTitle || seo.title || "Título al compartir"}</strong><p>{seo.ogDescription || seo.description || "Descripción de la página"}</p></div></div>
+    </div></details>
+
+    <details className="admin-copy-group admin-seo-social"><summary><span><strong>Al compartir en X / Twitter</strong><small>Personaliza la tarjeta de esta página</small></span><AdminIcon name="plus" size={18}/></summary><div className="admin-copy-body">
+      <div className="admin-fields-grid"><TextField label="Título para X / Twitter" value={seo.twitterTitle} onChange={twitterTitle => onChange({ twitterTitle })} placeholder={seo.ogTitle || seo.title} maxLength={160} hint="En blanco se usa el título social o el título SEO."/><SelectField label="Formato de tarjeta" value={seo.twitterCard} onChange={twitterCard => onChange({ twitterCard: twitterCard as PageSeo["twitterCard"] })} options={[{ value: "summary_large_image", label: "Imagen grande" }, { value: "summary", label: "Resumen compacto" }]}/></div>
+      <TextField label="Descripción para X / Twitter" value={seo.twitterDescription} onChange={twitterDescription => onChange({ twitterDescription })} multiline placeholder={seo.ogDescription || seo.description} maxLength={500} hint="En blanco se usa la descripción social o la descripción SEO."/>
+      <TextField label="Imagen para X / Twitter" value={seo.twitterImage} onChange={twitterImage => onChange({ twitterImage })} maxLength={2048} placeholder={seo.ogImage || defaultImage || "/og-image.png"} hint="Usa una URL HTTPS o una ruta pública. En blanco se utiliza la imagen Open Graph o la imagen general."/>
+      <div className={`admin-seo-share-preview admin-seo-twitter-preview ${seo.twitterCard === "summary" ? "admin-seo-twitter-compact" : ""}`} aria-label="Vista previa orientativa de la tarjeta de X">{twitterImage ? <img src={twitterImage} alt={seo.ogImageAlt || "Vista previa de la tarjeta de X"} loading="lazy"/> : <div className="admin-seo-preview-empty"><AdminIcon name="image" size={30}/></div>}<div><small>{displayUrl}</small><strong>{seo.twitterTitle || seo.ogTitle || seo.title || "Título de la tarjeta"}</strong><p>{seo.twitterDescription || seo.ogDescription || seo.description || "Descripción de la página"}</p></div></div>
+    </div></details>
+
+    <Panel title="Permisos para los buscadores" description="Esta elección se aplica solamente a la página seleccionada.">
+      <label className="admin-toggle-row"><span><strong>Permitir que se indexe esta página</strong><small>{seo.index ? "Puede aparecer en resultados si la indexación general también está activa." : "Se pedirá a los buscadores que no incluyan esta página en sus resultados."}</small></span><input type="checkbox" checked={seo.index} onChange={event => onChange({ index: event.target.checked })}/></label>
+      <label className="admin-toggle-row"><span><strong>Permitir que se sigan sus enlaces</strong><small>{seo.follow ? "Los buscadores pueden seguir los enlaces de esta página." : "Se pedirá a los buscadores que no sigan los enlaces de esta página."}</small></span><input type="checkbox" checked={seo.follow} onChange={event => onChange({ follow: event.target.checked })}/></label>
+      {!masterIndex ? <p className="admin-seo-index-warning" role="status"><AdminIcon name="warning" size={17}/>La indexación general del sitio está desactivada y prevalece sobre el permiso de esta página.</p> : null}
+    </Panel>
+  </>;
 }
 
 function MoveControls({ label, index, total, disabled, onMove }: { label: string; index: number; total: number; disabled: boolean; onMove: (direction: -1 | 1) => void }) {
@@ -169,6 +230,7 @@ export function AdminDashboard({ initialContent, status, user, signOutAction }: 
   const [section, setSection] = useState<Section>("overview");
   const [selectedRoomId, setSelectedRoomId] = useState(initialContent.rooms[0]?.id || "");
   const [selectedLocationId, setSelectedLocationId] = useState(initialContent.locations[0]?.id || "");
+  const [selectedSeoKey, setSelectedSeoKey] = useState<SeoPageEntry["key"]>("home");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<UploadProgress | null>(null);
   const uploadLock = useRef(false);
@@ -191,7 +253,11 @@ export function AdminDashboard({ initialContent, status, user, signOutAction }: 
   const activeLocation = content.locations.find(location => location.id === selectedLocationId) || content.locations[0];
   const currentSection = sections.find(item => item.id === section)!;
   const busy = saving || uploading !== null;
-  const copyGroups = pageCopyGroups.map(group => ({ ...group, fields: group.fields.filter(field => copyFilter.matches === null || copyFilter.matches.includes(field.key)) })).filter(group => group.fields.length);
+  const copyGroups = pageCopyGroups.map(group => ({ ...group, fields: group.fields.filter(field => !LEGACY_SEO_COPY_KEYS.has(field.key) && (copyFilter.matches === null || copyFilter.matches.includes(field.key))) })).filter(group => group.fields.length);
+  const seoPages = listSeoPages(content);
+  const activeSeoPage = seoPages.find(page => page.key === selectedSeoKey) || seoPages[0];
+  const seoLocation = activeSeoPage?.key.startsWith("location:") ? content.locations.find(location => activeSeoPage.key === `location:${location.id}`) : undefined;
+  const seoDefaultImage = seoLocation?.photos.find(photo => photo.url)?.url || content.seo.ogImage || "/og-image.png";
 
   useEffect(() => {
     if (!dirty) return;
@@ -224,6 +290,14 @@ export function AdminDashboard({ initialContent, status, user, signOutAction }: 
   }
   function updateLocation(id: string, patch: Partial<SiteLocation>) {
     editContent(previous => ({ ...previous, locations: previous.locations.map(location => location.id === id ? { ...location, ...patch } : location) }));
+  }
+  function updatePageSeo(key: SeoPageEntry["key"], patch: Partial<PageSeo>) {
+    editContent(previous => {
+      if (key === "home") return { ...previous, seo: { ...previous.seo, ...patch } };
+      if (key === "privacy" || key === "terms") return { ...previous, legalSeo: { ...previous.legalSeo, [key]: { ...previous.legalSeo[key], ...patch } } };
+      if (key.startsWith("location:")) return { ...previous, locations: previous.locations.map(location => key === `location:${location.id}` ? { ...location, seo: { ...location.seo, ...patch } } : location) };
+      return previous;
+    });
   }
   function updateGallery(target: GalleryTarget, photos: RoomPhoto[]) {
     if (photos.length > MAX_PHOTOS) return;
@@ -295,7 +369,7 @@ export function AdminDashboard({ initialContent, status, user, signOutAction }: 
   function searchCopy(query: string) {
     const normalize = (value: string) => value.toLocaleLowerCase("es").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const search = normalize(query.trim());
-    const matches: PageCopyKey[] | null = search ? pageCopyGroups.flatMap(group => group.fields.filter(field => normalize(`${group.label} ${field.label} ${field.defaultValue} ${content.copy[field.key]}`).includes(search)).map(field => field.key)) : null;
+    const matches: PageCopyKey[] | null = search ? pageCopyGroups.flatMap(group => group.fields.filter(field => !LEGACY_SEO_COPY_KEYS.has(field.key) && normalize(`${group.label} ${field.label} ${field.defaultValue} ${content.copy[field.key]}`).includes(search)).map(field => field.key)) : null;
     // Keep the search result stable while a matching text is being edited.
     setCopyFilter({ query, matches });
   }
@@ -355,9 +429,10 @@ export function AdminDashboard({ initialContent, status, user, signOutAction }: 
       const submitted: SiteContent = {
         ...content,
         rooms: content.rooms.map(room => ({ ...room, features: room.features.map(value => value.trim()).filter(Boolean) })),
-        seo: { ...content.seo, keywords: content.seo.keywords.map(value => value.trim()).filter(Boolean) },
+        seo: { ...content.seo, ...tidyPageSeo(content.seo) },
+        legalSeo: { privacy: tidyPageSeo(content.legalSeo.privacy), terms: tidyPageSeo(content.legalSeo.terms) },
         location: { ...content.location, highlights: content.location.highlights.map(value => value.trim()).filter(Boolean) },
-        locations: content.locations.map(location => ({ ...location, amenities: location.amenities.map(value => value.trim()).filter(Boolean) })),
+        locations: content.locations.map(location => ({ ...location, amenities: location.amenities.map(value => value.trim()).filter(Boolean), seo: tidyPageSeo(location.seo) })),
       };
       const response = await fetch("/api/content", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: submitted }) });
       const result = await response.json();
@@ -365,11 +440,16 @@ export function AdminDashboard({ initialContent, status, user, signOutAction }: 
         if (Array.isArray(result.issues) && result.issues.length) {
           const path = String(result.issues[0].path || "").replace(/^content\./, "");
           if (path.startsWith("rooms.")) { setSection("rooms"); setSelectedRoomId(content.rooms[Number(path.split(".")[1]) || 0]?.id || content.rooms[0].id); }
-          else if (path.startsWith("seo.")) setSection("seo");
+          else if (path.startsWith("seo.")) { setSection("seo"); setSelectedSeoKey("home"); }
+          else if (path.startsWith("legalSeo.")) { setSection("seo"); setSelectedSeoKey(path.split(".")[1] === "terms" ? "terms" : "privacy"); }
           else if (path.startsWith("contact.")) setSection("contact");
           else if (path.startsWith("policies.")) setSection("legal");
           else if (path.startsWith("faq.")) setSection("faq");
-          else if (path.startsWith("locations.")) { setSection("locations"); setSelectedLocationId(content.locations[Number(path.split(".")[1]) || 0]?.id || content.locations[0].id); }
+          else if (path.startsWith("locations.")) {
+            const locationId = content.locations[Number(path.split(".")[1]) || 0]?.id || content.locations[0].id;
+            if (path.split(".")[2] === "seo") { setSection("seo"); setSelectedSeoKey(`location:${locationId}`); }
+            else { setSection("locations"); setSelectedLocationId(locationId); }
+          }
           else if (path.startsWith("visitorCountries") || path.startsWith("paymentMethods")) setSection("extras");
           else if (path.startsWith("copy.")) { setSection("copy"); setCopyFilter({ query: "", matches: null }); }
           else setSection("content");
@@ -471,10 +551,7 @@ export function AdminDashboard({ initialContent, status, user, signOutAction }: 
               {activeLocation.nearby.length ? activeLocation.nearby.map((nearby, index) => <div className="admin-collection-card" key={`${activeLocation.id}-${index}`}><div className="admin-collection-heading"><span>Lugar {index + 1}</span><div><MoveControls label={`lugar cercano ${index + 1} de ${activeLocation.name}`} index={index} total={activeLocation.nearby.length} disabled={busy} onMove={direction => updateLocation(activeLocation.id, { nearby: moveItem(activeLocation.nearby, index, direction) })}/><button type="button" className="admin-icon-button admin-danger" disabled={busy} aria-label={`Quitar lugar cercano ${index + 1}`} onClick={() => updateLocation(activeLocation.id, { nearby: activeLocation.nearby.filter((_, current) => current !== index) })}><AdminIcon name="trash" size={16}/></button></div></div><div className="admin-fields-grid"><TextField label={`Nombre del lugar ${index + 1}`} value={nearby.title} onChange={title => updateLocation(activeLocation.id, { nearby: activeLocation.nearby.map((item, current) => current === index ? { ...item, title } : item) })} required maxLength={150}/><TextField label={`Descripción del lugar ${index + 1}`} value={nearby.description} onChange={description => updateLocation(activeLocation.id, { nearby: activeLocation.nearby.map((item, current) => current === index ? { ...item, description } : item) })} required maxLength={1200}/></div></div>) : <p className="admin-muted-note">Aún no hay lugares cercanos añadidos para esta ubicación.</p>}
             </Panel>
             <Panel title="Fotografías de la ubicación" description="Muestra los espacios compartidos, el acceso o el entorno de esta dirección."><GalleryEditor key={activeLocation.id} photos={activeLocation.photos} ownerName={activeLocation.name} disabled={busy || !status.configured || Boolean(status.error)} progress={uploading?.target === `location:${activeLocation.id}` ? uploading : null} onChange={photos => updateGallery({ kind: "location", id: activeLocation.id }, photos)} onUpload={(files, replaceIndex) => void uploadPhotos(files, { kind: "location", id: activeLocation.id }, replaceIndex)}/></Panel>
-            <Panel title="Visibilidad de esta ubicación en Google" description="Cada ubicación tiene su propio título y descripción para los buscadores.">
-              <TextField label="Título SEO de la ubicación" value={activeLocation.seo.title} onChange={title => updateLocation(activeLocation.id, { seo: { ...activeLocation.seo, title } })} required={activeLocation.published} maxLength={160} hint={`${activeLocation.seo.title.length} caracteres. Incluye el nombre y la zona de este alojamiento.`}/>
-              <TextField label="Descripción SEO de la ubicación" value={activeLocation.seo.description} onChange={description => updateLocation(activeLocation.id, { seo: { ...activeLocation.seo, description } })} multiline required={activeLocation.published} maxLength={500}/>
-            </Panel>
+            <Panel title="Visibilidad de esta ubicación en Google" description="Su título, descripción, URL canónica, imagen social y permisos de indexación se editan juntos en la configuración SEO."><button type="button" className="admin-button admin-button-outline" onClick={() => { setSelectedSeoKey(`location:${activeLocation.id}`); setSection("seo"); window.scrollTo({ top: 0, behavior: "instant" }); }}>Editar SEO de {activeLocation.name}<AdminIcon name="arrow" size={17}/></button></Panel>
           </> : null}
         </> : null}
 
@@ -491,7 +568,7 @@ export function AdminDashboard({ initialContent, status, user, signOutAction }: 
         </> : null}
 
         {section === "copy" ? <>
-          <Panel title="Cada palabra, a tu manera" description={`${pageCopyFields.length} textos agrupados por sección. Los títulos principales, servicios y datos del alojamiento se editan en «Contenido del sitio».`}>
+          <Panel title="Cada palabra, a tu manera" description={`${editableCopyFields.length} textos agrupados por sección. Los títulos principales, servicios y datos del alojamiento se editan en «Contenido del sitio». El SEO de las páginas legales se edita en «Visibilidad en Google».`}>
             <TextField label="Buscar un texto o una sección" value={copyFilter.query} onChange={searchCopy} type="search" placeholder="Por ejemplo: botón, mapa, WhatsApp…"/>
             <p className="admin-muted-note">Puedes usar variables como {"{habitaciones}"}, {"{habitacion}"}, {"{sitio}"} y {"{anio}"} donde se indiquen. Se reemplazan automáticamente en tu página.</p>
           </Panel>
@@ -504,9 +581,18 @@ export function AdminDashboard({ initialContent, status, user, signOutAction }: 
         </Panel> : null}
 
         {section === "seo" ? <>
-          <Panel title="Así te encontrarán en Google" description="Una presentación clara, local y escrita para personas."><TextField label="Título del sitio" value={content.seo.title} onChange={title => update("seo", { title })} hint={`${content.seo.title.length} caracteres. Como referencia, intenta usar entre 50 y 60.`} required maxLength={160}/><TextField label="Descripción para buscadores" value={content.seo.description} onChange={description => update("seo", { description })} multiline hint={`${content.seo.description.length} caracteres. Describe tu alojamiento y ubicación de forma natural.`} required maxLength={500}/><div className="admin-search-preview"><span>VISTA PREVIA ORIENTATIVA</span><p className="admin-search-url">{content.seo.siteUrl || "https://alojamientospiffre.cl"}</p><p className="admin-search-title">{content.seo.title || "Nombre de tu sitio"}</p><p className="admin-search-description">{content.seo.description || "Agrega una descripción para tus futuros huéspedes."}</p></div><p className="admin-muted-note">Google puede adaptar el título y la descripción de sus resultados. Los cambios pueden tardar en reflejarse.</p></Panel>
-          <Panel title="Configuración de visibilidad" description="Estos datos ayudan a identificar y compartir tu sitio."><TextField label="Dirección principal del sitio (URL canónica)" value={content.seo.siteUrl} onChange={siteUrl => update("seo", { siteUrl })} type="url" required/><TextField label="Palabras clave de referencia" value={content.seo.keywords.join(", ")} onChange={value => update("seo", { keywords: value.split(",").map(item => item.trimStart()) })} hint="Separadas por comas. Sirven como guía editorial; no garantizan posiciones en Google."/><TextField label="Imagen al compartir el sitio" value={content.seo.ogImage} onChange={ogImage => update("seo", { ogImage })} placeholder="https://…" hint="URL pública o ruta del sitio (por ejemplo, /og-image.png). Idealmente de 1200 × 630 píxeles."/><label className="admin-toggle-row"><span><strong>Permitir que Google indexe el sitio</strong><small>Desactívalo solo si necesitas ocultar el sitio de los buscadores.</small></span><input type="checkbox" checked={content.seo.robotsIndex} onChange={event => update("seo", { robotsIndex: event.target.checked })}/></label></Panel>
-          <Panel title="Google Search Console y Tag Manager" description="Completa estos campos cuando tengas tus cuentas y códigos preparados."><TextField label="Código de verificación de Google Search Console" value={content.seo.googleSiteVerification} onChange={googleSiteVerification => update("seo", { googleSiteVerification })} maxLength={200} placeholder="Código de la etiqueta de verificación" hint="Pega solo el valor del atributo content de la etiqueta google-site-verification, sin las comillas ni el HTML."/><TextField label="Identificador de Google Tag Manager" value={content.seo.gtmId} onChange={gtmId => update("seo", { gtmId: gtmId.toUpperCase().trim() })} placeholder="GTM-XXXXXXX" hint="Puedes dejarlo vacío. Publica únicamente el contenedor y las etiquetas que hayas revisado para este sitio."/></Panel>
+          <Panel title="Una presentación para cada página" description="Elige qué página quieres configurar. Puedes editar varias y guardar todos sus cambios al terminar." aside={<span className="admin-status-badge">{seoPages.length} páginas</span>}>
+            <SelectField label="Página a editar" value={activeSeoPage.key} options={seoPages.map(page => ({ value: page.key, label: `${page.label} · ${page.path}` }))} onChange={key => setSelectedSeoKey(key as SeoPageEntry["key"])}/>
+            <div className="admin-seo-page-path"><span>Estás editando <strong>{activeSeoPage.label}</strong><code>{activeSeoPage.path}</code></span>{seoLocation && !seoLocation.published ? <span className="admin-status-badge">Ubicación oculta</span> : <a href={activeSeoPage.path} target="_blank" rel="noopener noreferrer" className="admin-button admin-button-outline">Ver esta página<AdminIcon name="external" size={16}/></a>}</div>
+            {seoLocation && !seoLocation.published ? <p className="admin-muted-note">Esta ubicación está oculta. Su configuración SEO se conserva para cuando vuelvas a publicarla.</p> : null}
+          </Panel>
+          <PageSeoEditor key={activeSeoPage.key} page={activeSeoPage} siteUrl={content.seo.siteUrl} defaultImage={seoDefaultImage} masterIndex={content.seo.robotsIndex} onChange={patch => updatePageSeo(activeSeoPage.key, patch)}/>
+          <Panel title="Configuración general de todo el sitio" description="Estos ajustes se comparten entre las páginas públicas y se guardan junto con el resto de tu edición.">
+            <TextField label="Dominio principal del sitio" value={content.seo.siteUrl} onChange={siteUrl => update("seo", { siteUrl })} type="url" required maxLength={2048} hint="Solo el dominio HTTPS, sin rutas. Las URL canónicas vacías se completan con este dominio y la ruta de cada página."/>
+            <label className="admin-toggle-row"><span><strong>Permitir la indexación general del sitio público</strong><small>Al desactivarla se bloquea la indexación de todas las páginas públicas, aunque tengan su permiso individual activado.</small></span><input type="checkbox" checked={content.seo.robotsIndex} onChange={event => update("seo", { robotsIndex: event.target.checked })}/></label>
+            <div className="admin-seo-global-fields"><TextField label="Código de verificación de Google Search Console" value={content.seo.googleSiteVerification} onChange={googleSiteVerification => update("seo", { googleSiteVerification })} maxLength={200} placeholder="Código de la etiqueta de verificación" hint="Pega solo el valor del atributo content de la etiqueta google-site-verification, sin las comillas ni el HTML."/><TextField label="Identificador de Google Tag Manager" value={content.seo.gtmId} onChange={gtmId => update("seo", { gtmId: gtmId.toUpperCase().trim() })} placeholder="GTM-XXXXXXX" hint="Puedes dejarlo vacío. Publica únicamente el contenedor y las etiquetas que hayas revisado para este sitio."/></div>
+            <p className="admin-muted-note">El panel privado de administración y las rutas de inicio de sesión permanecen fuera de la indexación. No forman parte de este selector.</p>
+          </Panel>
         </> : null}
 
         {section === "contact" ? <>

@@ -1,4 +1,5 @@
 import type { Location, Room, SiteContent } from "./types";
+import { hasOwnCanonical, listSeoPages } from "./page-seo";
 
 export function publishedLocations(content: SiteContent): Location[] {
   return content.locations.filter((location) => location.published);
@@ -54,7 +55,8 @@ export function homeSchema(content: SiteContent) {
   return {
     "@context": "https://schema.org",
     "@graph": [
-      { "@type": "Organization", "@id": `${base}/#organization`, name: content.site.name, url: base, logo: `${base}/brand/logo.webp` },
+      { "@type": "Organization", "@id": `${base}/#organization`, name: content.site.name, url: base, logo: `${base}/brand/logo.webp`,
+        ...(content.contact.instagram ? { sameAs: [content.contact.instagram] } : {}) },
       ...publishedLocations(content).map((location) => lodgingSchema(content, location)),
       { "@type": "WebSite", "@id": `${base}/#website`, url: base, name: content.site.name, inLanguage: "es-CL" },
       ...(content.faq.length ? [{ "@type": "FAQPage", mainEntity: content.faq.map((faq) => ({
@@ -81,7 +83,9 @@ export function locationSchema(content: SiteContent, location: Location) {
   };
 }
 
-export function sitemapPaths(content: SiteContent): string[] {
-  if (!content.seo.robotsIndex) return [];
-  return ["", "/politica-de-privacidad", "/terminos-y-condiciones", ...publishedLocations(content).map((location) => `/ubicaciones/${location.slug}`)];
+export function sitemapPaths(content: SiteContent, options: { preview?: boolean } = {}): string[] {
+  if (!content.seo.robotsIndex || options.preview) return [];
+  const locations = new Set(publishedLocations(content).map((location) => `location:${location.id}`));
+  return listSeoPages(content).filter((page) => page.seo.index && hasOwnCanonical(content, page)
+    && (!page.key.startsWith("location:") || locations.has(page.key))).map((page) => page.path);
 }

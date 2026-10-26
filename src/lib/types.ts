@@ -7,6 +7,30 @@ export interface RoomPhoto {
   alt: string;
 }
 
+export interface PageSeo {
+  title: string;
+  description: string;
+  keywords: string[];
+  canonicalUrl: string;
+  ogTitle: string;
+  ogDescription: string;
+  ogImage: string;
+  ogImageAlt: string;
+  twitterTitle: string;
+  twitterDescription: string;
+  twitterImage: string;
+  twitterCard: "summary" | "summary_large_image";
+  index: boolean;
+  follow: boolean;
+}
+
+export interface SiteSeo extends PageSeo {
+  siteUrl: string;
+  robotsIndex: boolean;
+  googleSiteVerification: string;
+  gtmId: string;
+}
+
 export interface Room {
   id: string;
   slug: string;
@@ -41,7 +65,7 @@ export interface Location {
   nearby: { title: string; description: string }[];
   amenities: string[];
   photos: RoomPhoto[];
-  seo: { title: string; description: string };
+  seo: PageSeo;
   published: boolean;
 }
 
@@ -70,16 +94,8 @@ export interface SiteContent {
     instagram: string;
     mapUrl: string;
   };
-  seo: {
-    title: string;
-    description: string;
-    keywords: string[];
-    siteUrl: string;
-    ogImage: string;
-    robotsIndex: boolean;
-    googleSiteVerification: string;
-    gtmId: string;
-  };
+  seo: SiteSeo;
+  legalSeo: { privacy: PageSeo; terms: PageSeo };
   rooms: Room[];
   locations: Location[];
   visitorCountries: VisitorCountry[];

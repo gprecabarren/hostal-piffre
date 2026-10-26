@@ -34,9 +34,21 @@ Hay 48 archivos WebP entre fotografías de interiores y de áreas comunes. Las t
 7. **Países y pagos** permite agregar, editar, reordenar o quitar hasta 50 países con su código internacional de dos letras y nombre. También permite gestionar hasta 20 medios de pago, cambiar su orden y habilitar o deshabilitar su aparición. La franja de países es una selección editorial y no un ranking local ni un registro de huéspedes; el criterio y las referencias están en [FUENTES.md](FUENTES.md).
 8. **Textos de la página** permite buscar y editar los textos agrupados de menú, títulos, botones, franjas, propiedades, ubicaciones, mapa, contacto, pie de página, avisos de privacidad y textos auxiliares legales. El número de campos se muestra en el propio panel. Los campos son texto simple; para títulos y párrafos se pueden usar saltos de línea. Las variables indicadas admiten valores como `{habitaciones}`, `{habitacion}`, `{sitio}`, `{anio}`, `{foto}` o `{total}` y se reemplazan al mostrar la página.
 9. **Preguntas frecuentes** permite agregar, editar, reordenar y quitar hasta 20 preguntas y respuestas. En **Contenido del sitio** se pueden gestionar hasta 12 servicios generales y los textos de presentación.
-10. **Contacto y redes** permite cambiar el número general de WhatsApp, mensaje, Instagram, correo y datos generales de contacto. **Visibilidad en Google** permite editar título, descripción, imagen social, palabras clave, indexación, token de Search Console e identificador de Google Tag Manager. **Textos legales** contiene privacidad, condiciones y fecha de actualización editables.
+10. **Contacto y redes** permite cambiar el número general de WhatsApp, mensaje, Instagram, correo y datos generales de contacto. **Visibilidad en Google** reúne la configuración SEO de cada página y los ajustes generales de dominio, Search Console y Tag Manager. **Textos legales** contiene privacidad, condiciones y fecha de actualización editables.
 
 El guardado es global: incluye las modificaciones de todas las secciones. Antes de guardar se pueden deshacer las propiedades retiradas o usar **Descartar cambios** para recuperar la última versión guardada. La hora del último guardado usa el horario de Chile, `America/Santiago`, en formato de 24 horas.
+
+## SEO de cada página
+
+En **Visibilidad en Google**, elegir la página en el selector: inicio, Providencia, Santiago Centro, política de privacidad o términos y condiciones. Las ubicaciones que se agreguen en el futuro también aparecerán en esta lista. El acceso desde **Ubicaciones → Editar SEO** abre la configuración de esa misma página.
+
+- **Título, descripción y palabras clave:** cada página tiene sus propios valores y una vista previa orientativa de Google. El buscador puede adaptar los textos y tardar en reflejar un cambio.
+- **URL canónica:** se puede indicar una URL HTTPS propia. En blanco se usa el dominio general y la ruta de la página.
+- **Open Graph:** título, descripción, imagen y texto alternativo para los enlaces compartidos. Los títulos y descripciones vacíos usan el SEO de esa página; sin imagen propia se usa una fotografía de la ubicación cuando corresponda o la imagen general del inicio.
+- **Twitter / X:** título, descripción, imagen y formato de tarjeta, con imagen grande o resumen compacto. Los campos vacíos utilizan los valores sociales disponibles.
+- **Buscadores:** cada página permite activar o desactivar su indexación y el seguimiento de enlaces. Desactivar la indexación general prevalece sobre el permiso de indexación individual.
+
+**Configuración general de todo el sitio** conserva el dominio HTTPS principal, el permiso global de indexación, el token de Search Console y el identificador GTM. El panel de administración y las rutas de autenticación no forman parte del selector y permanecen fuera de la indexación. Se pueden editar varias páginas antes de pulsar **Guardar y publicar**.
 
 ## Privacidad y medición
 
@@ -76,13 +88,12 @@ Para una instalación existente, `supabase/upgrade-dynamic-content.sql` amplía 
 - SEO renderizado en servidor, canonical, metadatos sociales y datos estructurados de alojamiento, sitio y preguntas frecuentes.
 - Dominio raíz de producción y redirección permanente de `www` al dominio raíz. Certificados HTTPS administrados automáticamente por Vercel.
 - Lectura pública y escritura privada del contenido; claves del servidor fuera de Git y del navegador.
-- En la ampliación: TypeScript y 17 pruebas automatizadas de autorización, validación, migración del contenido anterior, propiedades y ubicaciones, galerías de hasta 40 fotos, enlaces de contacto y exclusión de rutas de analítica.
+- En la ampliación y el editor SEO por página: TypeScript y 22 pruebas automatizadas de autorización, validación, migración, propiedades y ubicaciones, galerías, enlaces, canonical, metadatos sociales, robots y sitemap.
 
 ## Contenido pendiente del anfitrión
 
 - Nombres definitivos de las habitaciones, capacidades, camas y servicios particulares.
 - Completar o confirmar los enlaces definitivos de Booking, Airbnb y Vrbo por propiedad. Las fotografías entregadas ya están preparadas; las habitaciones ocultas se pueden completar y publicar más adelante.
-- Perfil oficial de Instagram.
 - Confirmación de horarios, mascotas, pagos, cancelaciones y datos legales del responsable. Las condiciones publicadas son una base editable.
 
 La revisión del contenido comercial y legal sigue a cargo del anfitrión. Publicar una propiedad solo cuando su información esté lista para mostrarse.

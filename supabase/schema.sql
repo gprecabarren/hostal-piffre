@@ -84,11 +84,11 @@ values ('main', $piffre_seed${
     "city": "Santiago",
     "region": "Región Metropolitana",
     "country": "Chile",
-    "instagram": "",
+    "instagram": "https://www.instagram.com/hostalpiffre/",
     "mapUrl": "https://www.google.com/maps/search/?api=1&query=Los+Capitanes+1253+Providencia+Santiago+Chile"
   },
   "seo": {
-    "title": "Alojamientos Piffre | Hostal Providencia y departamentos Santiago Centro",
+    "title": "Alojamientos Piffre en Providencia y Santiago Centro",
     "description": "Habitaciones de hostal en Providencia y departamentos en Santiago Centro. Conoce las dos ubicaciones de Alojamientos Piffre y consulta disponibilidad por WhatsApp.",
     "keywords": [
       "alojamiento en Providencia",
@@ -98,11 +98,55 @@ values ('main', $piffre_seed${
       "Alojamientos Piffre",
       "Hostal Piffre"
     ],
-    "siteUrl": "https://alojamientospiffre.cl",
+    "canonicalUrl": "",
+    "ogTitle": "",
+    "ogDescription": "",
     "ogImage": "/og-image.png",
+    "ogImageAlt": "Hostal Piffre, tu hogar lejos de casa",
+    "twitterTitle": "",
+    "twitterDescription": "",
+    "twitterImage": "",
+    "twitterCard": "summary_large_image",
+    "index": true,
+    "follow": true,
+    "siteUrl": "https://alojamientospiffre.cl",
     "robotsIndex": true,
     "googleSiteVerification": "Ya29cIRkxvPSmxNZ2ZOyXpgVFEqfyL6K-qN05uiAON0",
     "gtmId": "GTM-5LW4VNRP"
+  },
+  "legalSeo": {
+    "privacy": {
+      "title": "Política de privacidad | Hostal Piffre",
+      "description": "Política de privacidad de Hostal Piffre. Información sobre datos de contacto y consultas de alojamiento.",
+      "keywords": [],
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": "",
+      "ogImageAlt": "",
+      "twitterTitle": "",
+      "twitterDescription": "",
+      "twitterImage": "",
+      "twitterCard": "summary_large_image",
+      "index": true,
+      "follow": true
+    },
+    "terms": {
+      "title": "Términos y condiciones | Hostal Piffre",
+      "description": "Condiciones de uso y consultas de reservas de Hostal Piffre en Providencia y Santiago Centro.",
+      "keywords": [],
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": "",
+      "ogImageAlt": "",
+      "twitterTitle": "",
+      "twitterDescription": "",
+      "twitterImage": "",
+      "twitterCard": "summary_large_image",
+      "index": true,
+      "follow": true
+    }
   },
   "copy": {
     "brandPrefix": "HOSTAL",
@@ -592,7 +636,19 @@ values ('main', $piffre_seed${
       "published": true,
       "seo": {
         "title": "Hostal en Providencia, Santiago | Alojamientos Piffre",
-        "description": "Conoce nuestras habitaciones en Providencia, Santiago. Alojamiento en Los Capitanes 1253 con atención cercana. Consulta disponibilidad por WhatsApp."
+        "description": "Conoce nuestras habitaciones en Providencia, Santiago. Alojamiento en Los Capitanes 1253 con atención cercana. Consulta disponibilidad por WhatsApp.",
+        "keywords": [],
+        "canonicalUrl": "",
+        "ogTitle": "",
+        "ogDescription": "",
+        "ogImage": "",
+        "ogImageAlt": "",
+        "twitterTitle": "",
+        "twitterDescription": "",
+        "twitterImage": "",
+        "twitterCard": "summary_large_image",
+        "index": true,
+        "follow": true
       }
     },
     {
@@ -662,7 +718,19 @@ values ('main', $piffre_seed${
       "published": true,
       "seo": {
         "title": "Departamentos en Santiago Centro | Alojamientos Piffre",
-        "description": "Descubre los departamentos de Alojamientos Piffre en Santiago Centro. Revisa nuestros espacios y consulta disponibilidad directamente por WhatsApp."
+        "description": "Descubre los departamentos de Alojamientos Piffre en Santiago Centro. Revisa nuestros espacios y consulta disponibilidad directamente por WhatsApp.",
+        "keywords": [],
+        "canonicalUrl": "",
+        "ogTitle": "",
+        "ogDescription": "",
+        "ogImage": "",
+        "ogImageAlt": "",
+        "twitterTitle": "",
+        "twitterDescription": "",
+        "twitterImage": "",
+        "twitterCard": "summary_large_image",
+        "index": true,
+        "follow": true
       }
     }
   ],
