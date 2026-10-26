@@ -4,7 +4,9 @@ import { getSiteContent, saveSiteContent } from "@/lib/content";
 import { contentPayloadSchema, isSameOrigin } from "@/lib/validation";
 
 export const runtime = "nodejs";
-const MAX_CONTENT_BYTES = 1_000_000;
+// Galleries may contain up to 40 photographs per property. Stay below the
+// function request-body limit while allowing the validated content shape.
+const MAX_CONTENT_BYTES = 4_000_000;
 
 export async function GET() {
   return Response.json({ content: await getSiteContent() }, { headers: { "Cache-Control": "no-store" } });

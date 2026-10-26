@@ -1,0 +1,220 @@
+{
+  "rooms": {
+    "habitacion-1": [
+      {
+        "url": "/media/hostal-1/01.webp",
+        "alt": "Habitación 1 del Hostal Piffre en Providencia"
+      }
+    ],
+    "habitacion-2": [
+      {
+        "url": "/media/hostal-2/01.webp",
+        "alt": "Cama de la habitación 2 del Hostal Piffre en Providencia"
+      },
+      {
+        "url": "/media/hostal-2/02.webp",
+        "alt": "Vista de la habitación 2 y su televisión, Hostal Piffre"
+      },
+      {
+        "url": "/media/hostal-2/03.webp",
+        "alt": "Ventana y televisión de la habitación 2"
+      },
+      {
+        "url": "/media/hostal-2/04.webp",
+        "alt": "Vista nocturna desde la habitación 2 del Hostal Piffre"
+      }
+    ],
+    "departamento-1": [
+      {
+        "url": "/media/depto-1/01.webp",
+        "alt": "Vista principal del dormitorio del departamento 1"
+      },
+      {
+        "url": "/media/depto-1/02.webp",
+        "alt": "Estar junto a la cocina del departamento 1"
+      },
+      {
+        "url": "/media/depto-1/03.webp",
+        "alt": "Televisión, cocina y estar del departamento 1"
+      },
+      {
+        "url": "/media/depto-1/04.webp",
+        "alt": "Cocina y comedor del departamento 1"
+      },
+      {
+        "url": "/media/depto-1/05.webp",
+        "alt": "Estar y ventanal del departamento 1"
+      },
+      {
+        "url": "/media/depto-1/06.webp",
+        "alt": "Sofá y ventanal del departamento 1"
+      },
+      {
+        "url": "/media/depto-1/07.webp",
+        "alt": "Comedor junto al ventanal del departamento 1"
+      },
+      {
+        "url": "/media/depto-1/08.webp",
+        "alt": "Área de piscina del edificio; consulta condiciones de uso"
+      },
+      {
+        "url": "/media/depto-1/09.webp",
+        "alt": "Otra vista del área de piscina del edificio"
+      },
+      {
+        "url": "/media/depto-1/10.webp",
+        "alt": "Dormitorio y ventana del departamento 1"
+      },
+      {
+        "url": "/media/depto-1/11.webp",
+        "alt": "Dormitorio junto al estar del departamento 1"
+      },
+      {
+        "url": "/media/depto-1/12.webp",
+        "alt": "Cama y ventana del departamento 1"
+      },
+      {
+        "url": "/media/depto-1/13.webp",
+        "alt": "Televisión y vista hacia el dormitorio del departamento 1"
+      }
+    ],
+    "departamento-2": [
+      {
+        "url": "/media/depto-2/01.webp",
+        "alt": "Dormitorio del departamento 2 en Santiago Centro"
+      },
+      {
+        "url": "/media/depto-2/02.webp",
+        "alt": "Estar y balcón del departamento 2"
+      },
+      {
+        "url": "/media/depto-2/03.webp",
+        "alt": "Cocina y comedor del departamento 2"
+      },
+      {
+        "url": "/media/depto-2/04.webp",
+        "alt": "Estar y salida al balcón del departamento 2"
+      },
+      {
+        "url": "/media/depto-2/05.webp",
+        "alt": "Dormitorio y televisión del departamento 2"
+      },
+      {
+        "url": "/media/depto-2/06.webp",
+        "alt": "Cocina del departamento 2"
+      },
+      {
+        "url": "/media/depto-2/07.webp",
+        "alt": "Baño del departamento 2"
+      },
+      {
+        "url": "/media/depto-2/08.webp",
+        "alt": "Balcón del departamento 2"
+      },
+      {
+        "url": "/media/depto-2/09.webp",
+        "alt": "Otra vista de la cocina y comedor del departamento 2"
+      },
+      {
+        "url": "/media/depto-2/10.webp",
+        "alt": "Sofá del estar del departamento 2"
+      }
+    ],
+    "departamento-3": [
+      {
+        "url": "/media/depto-3/01.webp",
+        "alt": "Vista principal del dormitorio del departamento 3"
+      },
+      {
+        "url": "/media/depto-3/02.webp",
+        "alt": "Estar y comedor del departamento 3"
+      },
+      {
+        "url": "/media/depto-3/03.webp",
+        "alt": "Vista de la cocina equipada del departamento 3"
+      },
+      {
+        "url": "/media/depto-3/04.webp",
+        "alt": "Dormitorio del departamento 3"
+      },
+      {
+        "url": "/media/depto-3/05.webp",
+        "alt": "Cocina del departamento 3"
+      },
+      {
+        "url": "/media/depto-3/06.webp",
+        "alt": "Baño del departamento 3"
+      },
+      {
+        "url": "/media/depto-3/07.webp",
+        "alt": "Estar visto desde la cocina del departamento 3"
+      },
+      {
+        "url": "/media/depto-3/08.webp",
+        "alt": "Comedor junto a la cocina del departamento 3"
+      },
+      {
+        "url": "/media/depto-3/09.webp",
+        "alt": "Espacio de guardarropa del departamento 3"
+      },
+      {
+        "url": "/media/depto-3/10.webp",
+        "alt": "Otra vista del dormitorio y televisión del departamento 3"
+      },
+      {
+        "url": "/media/depto-3/11.webp",
+        "alt": "Cocina y mesa del departamento 3"
+      },
+      {
+        "url": "/media/depto-3/12.webp",
+        "alt": "Vista general del estar y cocina del departamento 3"
+      }
+    ]
+  },
+  "locations": {
+    "providencia": [
+      {
+        "url": "/media/hostal-2/01.webp",
+        "alt": "Cama de la habitación 2 del Hostal Piffre en Providencia"
+      },
+      {
+        "url": "/media/hostal-comunes/01.webp",
+        "alt": "Otra vista del baño en las áreas comunes del hostal"
+      },
+      {
+        "url": "/media/hostal-comunes/02.webp",
+        "alt": "Baño en las áreas comunes del Hostal Piffre"
+      }
+    ],
+    "santiago-centro": [
+      {
+        "url": "/media/depto-1/02.webp",
+        "alt": "Estar junto a la cocina del departamento 1"
+      },
+      {
+        "url": "/media/centro-comunes/01.webp",
+        "alt": "Recepción y estar del edificio de Vicuña Mackenna"
+      },
+      {
+        "url": "/media/centro-comunes/02.webp",
+        "alt": "Lavandería en el edificio de Vicuña Mackenna 625"
+      },
+      {
+        "url": "/media/centro-comunes/03.webp",
+        "alt": "Vista de Santiago desde el edificio"
+      },
+      {
+        "url": "/media/centro-comunes/04.webp",
+        "alt": "Patio en las áreas comunes del edificio"
+      },
+      {
+        "url": "/media/centro-comunes/05.webp",
+        "alt": "Área de juegos en los espacios comunes"
+      },
+      {
+        "url": "/media/centro-comunes/06.webp",
+        "alt": "Ambiente del sector al anochecer"
+      }
+    ]
+  }
+}

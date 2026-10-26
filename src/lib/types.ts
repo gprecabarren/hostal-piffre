@@ -14,11 +14,46 @@ export interface Room {
   description: string;
   tag: string;
   features: string[];
-  photos: [RoomPhoto, RoomPhoto, RoomPhoto];
+  /** The first three entries are covers; later entries form the extended gallery. */
+  photos: RoomPhoto[];
   bookingUrl: string;
   airbnbUrl: string;
   published: boolean;
   whatsappUrl: string;
+  vrboUrl: string;
+  locationId: string;
+  kind: "room" | "apartment";
+}
+
+export interface Location {
+  id: string;
+  slug: string;
+  name: string;
+  eyebrow: string;
+  title: string;
+  titleAccent: string;
+  description: string;
+  address: string;
+  city: string;
+  region: string;
+  country: string;
+  mapUrl: string;
+  nearby: { title: string; description: string }[];
+  amenities: string[];
+  photos: RoomPhoto[];
+  seo: { title: string; description: string };
+  published: boolean;
+}
+
+export interface VisitorCountry {
+  code: string;
+  name: string;
+}
+
+export interface PaymentMethod {
+  id: string;
+  label: string;
+  enabled: boolean;
 }
 
 export interface SiteContent {
@@ -46,6 +81,9 @@ export interface SiteContent {
     gtmId: string;
   };
   rooms: Room[];
+  locations: Location[];
+  visitorCountries: VisitorCountry[];
+  paymentMethods: PaymentMethod[];
   copy: PageCopy;
   about: { title: string; text: string };
   amenities: { title: string; description: string }[];

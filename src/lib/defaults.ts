@@ -1,5 +1,11 @@
-import type { Room, SiteContent } from "./types";
+import type { Location, Room, RoomPhoto, SiteContent } from "./types";
 import { defaultPageCopy } from "./copy";
+import photoSeed from "./photo-seed.json";
+
+function seedPhotos(scope: "rooms" | "locations", id: string, fallback: RoomPhoto[] = []): RoomPhoto[] {
+  const photographs = (photoSeed[scope] as Record<string, RoomPhoto[]>)[id];
+  return photographs ? photographs.map((photo) => ({ ...photo })) : fallback;
+}
 
 const makeRoom = (number: number): Room => ({
   id: `habitacion-${number}`,
@@ -8,30 +14,82 @@ const makeRoom = (number: number): Room => ({
   description:
     "Un espacio para hacer una pausa y sentirte en casa en Providencia. Escríbenos para conocer sus características y disponibilidad.",
   tag: "Tu pausa en Santiago",
-  features: ["WiFi gratis", "Consulta disponibilidad"],
-  photos: [
+  features: ["WiFi gratis", "Lavandería"],
+  photos: seedPhotos("rooms", `habitacion-${number}`, [
     { url: "", alt: `Vista principal de la habitación ${number} de Hostal Piffre` },
     { url: "", alt: `Segunda vista de la habitación ${number} de Hostal Piffre` },
     { url: "", alt: `Detalle de la habitación ${number} de Hostal Piffre` },
-  ],
+  ]),
   bookingUrl: number === 1 ? "https://www.booking.com/hotel/cl/piffre-de-vauban.es.html" : "",
   airbnbUrl: "",
-  published: true,
+  published: number === 2,
   whatsappUrl: "",
+  vrboUrl: "",
+  locationId: "providencia",
+  kind: "room",
 });
+
+const makeApartment = (number: number): Room => ({
+  id: `departamento-${number}`,
+  slug: `departamento-${number}`,
+  name: `Departamento ${number}`,
+  description: [
+    "Un espacio con dormitorio, estar y cocina para instalarte en Santiago Centro. Consulta fechas y condiciones directamente con tu anfitrión.",
+    "Un departamento con dormitorio, estar y balcón para hacer una pausa entre tus recorridos por Santiago. Consulta disponibilidad y condiciones.",
+    "Dormitorio, cocina y estar para vivir Santiago Centro a tu ritmo. Escríbenos para coordinar tu próxima estadía.",
+  ][number - 1],
+  tag: "Santiago Centro, a tu ritmo",
+  features: ["Lavandería", "Santiago Centro"],
+  photos: seedPhotos("rooms", `departamento-${number}`, Array.from({ length: 3 }, (_, index) => ({ url: "", alt: `Vista ${index + 1} del departamento ${number} en Santiago Centro` }))),
+  bookingUrl: "", airbnbUrl: "", whatsappUrl: "", vrboUrl: "",
+  locationId: "santiago-centro", kind: "apartment", published: true,
+});
+
+export const defaultLocations: Location[] = [
+  {
+    id: "providencia", slug: "providencia", name: "Providencia",
+    eyebrow: "HABITACIONES EN PROVIDENCIA",
+    title: "Providencia,", titleAccent: "a tu ritmo.",
+    description: "Habitaciones en Los Capitanes 1253, Providencia, Santiago. Una ubicación para descansar y descubrir la ciudad con atención cercana.",
+    address: "Los Capitanes 1253, Providencia", city: "Santiago", region: "Región Metropolitana", country: "Chile",
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Los+Capitanes+1253+Providencia+Santiago+Chile",
+    nearby: [
+      { title: "Barrio Italia", description: "Un barrio de cafés, diseño y antigüedades para descubrir durante tu estadía." },
+      { title: "Parque Inés de Suárez", description: "Un espacio verde de Providencia para pasear y disfrutar del barrio." },
+      { title: "Metro Inés de Suárez", description: "Estación de la Línea 6 del Metro de Santiago." },
+      { title: "Vida de barrio", description: "Cafés y comercio de barrio para complementar tu visita a Providencia." },
+    ], amenities: ["Lavandería", "WiFi"], photos: seedPhotos("locations", "providencia"), published: true,
+    seo: { title: "Hostal en Providencia, Santiago | Alojamientos Piffre", description: "Conoce nuestras habitaciones en Providencia, Santiago. Alojamiento en Los Capitanes 1253 con atención cercana. Consulta disponibilidad por WhatsApp." },
+  },
+  {
+    id: "santiago-centro", slug: "santiago-centro", name: "Santiago Centro",
+    eyebrow: "DEPARTAMENTOS EN SANTIAGO CENTRO",
+    title: "Santiago Centro,", titleAccent: "tu punto de partida.",
+    description: "Departamentos en Avenida Vicuña Mackenna 625, Santiago Centro. Una ubicación para descubrir la ciudad y consultar directamente con tu anfitrión las condiciones de tu estadía.",
+    address: "Av. Vicuña Mackenna 625", city: "Santiago", region: "Región Metropolitana", country: "Chile",
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=Avenida+Vicu%C3%B1a+Mackenna+625+Santiago+Chile",
+    nearby: [
+      { title: "Parque Bustamante", description: "Un paseo urbano con áreas verdes para disfrutar de Santiago." },
+      { title: "Metro Santa Isabel", description: "Estación de la Línea 5 del Metro de Santiago." },
+      { title: "Barrio Italia", description: "Cafés, diseño y antigüedades para recorrer durante tu visita." },
+      { title: "Centro histórico", description: "Descubre el centro histórico y los panoramas de Santiago según tus intereses." },
+    ], amenities: ["Lavandería"], photos: seedPhotos("locations", "santiago-centro"), published: true,
+    seo: { title: "Departamentos en Santiago Centro | Alojamientos Piffre", description: "Descubre los departamentos de Alojamientos Piffre en Santiago Centro. Revisa nuestros espacios y consulta disponibilidad directamente por WhatsApp." },
+  },
+];
 
 export const defaultContent: SiteContent = {
   site: {
     name: "Hostal Piffre",
     tagline: "Tu hogar lejos de casa",
-    description: "Alojamiento acogedor en Providencia, Santiago de Chile.",
+    description: "Habitaciones en Providencia y departamentos en Santiago Centro, Chile.",
   },
   hero: {
-    eyebrow: "ALOJAMIENTO EN PROVIDENCIA · SANTIAGO",
+    eyebrow: "PROVIDENCIA · SANTIAGO CENTRO",
     title: "Tu hogar,",
     titleAccent: "lejos de casa.",
     description:
-      "Espacios para descansar, un barrio por descubrir y la calidez de sentirte en casa. Bienvenido a Hostal Piffre.",
+      "Habitaciones en Providencia y departamentos en Santiago Centro. Dos ubicaciones, atención cercana y la calidez de sentirte en casa.",
   },
   contact: {
     whatsapp: "56954933261",
@@ -45,10 +103,10 @@ export const defaultContent: SiteContent = {
     mapUrl: "https://www.google.com/maps/search/?api=1&query=Los+Capitanes+1253+Providencia+Santiago+Chile",
   },
   seo: {
-    title: "Hostal Piffre | Alojamiento en Providencia, Santiago",
+    title: "Alojamientos Piffre | Hostal Providencia y departamentos Santiago Centro",
     description:
-      "Conoce Hostal Piffre, un alojamiento acogedor en Providencia, Santiago. Habitaciones, WiFi y atención cercana. Consulta disponibilidad por WhatsApp.",
-    keywords: ["alojamiento en Providencia", "hostal en Providencia", "alojamiento Santiago", "Hostal Piffre"],
+      "Habitaciones de hostal en Providencia y departamentos en Santiago Centro. Conoce las dos ubicaciones de Alojamientos Piffre y consulta disponibilidad por WhatsApp.",
+    keywords: ["alojamiento en Providencia", "hostal en Providencia", "departamentos Santiago Centro", "alojamiento Santiago Centro", "Alojamientos Piffre", "Hostal Piffre"],
     siteUrl: "https://alojamientospiffre.cl",
     ogImage: "/og-image.png",
     robotsIndex: true,
@@ -56,17 +114,32 @@ export const defaultContent: SiteContent = {
     gtmId: "GTM-5LW4VNRP",
   },
   copy: { ...defaultPageCopy },
-  rooms: [makeRoom(1), makeRoom(2), makeRoom(3)],
+  rooms: [makeRoom(1), makeRoom(2), makeRoom(3), makeApartment(1), makeApartment(2), makeApartment(3)],
+  locations: structuredClone(defaultLocations),
+  visitorCountries: [
+    { code: "AR", name: "Argentina" }, { code: "BR", name: "Brasil" },
+    { code: "US", name: "Estados Unidos" }, { code: "BO", name: "Bolivia" },
+    { code: "PE", name: "Perú" }, { code: "CO", name: "Colombia" },
+    { code: "MX", name: "México" }, { code: "DE", name: "Alemania" },
+    { code: "FR", name: "Francia" }, { code: "GB", name: "Reino Unido" },
+    { code: "ES", name: "España" }, { code: "RU", name: "Rusia" },
+  ],
+  paymentMethods: [
+    { id: "webpay", label: "Webpay", enabled: true },
+    { id: "visa", label: "Visa", enabled: true },
+    { id: "mastercard", label: "Mastercard", enabled: true },
+    { id: "mercadopago", label: "Mercado Pago", enabled: true },
+  ],
   about: {
     title: "Más que una estadía, una bienvenida.",
     text:
-      "En Hostal Piffre nos gusta lo simple: recibirte bien, ayudarte con lo que necesitas y ofrecerte un lugar donde descansar. Somos un alojamiento en Providencia, con atención cercana y un barrio lleno de vida a tu alrededor.",
+      "En Hostal Piffre nos gusta lo simple: recibirte bien, ayudarte con lo que necesitas y ofrecerte un lugar donde descansar. Te recibimos en nuestras habitaciones de Providencia y departamentos de Santiago Centro, con la misma atención cercana.",
   },
   amenities: [
-    { title: "WiFi gratis", description: "Mantente conectado durante tu estadía." },
+    { title: "Dos ubicaciones", description: "Habitaciones en Providencia y departamentos en Santiago Centro." },
     { title: "Atención cercana", description: "Conversa directamente con tu anfitrión." },
-    { title: "Terraza", description: "Un espacio para disfrutar una pausa." },
-    { title: "Barrio conectado", description: "Restaurantes, comercio y transporte en Providencia." },
+    { title: "Lavandería", description: "Disponible en ambas ubicaciones. Consulta las condiciones de uso." },
+    { title: "Santiago a tu ritmo", description: "Descubre los parques, cafés y barrios cercanos a cada ubicación." },
   ],
   location: {
     title: "Providencia, a tu ritmo.",
@@ -75,8 +148,9 @@ export const defaultContent: SiteContent = {
     highlights: ["Restaurantes y cafeterías", "Comercio de barrio", "Transporte público", "Cerca de Barrio Italia"],
   },
   faq: [
-    { question: "¿Cómo puedo reservar una habitación?", answer: "Escríbenos por WhatsApp con tus fechas y la cantidad de huéspedes. También puedes consultar los enlaces a las plataformas de reserva disponibles en cada habitación." },
-    { question: "¿Dónde está Hostal Piffre?", answer: "Estamos en Los Capitanes 1253, Providencia, Santiago de Chile." },
+    { question: "¿Cómo puedo reservar una habitación o departamento?", answer: "Escríbenos por WhatsApp con tus fechas y la cantidad de huéspedes. También puedes consultar los enlaces de Booking, Airbnb o Vrbo cuando estén habilitados en la ficha del alojamiento." },
+    { question: "¿Dónde están los alojamientos?", answer: "El hostal está en Los Capitanes 1253, Providencia. Los departamentos están en Av. Vicuña Mackenna 625, Santiago Centro. Ambos se encuentran en Santiago de Chile." },
+    { question: "¿Hay lavandería?", answer: "Sí, hay lavandería en ambas ubicaciones. Consulta con tu anfitrión los horarios, costos y condiciones de uso." },
     { question: "¿Cuáles son los horarios de llegada y salida?", answer: "La llegada se coordina desde las 15:00 y la salida entre las 11:00 y las 12:00. Confirma el horario con tu anfitrión antes de viajar." },
     { question: "¿Puedo consultar por una estadía más larga?", answer: "Sí. Cuéntanos tus fechas por WhatsApp y te informaremos disponibilidad y condiciones para tu estadía." },
   ],

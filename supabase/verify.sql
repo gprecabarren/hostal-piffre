@@ -16,10 +16,12 @@ begin
 end $$;
 
 set local role anon;
-select id, jsonb_array_length(content->'rooms') as room_count from public.site_content;
+select id, jsonb_array_length(content->'rooms') as room_count,
+  jsonb_array_length(content->'locations') as location_count from public.site_content;
 reset role;
 set local role authenticated;
-select id, jsonb_array_length(content->'rooms') as room_count from public.site_content;
+select id, jsonb_array_length(content->'rooms') as room_count,
+  jsonb_array_length(content->'locations') as location_count from public.site_content;
 reset role;
 
 select id, public, file_size_limit, allowed_mime_types from storage.buckets where id = 'room-images';

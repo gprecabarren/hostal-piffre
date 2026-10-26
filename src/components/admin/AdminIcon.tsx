@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 
-export type AdminIconName = "home" | "bed" | "search" | "phone" | "edit" | "document" | "arrow" | "external" | "check" | "image" | "upload" | "save" | "logout" | "warning" | "plus" | "close" | "up" | "down" | "trash" | "undo" | "eye" | "eyeOff" | "question";
+export type AdminIconName = "home" | "bed" | "search" | "phone" | "edit" | "document" | "arrow" | "external" | "check" | "image" | "upload" | "save" | "logout" | "warning" | "plus" | "close" | "up" | "down" | "trash" | "undo" | "eye" | "eyeOff" | "question" | "pin" | "globe";
 
 const paths: Record<AdminIconName, React.ReactNode> = {
   home: <><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-8h6v8"/></>,
@@ -26,6 +26,8 @@ const paths: Record<AdminIconName, React.ReactNode> = {
   eye: <><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></>,
   eyeOff: <><path d="m3 3 18 18M10.5 5.1A11 11 0 0 1 12 5c6.5 0 10 7 10 7a19 19 0 0 1-3.1 4.1M6.1 6.1A21 21 0 0 0 2 12s3.5 7 10 7c1.8 0 3.4-.5 4.8-1.3M10 10a2.8 2.8 0 0 0 4 4"/></>,
   question: <><circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 4m0 3h.01"/></>,
+  pin: <><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></>,
+  globe: <><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a17 17 0 0 1 0 18 17 17 0 0 1 0-18Z"/></>,
 };
 
 export function AdminIcon({ name, size = 20, style }: { name: AdminIconName; size?: number; style?: CSSProperties }) {

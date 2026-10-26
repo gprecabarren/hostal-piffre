@@ -28,13 +28,13 @@ function consentCommand(action: "default" | "update", choice: Choice) {
   });
 }
 
-export default function SiteAnalytics({ gtmId, copy, enabled }: { gtmId: string; copy: PageCopy; enabled: boolean }) {
+export default function SiteAnalytics({ gtmId, copy, enabled, locationSlugs }: { gtmId: string; copy: PageCopy; enabled: boolean; locationSlugs: readonly string[] }) {
   const pathname = usePathname();
   const [choice, setChoice] = useState<Choice | null>(null);
   const [ready, setReady] = useState(false);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
   const containerStarted = useRef(false);
-  const active = enabled && /^GTM-[A-Z0-9]+$/.test(gtmId) && isPublicAnalyticsPath(pathname);
+  const active = enabled && /^GTM-[A-Z0-9]+$/.test(gtmId) && isPublicAnalyticsPath(pathname, locationSlugs);
 
   useEffect(() => {
     if (!active) {
