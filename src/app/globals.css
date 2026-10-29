@@ -179,7 +179,7 @@ body{min-width:0}
 .neighborhood-map.neighborhood-map--location{box-shadow:none;border-radius:6px;border-color:#ccd4ba}
 .map-artwork{display:block;overflow:hidden}
 .map-artwork>svg{display:block;width:100%;height:100%;transition:transform .5s}
-.neighborhood-map--location .map-artwork{aspect-ratio:2.35;min-height:330px;max-height:450px}
+.neighborhood-map--location .map-artwork{width:100%;aspect-ratio:2.35;min-height:330px;max-height:450px}
 .neighborhood-map:hover .map-artwork>svg{transform:scale(1.025)}
 .map-identity{display:flex;flex-direction:column;gap:6px;min-width:0}
 .map-identity>strong{font-weight:650;letter-spacing:-.025em}
@@ -209,7 +209,6 @@ body{min-width:0}
   .property-group-heading .location-details-link{margin-top:12px}
   .place-map-visual{margin-top:30px}
   .neighborhood-map--location .map-artwork{aspect-ratio:1;min-height:330px}
-  .neighborhood-map--location .map-street-labels{display:none}
   .neighborhood-map--location .map-identity{top:16px;left:16px;padding:12px 14px;max-width:calc(100% - 32px);font-size:.75rem}
   .neighborhood-map--location .map-identity>strong{font-size:1.1rem}
   .neighborhood-map--location .map-action{bottom:42px;left:16px;right:16px;justify-content:space-between;padding:13px 15px;font-size:.8125rem}
