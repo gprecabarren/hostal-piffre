@@ -5,6 +5,48 @@ import { homeSchema, locationSchema, publicContent, sitemapPaths } from "../src/
 import { buildPageMetadata, buildRobotsMetadata, listSeoPages } from "../src/lib/page-seo";
 import { normalizeSiteContent } from "../src/lib/validation";
 
+test("each landing page resolves its own identity graph and follows the administrator's SEO edits", () => {
+  const content = structuredClone(defaultContent);
+  content.site.name = "Piffre actualizado";
+  content.contact.email = "contacto@example.com";
+  content.seo.title = "Inicio actualizado";
+  content.seo.description = "Descripción del inicio actualizada";
+  content.locations[0].seo.title = "Providencia actualizada";
+  content.locations[0].seo.description = "Descripción de Providencia actualizada";
+  const pages = [
+    { schema: homeSchema(content), seo: content.seo },
+    ...content.locations.map((location) => ({ schema: locationSchema(content, location), seo: location.seo })),
+  ];
+  for (const { schema, seo } of pages) {
+    const definitions = new Set<string>();
+    const references = new Set<string>();
+    const walk = (value: unknown) => {
+      if (Array.isArray(value)) { value.forEach(walk); return; }
+      if (!value || typeof value !== "object") return;
+      const node = value as Record<string, unknown>;
+      if (typeof node["@id"] === "string") {
+        if (node["@type"]) {
+          assert.equal(definitions.has(node["@id"]), false, "entity IDs must be unique");
+          definitions.add(node["@id"]);
+        } else references.add(node["@id"]);
+      }
+      Object.values(node).forEach(walk);
+    };
+    walk(schema);
+    for (const id of references) assert.ok(definitions.has(id), `unresolved identity: ${id}`);
+    const graph = schema["@graph"] as Record<string, unknown>[];
+    const page = graph.find((node) => node["@type"] === "WebPage")!;
+    const organization = graph.find((node) => node["@type"] === "Organization")!;
+    assert.equal(page.name, seo.title);
+    assert.equal(page.description, seo.description);
+    assert.equal(organization.name, content.site.name);
+    assert.equal(organization.email, content.contact.email);
+  }
+  const locationGraph = locationSchema(content, content.locations[0])["@graph"] as Record<string, unknown>[];
+  assert.equal(locationGraph.filter((node) => node["@type"] === "LodgingBusiness").length, 1);
+  assert.equal(JSON.stringify(locationGraph).includes("santiago-centro"), false);
+});
+
 test("each published location has its own lodging entity and apartments are not counted as rooms", () => {
   const graph = homeSchema(defaultContent)["@graph"] as Record<string, unknown>[];
   const businesses = graph.filter((entity) => entity["@type"] === "LodgingBusiness");
