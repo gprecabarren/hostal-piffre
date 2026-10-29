@@ -45,6 +45,7 @@ export function lodgingSchema(content: SiteContent, location: Location): Record<
       "@type": room.kind === "apartment" ? "Apartment" : "Room",
       "@id": `${url}#${room.slug}`, name: room.name, description: room.description,
       identifier: room.id,
+      amenityFeature: room.features.filter((feature) => feature.toLowerCase() !== location.name.toLowerCase()).map((name) => ({ "@type": "LocationFeatureSpecification", name, value: true })),
       ...(room.photos.some((photo) => photo.url) ? { image: absoluteImages(content, room.photos.slice(0, 3).map((photo) => photo.url)) } : {}),
     })) } : {}),
   };

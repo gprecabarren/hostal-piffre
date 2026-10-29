@@ -21,5 +21,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 export default async function RootLayout({children}:{children:React.ReactNode}) {
   const content = await getContent();
-  return <html lang="es-CL"><body>{children}<SiteAnalytics gtmId={content.seo.gtmId} copy={content.copy} enabled={process.env.VERCEL_ENV === 'production'} locationSlugs={content.locations.filter(location => location.published).map(location => location.slug)} /></body></html>;
+  return <html lang="es-CL" data-scroll-behavior="smooth"><body>{children}<SiteAnalytics gtmId={content.seo.gtmId} copy={content.copy} enabled={process.env.VERCEL_ENV === 'production'} locationSlugs={content.locations.filter(location => location.published).map(location => location.slug)} /></body></html>;
 }

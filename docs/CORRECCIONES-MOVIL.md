@@ -1,5 +1,13 @@
 # Correcciones del 28 de octubre de 2026
 
+## Ajustes del 29 de octubre
+
+Los pagos ahora se muestran todos juntos, sin carrusel ni flechas: Webpay, Visa, Mastercard, Mercado Pago, PayPal y Wise. En móvil se ordenan en una cuadrícula de tres columnas. La lista y su orden se mantienen editables.
+
+El enlace de cada ubicación está dentro del recuadro, debajo de la dirección, con el texto editable «Ver más información» y una flecha vertical. El nombre de la ubicación forma parte del nombre accesible del enlace. Todos los accesos a ubicaciones usan navegación nativa hacia `#contenido`, para empezar desde arriba también cuando se entra desde una sección avanzada de Inicio. El canonical sigue apuntando a la URL sin fragmento.
+
+Se revisaron los metadatos de las cinco páginas y se precisaron las descripciones de ambas ubicaciones con su dirección, WiFi y lavandería. Los servicios configurados en cada propiedad también se incluyen en sus datos estructurados. No se añaden valoraciones, precios ni servicios sin confirmar. Referencias: [enlaces rastreables y texto descriptivo](https://developers.google.com/search/docs/crawling-indexing/links-crawlable) y [BreadcrumbList](https://developers.google.com/search/docs/appearance/structured-data/breadcrumb).
+
 ## Galerías, navegación y pagos
 
 La Habitación 2 y el Departamento 3 heredaban `align-items: start` de la presentación lateral de escritorio. En móvil sus galerías, compuestas de imágenes posicionadas absolutamente, quedaban sin ancho ni alto. Las galerías ahora tienen ancho explícito, no se encogen en flex y las tarjetas móviles estiran sus hijos.

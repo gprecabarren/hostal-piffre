@@ -135,7 +135,7 @@ export const pageCopyGroups = [
     field("locationsTitle", "Título de ubicaciones", "Dos barrios.", true),
     field("locationsTitleAccent", "Título destacado", "La misma bienvenida.", true),
     field("locationsIntro", "Introducción de ubicaciones", "Habitaciones en Providencia y departamentos en Santiago Centro. Elige dónde comienza tu próxima estadía.", true),
-    field("locationCardCta", "Botón de cada ubicación", "Conoce esta ubicación"),
+    field("locationCardCta", "Botón de cada ubicación", "Ver más información"),
     field("locationBack", "Volver desde una ubicación", "Volver al inicio"),
     field("locationPropertiesTitle", "Alojamientos de la ubicación", "Encuentra tu espacio en {ubicacion}", true),
     field("locationNearbyTitle", "Título de lugares cercanos", "El barrio, a tu alcance.", true),

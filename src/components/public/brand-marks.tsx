@@ -31,6 +31,8 @@ export function CountryFlag({ code }: { code: string }) {
 
 export function PaymentMark({ id, label }: { id: string; label: string }) {
   const key = id.toLowerCase().replace(/[^a-z]/g, "");
+  if (key.includes("paypal")) return <svg className="payment-mark payment-mark--wide" viewBox="0 0 108 38" aria-hidden="true"><text x="4" y="27" fill="#003087" fontSize="25" fontStyle="italic" fontWeight="800" fontFamily="Arial,sans-serif">Pay<tspan fill="#009cde">Pal</tspan></text></svg>;
+  if (key.includes("wise")) return <svg className="payment-mark payment-mark--wide" viewBox="0 0 108 38" aria-hidden="true"><path fill="#163300" d="M3 6h23l-4 7H10l-4 7h11L8 33H0l9-13H0l8-14Z"/><text x="30" y="28" fill="#163300" fontSize="29" fontStyle="italic" fontWeight="800" fontFamily="Arial,sans-serif">wise</text></svg>;
   if (key.includes("master") || key === "maestro") return <svg className="payment-mark" viewBox="0 0 70 38" aria-hidden="true"><circle cx="25" cy="19" r="15" fill={key === "maestro" ? "#e52335" : "#eb001b"} /><circle cx="45" cy="19" r="15" fill={key === "maestro" ? "#009ddd" : "#f79e1b"} fillOpacity=".9" /></svg>;
   if (key.includes("amex") || key.includes("american")) return <svg className="payment-mark" viewBox="0 0 70 38" aria-hidden="true"><rect x="7" y="1" width="56" height="36" rx="3" fill="#176fba" /><text x="35" y="25" textAnchor="middle" fill="white" fontSize="18" fontWeight="800" fontFamily="Arial,sans-serif">AMEX</text></svg>;
   if (key.includes("visa")) return <svg className="payment-mark" viewBox="0 0 70 38" aria-hidden="true"><text x="35" y="28" textAnchor="middle" fill="#173b80" fontSize="28" fontStyle="italic" fontWeight="800" fontFamily="Arial,sans-serif">VISA</text></svg>;

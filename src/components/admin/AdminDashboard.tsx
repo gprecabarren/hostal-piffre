@@ -20,7 +20,7 @@ const MAX_AMENITIES = 12;
 const MAX_PHOTOS = 40;
 // Keep compatibility data while hiding controls for removed or relocated copy.
 const LEGACY_SEO_COPY_KEYS = new Set<PageCopyKey>([
-  "privacyDescription", "termsDescription", "heroArtKicker", "heroArtCaption", "heroArtNote", "heroCoordinates",
+  "privacyDescription", "termsDescription", "heroArtKicker", "heroArtCaption", "heroArtNote", "heroCoordinates", "paymentPrevious", "paymentNext",
   "locationsLabel", "locationsTitle", "locationsTitleAccent", "locationsIntro",
   "visitorCountriesIntro", "internationalWelcome", "internationalDescription", "internationalCta", "visitorPause", "visitorPlay", "roomPlatformUnavailable", "heroScroll",
 ]);

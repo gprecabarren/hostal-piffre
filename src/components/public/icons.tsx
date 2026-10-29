@@ -1,11 +1,12 @@
 import type { SVGProps } from "react";
 
-type IconProps = SVGProps<SVGSVGElement> & { name: "arrow" | "arrowUp" | "pin" | "wifi" | "sun" | "leaf" | "heart" | "instagram" | "whatsapp" | "booking" | "airbnb" | "vrbo" | "images" | "washer" | "pause" | "play" | "globe" | "plus" | "chevron" | "menu" | "close" };
+type IconProps = SVGProps<SVGSVGElement> & { name: "arrow" | "arrowUp" | "arrowDown" | "pin" | "wifi" | "sun" | "leaf" | "heart" | "instagram" | "whatsapp" | "booking" | "airbnb" | "vrbo" | "images" | "washer" | "pause" | "play" | "globe" | "plus" | "chevron" | "menu" | "close" };
 
 export function Icon({ name, ...props }: IconProps) {
   const paths = {
     arrow: <><path d="M4 12h15M13 6l6 6-6 6" /></>,
     arrowUp: <><path d="M5 19 19 5M5 5h14v14" /></>,
+    arrowDown: <path d="M12 4v16m-6-6 6 6 6-6" />,
     pin: <><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></>,
     wifi: <><path d="M2 8a16 16 0 0 1 20 0M5.5 12a10 10 0 0 1 13 0M9 16a5 5 0 0 1 6 0" /><circle cx="12" cy="20" r=".6" fill="currentColor" /></>,
     sun: <><circle cx="12" cy="12" r="4" /><path d="M12 1v2m0 18v2M1 12h2m18 0h2M4.2 4.2l1.4 1.4m12.8 12.8 1.4 1.4m0-15.6-1.4 1.4M5.6 18.4l-1.4 1.4" /></>,

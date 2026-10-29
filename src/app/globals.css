@@ -149,3 +149,15 @@ body{min-width:0}
   .place-hero-copy>.eyebrow{color:#38522e;font-weight:800;letter-spacing:.09em}
 }
 @supports not (overflow:clip){html,body{overflow-x:hidden}}
+
+/* All payment options remain visible, without carousel controls. */
+.payments-methods{max-width:680px;min-width:0}
+.payments-methods>ul{display:grid;grid-template-columns:repeat(6,minmax(0,105px));gap:10px;list-style:none;padding:0;margin:0}
+.payments-methods li{position:relative;display:flex;align-items:center;justify-content:center;min-width:0;height:64px;padding:10px;background:#fff;border-radius:4px}
+.payments-methods .payment-mark{max-width:100%}
+@media(max-width:1240px){.payments-section{flex-direction:column;align-items:stretch;gap:25px}.payments-copy{max-width:none}.payments-methods{width:100%;max-width:680px}}
+@media(max-width:650px){.payments-methods{max-width:420px}.payments-methods>ul{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.payments-methods li{height:60px;padding:8px}}
+.location-details-link{position:relative;display:inline-flex;align-items:center;gap:24px;padding:12px 0;border-bottom:1px solid #8a9b75;font-size:.8125rem;font-weight:650;line-height:1.6}
+.location-details-link>svg{width:20px;height:20px;flex:none;transition:transform .2s}
+.location-details-link:hover>svg{transform:translateY(3px)}
+@media(max-width:650px){.property-group-heading{display:block}.location-details-link{display:flex;justify-content:space-between;gap:15px;margin-top:18px;padding:14px 0 0;border-bottom:0;border-top:1px solid #bac7a7;font-size:.8125rem}.property-group:nth-child(even) .location-details-link{border-top-color:#cec5b1}}

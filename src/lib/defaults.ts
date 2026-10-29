@@ -136,6 +136,8 @@ export const defaultContent: SiteContent = {
     { id: "visa", label: "Visa", enabled: true },
     { id: "mastercard", label: "Mastercard", enabled: true },
     { id: "mercadopago", label: "Mercado Pago", enabled: true },
+    { id: "paypal", label: "PayPal", enabled: true },
+    { id: "wise", label: "Wise", enabled: true },
   ],
   about: {
     title: "Más que una estadía, una bienvenida.",
