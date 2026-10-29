@@ -1,0 +1,58 @@
+name: Supabase health check
+
+on:
+  schedule:
+    # Gaps of 2, 2 and 3 days; avoids month-boundary surprises from */3.
+    - cron: '17 4 * * 1,3,5'
+      timezone: America/Santiago
+  workflow_dispatch:
+
+# No checkout, repository writes, deployment or privileged database credentials.
+permissions: {}
+
+concurrency:
+  group: supabase-health
+  cancel-in-progress: false
+
+jobs:
+  read-public-row:
+    name: Read one public database identifier
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check Supabase Data API
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          set -euo pipefail
+          : "${SUPABASE_URL:?Set the SUPABASE_URL repository variable}"
+          : "${SUPABASE_PUBLISHABLE_KEY:?Set the SUPABASE_PUBLISHABLE_KEY repository variable}"
+
+          # Refuse an elevated key even if the variable is accidentally misconfigured.
+          if [[ "$SUPABASE_PUBLISHABLE_KEY" != sb_publishable_* ]]; then
+            echo '::error::Only a Supabase publishable key is allowed.'
+            exit 1
+          fi
+
+          response="$(curl --fail --silent --show-error \
+            --proto '=https' \
+            --connect-timeout 10 --max-time 20 \
+            --retry 2 --retry-delay 5 --retry-max-time 65 \
+            --header "apikey: $SUPABASE_PUBLISHABLE_KEY" \
+            --header 'Accept: application/json' \
+            --header 'Cache-Control: no-cache' \
+            --get \
+            --data-urlencode 'select=id' \
+            --data-urlencode 'id=eq.main' \
+            --data-urlencode 'limit=1' \
+            "${SUPABASE_URL%/}/rest/v1/site_content")"
+
+          # Also fail if an HTTP 200 hides an empty result or a changed RLS policy.
+          jq -e 'type == "array" and length == 1 and .[0].id == "main"' \
+            <<< "$response" > /dev/null
+
+          echo 'Supabase answered successfully: one public identifier read.'
+          printf '### Supabase health check\n\nOne public identifier read successfully at %s. No data changed.\n' \
+            "$(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> "$GITHUB_STEP_SUMMARY"
