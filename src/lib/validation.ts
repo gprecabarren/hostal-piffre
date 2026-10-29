@@ -46,6 +46,7 @@ const roomSchema = z.object({
   photos: z.array(photoSchema).max(40, "Puedes agregar hasta 40 fotografías por propiedad."),
   bookingUrl: optionalLink(["booking.com"]),
   airbnbUrl: optionalLink(["airbnb.com", "airbnb.cl"]),
+  airbnbAlternateUrl: optionalLink(["airbnb.com", "airbnb.cl"]).optional(),
   vrboUrl: optionalLink(["vrbo.com", "vrbo.cl", "homeaway.com"]),
   locationId: text(50).regex(/^[a-z0-9-]+$/),
   kind: z.enum(["room", "apartment"]),

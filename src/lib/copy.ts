@@ -43,6 +43,7 @@ export const pageCopyGroups = [
     field("roomAvailabilityCta", "Botón de disponibilidad", "Consultar disponibilidad"),
     field("roomBookingLabel", "Botón de Booking", "Booking.com"),
     field("roomAirbnbLabel", "Botón de Airbnb", "Airbnb"),
+    field("roomAirbnbAlternateLabel", "Segundo anuncio de Airbnb", "Otro anuncio en Airbnb"),
     field("roomWhatsappMessage", "Mensaje de WhatsApp por propiedad", "Hola, me gustaría consultar disponibilidad para {habitacion} en {sitio}.", true),
     field("roomPlaceholder", "Texto cuando falta una foto", "Fotografías próximamente"),
     field("roomsEmpty", "Texto si todas las propiedades están en borrador", "Estamos preparando nuestros espacios. Escríbenos para consultar disponibilidad.", true),

@@ -22,7 +22,7 @@ const makeRoom = (number: number): Room => ({
     { url: "", alt: `Detalle de la habitación ${number} de Hostal Piffre` },
   ]),
   bookingUrl: number === 1 ? "https://www.booking.com/hotel/cl/piffre-de-vauban.es.html" : "",
-  airbnbUrl: "",
+  airbnbUrl: number === 1 ? "https://www.airbnb.cl/rooms/1582706820971910479" : number === 2 ? "https://www.airbnb.cl/rooms/1642394729236543022" : "",
   published: number === 2,
   whatsappUrl: "",
   vrboUrl: "",
@@ -42,7 +42,9 @@ const makeApartment = (number: number): Room => ({
   tag: "Santiago Centro, a tu ritmo",
   features: ["Lavandería", "Santiago Centro"],
   photos: seedPhotos("rooms", `departamento-${number}`, Array.from({ length: 3 }, (_, index) => ({ url: "", alt: `Vista ${index + 1} del departamento ${number} en Santiago Centro` }))),
-  bookingUrl: "", airbnbUrl: "", whatsappUrl: "", vrboUrl: "",
+  bookingUrl: "", airbnbUrl: `https://www.airbnb.cl/rooms/${["1803933934369494949", "1352459415299032010", "1781198657363884435"][number - 1]}`,
+  ...(number === 1 ? { airbnbAlternateUrl: "https://www.airbnb.cl/rooms/1760307243286615072" } : {}),
+  whatsappUrl: "", vrboUrl: "",
   locationId: "santiago-centro", kind: "apartment", published: true,
 });
 
@@ -107,7 +109,7 @@ export const defaultContent: SiteContent = {
     ...createPageSeo("Alojamientos Piffre en Providencia y Santiago Centro",
       "Habitaciones de hostal en Providencia y departamentos en Santiago Centro. Conoce las dos ubicaciones de Alojamientos Piffre y consulta disponibilidad por WhatsApp.", {
         keywords: ["alojamiento en Providencia", "hostal en Providencia", "departamentos Santiago Centro", "alojamiento Santiago Centro", "Alojamientos Piffre", "Hostal Piffre"],
-        ogImage: "/og-image.png", ogImageAlt: "Hostal Piffre, tu hogar lejos de casa",
+        ogImage: "/imagen-social/v2", ogImageAlt: "Hostal Piffre: Los Capitanes 1253, Providencia · Av. Vicuña Mackenna 625, Santiago Centro",
       }),
     siteUrl: "https://alojamientospiffre.cl",
     robotsIndex: true,

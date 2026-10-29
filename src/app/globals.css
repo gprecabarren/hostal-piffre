@@ -93,3 +93,59 @@
 @media(max-width:650px){.payments-carousel li{height:60px;min-height:60px;padding:8px}}
 @media(max-width:650px){.visitor-strip.visitor-strip--flags{min-height:36px;padding:8px 0}.visitor-strip--flags .country-flag{width:29px;height:19px}.locations-section--cards{padding-top:38px;padding-bottom:44px}}
 @media(prefers-reduced-motion:reduce){.visitor-strip--flags .visitor-track{animation:none!important;transform:none!important}.visitor-strip--flags .visitor-window{overflow-x:auto;mask-image:none}.visitor-strip--flags .visitor-track>ul[aria-hidden=true]{display:none}}
+
+/* Keep horizontal movement inside galleries and rails, including iOS Safari. */
+html,body{max-width:100%;overflow-x:clip}
+body{min-width:0}
+.site-shell{width:100%;min-width:0}
+.room-gallery{width:100%;flex:none}
+.visitor-track li{position:relative}
+.payments-carousel{width:100%;max-width:417px;flex:none}
+.payments-carousel>ul{min-width:0;flex:1;overscroll-behavior-x:contain;overflow-y:hidden;scroll-snap-type:x proximity}
+.payments-carousel li{position:relative;flex:0 0 calc((100% - 20px)/3);min-width:0}
+.payments-carousel li:only-child{flex-basis:100%}
+.room-airbnb-alternate{display:flex;align-items:center;gap:9px;font-size:.75rem;padding:10px 0 14px;font-weight:600}
+.room-airbnb-alternate>svg{width:17px;height:17px;flex:none}
+.room-airbnb-alternate>svg:last-child{margin-left:auto;width:13px;height:13px}
+.payments-carousel>button:disabled{opacity:.35;cursor:default}
+.payments-carousel>button:not(:disabled):hover{background:#f8f6eb;color:var(--forest)}
+.header-instagram{display:grid;place-items:center;flex:none;width:42px;height:42px;border-radius:50%;background:var(--forest);color:var(--cream);transition:background .2s,transform .2s}
+.header-instagram>svg{width:21px;height:21px}
+.header-instagram:hover{background:#49613a;transform:translateY(-2px)}
+.header-instagram+.header-contact{margin-left:0}
+.footer-socials{display:flex;gap:10px;margin:0 0 12px}
+.footer-nav .footer-socials>a{display:grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid #899d77;border-radius:50%;color:var(--cream);transition:color .2s,background .2s}
+.footer-nav .footer-socials>a>svg{width:21px;height:21px}
+.footer-nav .footer-socials>a:hover{color:var(--forest);background:var(--cream)}
+.place-breadcrumb{display:flex;align-items:center;flex-wrap:wrap;gap:13px;margin-bottom:35px;font-size:.8125rem;color:var(--muted)}
+.place-breadcrumb .place-back{margin-bottom:0}
+.place-breadcrumb>[aria-current]{font-weight:700;color:var(--forest)}
+@media(max-width:850px){
+  .room-grid .room-card:nth-child(odd):last-child{align-items:stretch}
+  .header-inner{gap:18px}
+  .header-instagram{margin-left:auto}
+  .nav-links{margin-left:auto}
+}
+@media(max-width:650px){
+  .header-inner{gap:13px}
+  .header-contact{display:none}
+  .header-instagram{width:38px;height:38px}
+  .header-instagram>svg{width:20px;height:20px}
+  .mobile-toggle{margin-left:0}
+  .payments-carousel{max-width:100%}
+  .payments-carousel li{flex-basis:calc((100% - 8px)/2)}
+  .payments-carousel li:only-child{flex-basis:100%}
+  .room-grid .room-card{align-items:stretch}
+  .property-group-heading{padding:22px 18px;margin-bottom:24px;background:#e6ebd8;border:1px solid #c8d2b8;border-left:4px solid #526a3e;border-radius:4px}
+  .property-group:nth-child(even)>.property-group-heading{background:#ede9dc;border-color:#d3ccba;border-left-color:#8a7858}
+  .property-group-heading .eyebrow{color:#3e5630;font-weight:800;letter-spacing:.08em}
+  .property-group:nth-child(even)>.property-group-heading .eyebrow{color:#776344}
+  .property-group-heading h3{font-size:1.55rem}
+  .property-group-heading>.text-link{background:#f8f6eb;border-color:#abb99c}
+  .location-page .place-hero{background:#e9eedf;border-bottom:1px solid #cbd5bb;padding-top:20px}
+  .place-breadcrumb{gap:10px;padding-bottom:18px;margin-bottom:26px;border-bottom:1px solid #c2cdb3;font-size:.75rem}
+  .place-breadcrumb .place-back{font-size:.75rem;gap:9px}
+  .place-breadcrumb>[aria-current]{background:var(--forest);color:var(--cream);padding:7px 10px;border-radius:3px}
+  .place-hero-copy>.eyebrow{color:#38522e;font-weight:800;letter-spacing:.09em}
+}
+@supports not (overflow:clip){html,body{overflow-x:hidden}}

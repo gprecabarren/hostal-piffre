@@ -99,6 +99,18 @@ test("page index, follow, global noindex and preview remain independent and cons
   assert.deepEqual(sitemapPaths(content, { preview: true }), []);
 });
 
+test("all default social cards use the official branded image while per-page overrides still win", () => {
+  const content = structuredClone(defaultContent);
+  for (const page of listSeoPages(content)) {
+    const image = (buildPageMetadata(content, page.key).openGraph?.images as { url: string; width: number; height: number }[])[0];
+    assert.equal(image.url, "https://alojamientospiffre.cl/imagen-social/v2");
+    assert.equal(image.width, 1200);
+    assert.equal(image.height, 630);
+  }
+  content.locations[0].seo.ogImage = "/media/hostal-2/01.webp";
+  assert.equal((buildPageMetadata(content, "location:providencia").openGraph?.images as {url: string}[])[0].url, "https://alojamientospiffre.cl/media/hostal-2/01.webp");
+});
+
 test("sitemap excludes drafts, noindex pages and sources canonicalized to another internal or external URL", () => {
   const content = structuredClone(defaultContent);
   content.locations[0].published = false;

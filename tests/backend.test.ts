@@ -29,6 +29,18 @@ test("admin authorization rejects other accounts and unsafe identity claims", ()
   assert.equal(isAllowedVercelProfile(undefined, "client_test", emails), false);
 });
 
+test("a second Airbnb listing stays editable without assigning it to another property", () => {
+  const oldContent = structuredClone(defaultContent);
+  delete oldContent.rooms[3].airbnbAlternateUrl;
+  const legacy = normalizeSiteContent(oldContent);
+  assert.equal(legacy.rooms[3].airbnbAlternateUrl, undefined);
+  legacy.rooms[3].airbnbAlternateUrl = "https://www.airbnb.cl/rooms/1760307243286615072";
+  assert.equal(normalizeSiteContent(legacy).rooms[3].airbnbAlternateUrl, legacy.rooms[3].airbnbAlternateUrl);
+  legacy.rooms[3].airbnbAlternateUrl = "https://airbnb.cl.attacker.example/rooms/123";
+  assert.equal(siteContentSchema.safeParse(legacy).success, false);
+  assert.equal(legacy.rooms[2].published, false);
+});
+
 test("mutations require a matching Origin and reject cross-site or missing origins", () => {
   const request = (origin?: string, site?: string) => new Request("https://alojamientospiffre.cl/api/content", {
     method: "PUT", headers: { ...(origin ? { Origin: origin } : {}), ...(site ? { "Sec-Fetch-Site": site } : {}) },

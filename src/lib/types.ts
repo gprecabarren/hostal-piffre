@@ -42,6 +42,8 @@ export interface Room {
   photos: RoomPhoto[];
   bookingUrl: string;
   airbnbUrl: string;
+  /** An optional second listing for the same physical property. */
+  airbnbAlternateUrl?: string;
   published: boolean;
   whatsappUrl: string;
   vrboUrl: string;

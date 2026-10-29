@@ -23,7 +23,7 @@ function Header({ content }: { content: SiteContent }) {
     document.addEventListener("keydown", close);
     return () => document.removeEventListener("keydown", close);
   }, [open]);
-  return <header className="site-header"><div className="header-inner"><Brand content={content} /><nav className="nav-links" aria-label={c.navAria}><Link href="/#habitaciones">{c.navRooms}</Link><Link href="/#ubicaciones">{c.navLocations}</Link><Link href="/#experiencia">{c.navExperience}</Link></nav><a className="header-contact" href={whatsappUrl(content)} target="_blank" rel="noopener noreferrer">{c.navContact}<Icon name="arrowUp" /></a><button type="button" className="mobile-toggle" aria-label={open ? c.closeMenu : c.openMenu} aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen(!open)}><Icon name={open ? "close" : "menu"} /></button></div>{open ? <nav id="mobile-navigation" className="mobile-menu" aria-label={c.mobileNavAria} onClick={(event) => { if ((event.target as Element).closest("a")) setOpen(false); }}><Link href="/#habitaciones">{c.navRooms}<Icon name="arrowUp" /></Link><Link href="/#ubicaciones">{c.navLocations}<Icon name="arrowUp" /></Link>{publishedLocations(content).map((location) => <Link href={`/ubicaciones/${location.slug}`} className="mobile-location-link" key={location.id}>{location.name}<Icon name="pin" /></Link>)}<Link href="/#preguntas">{c.navFaq}<Icon name="arrowUp" /></Link><a href={whatsappUrl(content)} target="_blank" rel="noopener noreferrer">{c.navWhatsapp}<Icon name="whatsapp" /></a></nav> : null}</header>;
+  return <header className="site-header"><div className="header-inner"><Brand content={content} /><nav className="nav-links" aria-label={c.navAria}><Link href="/#habitaciones">{c.navRooms}</Link><Link href="/#ubicaciones">{c.navLocations}</Link><Link href="/#experiencia">{c.navExperience}</Link></nav>{content.contact.instagram ? <a className="header-instagram" href={content.contact.instagram} target="_blank" rel="noopener noreferrer" aria-label={c.footerInstagram}><Icon name="instagram" /></a> : null}<a className="header-contact" href={whatsappUrl(content)} target="_blank" rel="noopener noreferrer">{c.navContact}<Icon name="arrowUp" /></a><button type="button" className="mobile-toggle" aria-label={open ? c.closeMenu : c.openMenu} aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen(!open)}><Icon name={open ? "close" : "menu"} /></button></div>{open ? <nav id="mobile-navigation" className="mobile-menu" aria-label={c.mobileNavAria} onClick={(event) => { if ((event.target as Element).closest("a")) setOpen(false); }}><Link href="/#habitaciones">{c.navRooms}<Icon name="arrowUp" /></Link><Link href="/#ubicaciones">{c.navLocations}<Icon name="arrowUp" /></Link>{publishedLocations(content).map((location) => <Link href={`/ubicaciones/${location.slug}`} className="mobile-location-link" key={location.id}>{location.name}<Icon name="pin" /></Link>)}<Link href="/#preguntas">{c.navFaq}<Icon name="arrowUp" /></Link><a href={whatsappUrl(content)} target="_blank" rel="noopener noreferrer">{c.navWhatsapp}<Icon name="whatsapp" /></a></nav> : null}</header>;
 }
 
 export function VisitorStrip({ content }: { content: SiteContent }) {
@@ -34,15 +34,35 @@ export function VisitorStrip({ content }: { content: SiteContent }) {
 
 function Payments({ content }: { content: SiteContent }) {
   const rail = useRef<HTMLUListElement>(null);
+  const [canScroll, setCanScroll] = useState(false);
   const methods = content.paymentMethods.filter((method) => method.enabled);
+  useEffect(() => {
+    const element = rail.current;
+    if (!element) return;
+    const measure = () => setCanScroll(element.scrollWidth > element.clientWidth + 1);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [methods.length]);
   if (!methods.length) return null;
-  const scroll = (direction: number) => rail.current?.scrollBy({ left: direction * 240, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
-  return <section className="payments-section" aria-label={content.copy.paymentMethodsLabel}><div className="payments-copy"><h2>{content.copy.paymentMethodsLabel}</h2><p>{content.copy.paymentMethodsDescription}</p></div><div className="payments-carousel"><button type="button" onClick={() => scroll(-1)} aria-label={content.copy.paymentPrevious}><Icon name="chevron" className="reverse" /></button><ul ref={rail}>{methods.map((method) => <li key={method.id}><PaymentMark id={method.id} label={method.label} /><span className="sr-only">{method.label}</span></li>)}</ul><button type="button" onClick={() => scroll(1)} aria-label={content.copy.paymentNext}><Icon name="chevron" /></button></div></section>;
+  const scroll = (direction: number) => {
+    const element = rail.current;
+    if (!element) return;
+    const max = element.scrollWidth - element.clientWidth;
+    const styles = getComputedStyle(element);
+    const step = (element.firstElementChild?.getBoundingClientRect().width || 105) + parseFloat(styles.columnGap || "0");
+    const atEnd = direction > 0 && element.scrollLeft >= max - 2;
+    const atStart = direction < 0 && element.scrollLeft <= Math.ceil(parseFloat(styles.paddingLeft) || 0) + 1;
+    const left = atEnd ? 0 : atStart ? max : Math.max(0, Math.min(max, element.scrollLeft + direction * step));
+    element.scrollTo({ left, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+  };
+  return <section className="payments-section" aria-label={content.copy.paymentMethodsLabel}><div className="payments-copy"><h2>{content.copy.paymentMethodsLabel}</h2><p>{content.copy.paymentMethodsDescription}</p></div><div className="payments-carousel"><button type="button" disabled={!canScroll} onClick={() => scroll(-1)} aria-label={content.copy.paymentPrevious}><Icon name="chevron" className="reverse" /></button><ul ref={rail} tabIndex={0} aria-label={content.copy.paymentMethodsLabel}>{methods.map((method) => <li key={method.id}><PaymentMark id={method.id} label={method.label} /><span className="sr-only">{method.label}</span></li>)}</ul><button type="button" disabled={!canScroll} onClick={() => scroll(1)} aria-label={content.copy.paymentNext}><Icon name="chevron" /></button></div></section>;
 }
 
 function Footer({ content }: { content: SiteContent }) {
   const c = content.copy;
-  return <footer className="site-footer section-shell"><Payments content={content} /><div className="footer-top"><div><Brand content={content} footer /><p>{content.site.tagline}</p></div><div className="footer-nav"><div><span>{c.footerDiscover}</span><Link href="/#habitaciones">{c.footerRooms}</Link>{publishedLocations(content).map((location) => <Link href={`/ubicaciones/${location.slug}`} key={location.id}>{location.name}<Icon name="arrowUp" /></Link>)}<Link href="/#experiencia">{c.footerExperience}</Link></div><div><span>{c.footerContact}</span><a href={whatsappUrl(content)} target="_blank" rel="noopener noreferrer">{c.footerWhatsapp}<Icon name="arrowUp" /></a>{content.contact.instagram ? <a href={content.contact.instagram} target="_blank" rel="noopener noreferrer">{c.footerInstagram}<Icon name="arrowUp" /></a> : null}{content.contact.email ? <a href={`mailto:${content.contact.email}`}>{content.contact.email}</a> : null}{publishedLocations(content).map((location) => <p className="footer-location" key={location.id}><strong>{location.name}</strong><br />{location.address}</p>)}</div></div></div><div className="footer-bottom"><span>{formatCopy(c.footerCopyright, { anio: new Date().getFullYear(), sitio: content.site.name })}</span><nav aria-label={c.legalNavAria}><Link href="/politica-de-privacidad">{c.footerPrivacy}</Link><Link href="/terminos-y-condiciones">{c.footerTerms}</Link><a href="/admin">{c.footerAdmin}<Icon name="arrowUp" /></a></nav><span className="footer-country">{c.footerCountry}<span>↗</span></span></div></footer>;
+  return <footer className="site-footer section-shell"><Payments content={content} /><div className="footer-top"><div><Brand content={content} footer /><p>{content.site.tagline}</p></div><div className="footer-nav"><div><span>{c.footerDiscover}</span><Link href="/#habitaciones">{c.footerRooms}</Link>{publishedLocations(content).map((location) => <Link href={`/ubicaciones/${location.slug}`} key={location.id}>{location.name}<Icon name="arrowUp" /></Link>)}<Link href="/#experiencia">{c.footerExperience}</Link></div><div><span>{c.footerContact}</span><div className="footer-socials"><a href={whatsappUrl(content)} target="_blank" rel="noopener noreferrer" aria-label={c.footerWhatsapp}><Icon name="whatsapp" /></a>{content.contact.instagram ? <a href={content.contact.instagram} target="_blank" rel="noopener noreferrer" aria-label={c.footerInstagram}><Icon name="instagram" /></a> : null}</div>{content.contact.email ? <a href={`mailto:${content.contact.email}`}>{content.contact.email}</a> : null}{publishedLocations(content).map((location) => <p className="footer-location" key={location.id}><strong>{location.name}</strong><br />{location.address}</p>)}</div></div></div><div className="footer-bottom"><span>{formatCopy(c.footerCopyright, { anio: new Date().getFullYear(), sitio: content.site.name })}</span><nav aria-label={c.legalNavAria}><Link href="/politica-de-privacidad">{c.footerPrivacy}</Link><Link href="/terminos-y-condiciones">{c.footerTerms}</Link><a href="/admin">{c.footerAdmin}<Icon name="arrowUp" /></a></nav><span className="footer-country">{c.footerCountry}<span>↗</span></span></div></footer>;
 }
 
 export function ContactBlock({ content }: { content: SiteContent }) {
@@ -50,7 +70,7 @@ export function ContactBlock({ content }: { content: SiteContent }) {
   return <section className="contact-section section-shell" aria-labelledby="contact-title"><span className="contact-flower" aria-hidden="true">✳</span><div className="contact-heading reveal"><p className="eyebrow">{c.contactEyebrow}</p><h2 id="contact-title">{c.contactTitle}<br /><span>{c.contactTitleAccent}</span></h2></div><div className="contact-bottom reveal"><p>{c.contactDescription}</p><a href={whatsappUrl(content)} target="_blank" rel="noopener noreferrer" className="button button-dark">{c.contactCta}<Icon name="whatsapp" /></a></div></section>;
 }
 
-export function SiteFrame({ content, children }: { content: SiteContent; children: ReactNode }) {
+export function SiteFrame({ content, children, locationPage = false }: { content: SiteContent; children: ReactNode; locationPage?: boolean }) {
   const siteRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const elements = siteRef.current?.querySelectorAll<HTMLElement>(".reveal");
@@ -59,5 +79,5 @@ export function SiteFrame({ content, children }: { content: SiteContent; childre
     elements.forEach((element) => { if (element.getBoundingClientRect().top > innerHeight) element.classList.add("will-reveal"); observer.observe(element); });
     return () => observer.disconnect();
   }, []);
-  return <div className="site-shell" ref={siteRef}><a href="#contenido" className="skip-link">{content.copy.skipLink}</a><Header content={content} /><VisitorStrip content={content} />{children}<Footer content={content} /><a className="whatsapp-float" href={whatsappUrl(content)} target="_blank" rel="noopener noreferrer" aria-label={formatCopy(content.copy.whatsappAria, { sitio: content.site.name })}><Icon name="whatsapp" /><span>{content.copy.floatingWhatsapp}</span></a></div>;
+  return <div className="site-shell" ref={siteRef}><a href="#contenido" className="skip-link">{content.copy.skipLink}</a><Header content={content} />{!locationPage ? <VisitorStrip content={content} /> : null}{children}<Footer content={content} /><a className="whatsapp-float" href={whatsappUrl(content)} target="_blank" rel="noopener noreferrer" aria-label={formatCopy(content.copy.whatsappAria, { sitio: content.site.name })}><Icon name="whatsapp" /><span>{content.copy.floatingWhatsapp}</span></a></div>;
 }

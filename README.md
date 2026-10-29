@@ -4,6 +4,8 @@ Sitio y panel de administración para Alojamientos Piffre, con ubicaciones en Pr
 
 Sitio en español con Next.js App Router, Manrope local, animaciones con movimiento reducido, SEO renderizado en servidor, sitemap, robots, Open Graph y datos estructurados. Incluye un panel privado en `/admin` con acceso mediante Vercel.
 
+Las [correcciones móviles y enlaces de Airbnb](docs/CORRECCIONES-MOVIL.md) documentan el carrusel de pagos, las galerías, los iconos sociales y la imagen compartida con logo oficial y ambas direcciones.
+
 ## Desarrollo
 
 Requiere Node.js 24. Ejecutar `npm ci`, copiar `.env.example` a `.env.local` y completar las variables. Luego `npm run dev`.

@@ -37,10 +37,9 @@ export function buildPageMetadata(content: SiteContent, key: SeoPageKey, options
   if (!page) throw new Error("No existe la configuración SEO de esta página.");
   const seo = page.seo;
   const canonical = seoPageCanonical(content, page);
-  const location = key.startsWith("location:") ? content.locations.find((item) => key === `location:${item.id}`) : undefined;
-  const locationPhoto = location?.photos.find((photo) => photo.url);
-  const image = seo.ogImage || locationPhoto?.url || content.seo.ogImage || "/og-image.png";
-  const imageAlt = seo.ogImageAlt || (!seo.ogImage ? locationPhoto?.alt : "") || content.seo.ogImageAlt || seo.title;
+  const image = seo.ogImage || content.seo.ogImage || "/imagen-social/v2";
+  const imageAlt = seo.ogImageAlt || content.seo.ogImageAlt || `${content.site.name}: ${content.locations.filter((location) => location.published).map((location) => location.address).join(" · ")}`;
+  const brandedImage = image.startsWith("/imagen-social");
   const ogTitle = seo.ogTitle || seo.title;
   const ogDescription = seo.ogDescription || seo.description;
   const absoluteImage = new URL(image, content.seo.siteUrl).toString();
@@ -50,7 +49,7 @@ export function buildPageMetadata(content: SiteContent, key: SeoPageKey, options
     title: { absolute: seo.title }, description: seo.description, keywords: seo.keywords,
     alternates: { canonical },
     openGraph: { type: "website", locale: "es_CL", siteName: content.site.name, url: canonical,
-      title: ogTitle, description: ogDescription, images: [{ url: absoluteImage, alt: imageAlt }] },
+      title: ogTitle, description: ogDescription, images: [{ url: absoluteImage, alt: imageAlt, ...(brandedImage ? { width: 1200, height: 630, type: "image/png" } : {}) }] },
     twitter: { card: seo.twitterCard, title: seo.twitterTitle || ogTitle, description: seo.twitterDescription || ogDescription,
       images: [{ url: twitterImage, alt: imageAlt }] },
     robots: { index: content.seo.robotsIndex && seo.index && !options.preview, follow: seo.follow && !options.preview },
