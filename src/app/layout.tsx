@@ -9,12 +9,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const c = await getContent();
   return {
     ...buildPageMetadata(c, 'home', {preview:process.env.VERCEL_ENV === 'preview'}),
-    icons:{icon:[
-      {url:'/favicon.ico',sizes:'16x16 32x32 48x48 64x64',type:'image/x-icon'},
-      {url:'/favicon.svg',sizes:'any',type:'image/svg+xml'},
-      {url:'/favicon-48.png',sizes:'48x48',type:'image/png'},
-      {url:'/favicon-96.png',sizes:'96x96',type:'image/png'},
-    ],apple:[{url:'/apple-touch-icon.png',sizes:'180x180',type:'image/png'}]},
+    icons:{
+      icon:[{url:'/favicon-192.png',sizes:'192x192',type:'image/png'}],
+      shortcut:'/favicon.ico',
+      apple:[{url:'/apple-touch-icon.png',sizes:'180x180',type:'image/png'}],
+    },
     formatDetection:{telephone:false},
     verification: c.seo.googleSiteVerification ? {google:c.seo.googleSiteVerification} : undefined,
   };

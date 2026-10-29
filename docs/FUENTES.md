@@ -22,3 +22,18 @@ Las fotografías y la restauración de las tres portadas del departamento 2 se d
 ## Identidad y favicon
 
 El Instagram oficial confirmado por el cliente es [@hostalpiffre](https://www.instagram.com/hostalpiffre/). El favicon utiliza el emblema del logo existente. Se incluyen variantes cuadradas PNG de 48 y 96 px, ICO y Apple Touch Icon, con acceso permitido a los rastreadores. Referencia: [guía de favicons de Google Search Central](https://developers.google.com/search/docs/appearance/favicon-in-search?hl=es-419).
+
+Actualización del 29 de octubre de 2026: el icono principal declarado es un PNG
+cuadrado de 192 px, derivado del mismo emblema oficial, con ICO de respaldo de
+16 a 256 px y Apple Touch Icon de 180 px. Se conserva la URL de las variantes
+anteriores, pero se simplifica la declaración del icono principal para los
+rastreadores. Las respuestas HTTP y los archivos estaban disponibles antes del
+cambio; la ausencia en resultados no demuestra por sí sola un error del sitio.
+Google necesita volver a rastrear y procesar la portada y no garantiza mostrar
+un favicon incluso cuando cumple sus requisitos.
+
+El mapa ilustrativo original se recuperó del commit `e6d7843` y se adaptó a cada
+ubicación. Tanto el nombre y la dirección como el destino de Google Maps usan
+los campos editables de Ubicaciones. Las ilustraciones no representan geometría
+de navegación; el enlace lleva al mapa real. Son SVG locales, sin scripts,
+iframes, solicitudes a Google al cargar ni claves de Maps.

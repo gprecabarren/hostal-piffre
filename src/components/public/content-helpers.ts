@@ -1,6 +1,10 @@
 import { formatCopy } from "@/lib/copy";
 import type { Location, Room, SiteContent } from "@/lib/types";
 
+export function mapHref(location: Location) {
+  return location.mapUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([location.address, location.city, location.country].join(", "))}`;
+}
+
 export function getRoomLocation(content: SiteContent, room: Room) {
   return content.locations.find((location) => location.id === room.locationId);
 }
