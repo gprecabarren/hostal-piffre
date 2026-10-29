@@ -30,8 +30,9 @@ En **Settings → Secrets and variables → Actions → Variables** del reposito
 - `SUPABASE_PUBLISHABLE_KEY`: clave pública existente `sb_publishable_…`.
 
 La consulta utiliza el rol `anon` y las políticas RLS existentes. No necesita
-`SUPABASE_SECRET_KEY`, `service_role`, contraseña de PostgreSQL ni permisos de
-escritura en GitHub. El flujo rechaza claves que no sean de tipo publishable.
+`SUPABASE_SECRET_KEY`, `service_role` ni contraseña de PostgreSQL. Este trabajo
+de lectura no tiene permisos de escritura en GitHub. El flujo rechaza claves
+que no sean de tipo publishable.
 Si se rota la clave pública, actualizar esta variable.
 
 ## Coste y límites
@@ -41,9 +42,23 @@ El repositorio es público. El runner estándar de Ubuntu es gratuito según la
 No se instalan dependencias ni se guardan artefactos o cachés.
 
 GitHub puede retrasar u omitir ejecuciones programadas. En repositorios públicos
-también desactiva los horarios tras 60 días sin actividad en el repositorio:
-reactivarlos desde Actions si ocurre. No se añaden commits artificiales para
-evitarlo. Véase la
+también desactiva los horarios tras 60 días sin actividad en el repositorio.
+Un segundo trabajo independiente renueva preventivamente este workflow mediante
+el endpoint oficial `PUT /repos/{owner}/{repo}/actions/workflows/{workflow_id}/enable`
+y comprueba que siga `active`. Se ejecuta aunque falle la lectura de Supabase.
+
+Solo ese trabajo recibe `actions: write`, con el token temporal que GitHub crea
+para la ejecución. No recibe credenciales de Supabase, no necesita un token
+personal persistente, no escribe en el código, no añade commits artificiales
+y no activa despliegues. No se instalan acciones externas. La técnica de
+renovación preventiva está documentada en el proyecto
+[Workflow Keepalive](https://github.com/liskin/gh-workflow-keepalive), y usamos
+directamente la [API oficial de GitHub](https://docs.github.com/en/rest/actions/workflows#enable-a-workflow).
+
+Si alguien desactiva manualmente el workflow o GitHub cambia este comportamiento,
+hay que reactivarlo desde Actions. No puede repararse a sí mismo si ya no se
+ejecuta. La respuesta `active` verifica la renovación actual; no equivale a una
+garantía futura del servicio. Véase también la
 [documentación del evento schedule](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
 
 Esta tarea genera actividad mínima, pero no garantiza que Supabase nunca pause

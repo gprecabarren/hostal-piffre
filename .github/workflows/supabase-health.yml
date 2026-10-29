@@ -7,7 +7,7 @@ on:
       timezone: America/Santiago
   workflow_dispatch:
 
-# No checkout, repository writes, deployment or privileged database credentials.
+# No checkout, source changes, deployment or privileged database credentials.
 permissions: {}
 
 concurrency:
@@ -56,3 +56,29 @@ jobs:
           echo 'Supabase answered successfully: one public identifier read.'
           printf '### Supabase health check\n\nOne public identifier read successfully at %s. No data changed.\n' \
             "$(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> "$GITHUB_STEP_SUMMARY"
+
+  keep-schedule-active:
+    name: Renew scheduled workflow activity
+    if: github.repository == 'gprecabarren/hostal-piffre'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    # Only this isolated job can refresh workflow metadata. It receives no DB key.
+    permissions:
+      actions: write
+    steps:
+      - name: Refresh this workflow without creating commits
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          workflow_path="repos/${GITHUB_REPOSITORY}/actions/workflows/supabase-health.yml"
+          gh api --method PUT "$workflow_path/enable" --silent
+          state="$(gh api "$workflow_path" --jq '.state')"
+          if [[ "$state" != active ]]; then
+            echo '::error::The scheduled workflow is not active.'
+            exit 1
+          fi
+          echo 'Scheduled workflow renewed successfully; no commits or deployments created.'
+          printf '### Scheduled workflow renewal\n\nGitHub accepted the renewal and reports the workflow as active. No source files changed.\n' \
+            >> "$GITHUB_STEP_SUMMARY"
