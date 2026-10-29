@@ -32,8 +32,22 @@ cambio; la ausencia en resultados no demuestra por sí sola un error del sitio.
 Google necesita volver a rastrear y procesar la portada y no garantiza mostrar
 un favicon incluso cuando cumple sus requisitos.
 
-El mapa ilustrativo original se recuperó del commit `e6d7843` y se adaptó a cada
-ubicación. Tanto el nombre y la dirección como el destino de Google Maps usan
-los campos editables de Ubicaciones. Las ilustraciones no representan geometría
-de navegación; el enlace lleva al mapa real. Son SVG locales, sin scripts,
-iframes, solicitudes a Google al cargar ni claves de Maps.
+El estilo del mapa original se recuperó del commit `e6d7843`. Tras la revisión del
+cliente, el dibujo genérico se sustituyó por trazados reales e independientes de
+las calles de ambas direcciones, obtenidos de OpenStreetMap el 29 de octubre de
+2026. Las posiciones se contrastaron con las fichas de dirección en Google Maps:
+Los Capitanes 1253 (`-33.4448902, -70.6150798`) y Av. Vicuña Mackenna 625
+(`-33.4493365, -70.6318941`). No se copiaron imágenes ni mosaicos de Google.
+
+Los datos de calles y parques se conservan en `scripts/map-data/`, con licencia
+ODbL y atribución a los colaboradores de OpenStreetMap. El generador
+`node scripts/create-neighborhood-maps.mjs` crea versiones SVG para escritorio,
+móvil y miniaturas. Cada mapa enlaza a la página de atribución y licencia de OSM.
+Si se cambia físicamente una dirección, hay que actualizar su centro y geometría
+y regenerar los dibujos. Los nombres, direcciones, textos y destinos de Google
+Maps continúan usando los campos editables del administrador.
+
+Son mapas estáticos orientativos con calles reales, sin rutas calculadas ni datos
+de tráfico. No cargan scripts, iframes, servicios de mapas ni claves de Maps; el
+enlace abre Google Maps para navegar. Los mapas principales de PC tienen un
+máximo de 840 × 280 px; se conserva el tamaño móvil y de las miniaturas.

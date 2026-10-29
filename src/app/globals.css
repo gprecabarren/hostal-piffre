@@ -159,7 +159,7 @@ body{min-width:0}
 @media(max-width:650px){.payments-methods{max-width:420px}.payments-methods>ul{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.payments-methods li{height:60px;padding:8px}}
 .location-details-link{position:relative;display:inline-flex;align-items:center;gap:24px;padding:12px 0;border-bottom:1px solid #8a9b75;font-size:.8125rem;font-weight:650;line-height:1.6}
 .location-details-link>svg{width:20px;height:20px;flex:none;transition:transform .2s}
-.location-details-link:hover>svg{transform:translateY(3px)}
+.location-details-link:hover>svg{transform:translateX(2px)}
 @media(max-width:650px){.property-group-heading{display:block}.location-details-link{display:flex;justify-content:space-between;gap:15px;margin-top:18px;padding:14px 0 0;border-bottom:0;border-top:1px solid #bac7a7;font-size:.8125rem}.property-group:nth-child(even) .location-details-link{border-top-color:#cec5b1}}
 
 /* Keep the introduction and the first properties connected at every width. */
@@ -178,9 +178,9 @@ body{min-width:0}
 .place-map-visual{margin-top:42px}
 .neighborhood-map.neighborhood-map--location{box-shadow:none;border-radius:6px;border-color:#ccd4ba}
 .map-artwork{display:block;overflow:hidden}
-.map-artwork>svg{display:block;width:100%;height:100%;transition:transform .5s}
+.map-artwork>svg,.map-artwork>img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .5s}
 .neighborhood-map--location .map-artwork{width:100%;aspect-ratio:2.35;min-height:330px;max-height:450px}
-.neighborhood-map:hover .map-artwork>svg{transform:scale(1.025)}
+.neighborhood-map:hover .map-artwork>svg,.neighborhood-map:hover .map-artwork>img{transform:scale(1.025)}
 .map-identity{display:flex;flex-direction:column;gap:6px;min-width:0}
 .map-identity>strong{font-weight:650;letter-spacing:-.025em}
 .map-identity>span{line-height:1.6}
@@ -199,7 +199,20 @@ body{min-width:0}
 .neighborhood-map--compact .map-identity>span{color:#c3cdb6;font-size:.75rem;line-height:1.5}
 .neighborhood-map--compact .map-action>svg{width:14px;height:14px}
 .footer-nav a.neighborhood-map--compact:hover{background:#ffffff0d;color:var(--cream)}
+.neighborhood-map-wrap{position:relative;width:100%;min-width:0}
+.neighborhood-map-wrap--compact{max-width:330px}
+.map-pin-label{position:absolute;left:50%;top:calc(50% - 64px);transform:translateX(-50%);padding:6px 12px;border-radius:30px;background:var(--forest);color:var(--cream);font-size:.625rem;font-weight:650;letter-spacing:.06em;white-space:nowrap}
+.map-credit{position:absolute;bottom:3px;left:16px;padding:1px 3px;background:#f8f6ebed;color:#425b35;font-size:9px;line-height:1.3;border-radius:2px}
+.footer-nav .neighborhood-map-wrap--compact .map-credit{display:block;bottom:2px;left:2px;width:72px;padding:1px 0;text-align:center;font-size:8px;line-height:1.2;color:#425b35;white-space:nowrap;overflow-wrap:normal}
 @media(max-width:850px){.neighborhood-map--location .map-artwork{aspect-ratio:1.8}}
+@media(min-width:851px){
+  .place-map-visual{max-width:840px;margin:32px auto 0}
+  .neighborhood-map--location .map-artwork{height:280px;min-height:0;max-height:none;aspect-ratio:auto}
+  .neighborhood-map--location .map-identity{top:16px;left:16px;padding:12px 16px;font-size:.8125rem}
+  .neighborhood-map--location .map-identity>strong{font-size:1.1rem}
+  .neighborhood-map--location .map-action{right:16px;bottom:16px;padding:12px 14px}
+  .neighborhood-map--location .map-caption{left:16px;bottom:22px}
+}
 @media(max-width:650px){
   .hero--photographic .hero-grid{padding-top:10px;padding-bottom:12px}
   .hero--photographic .hero-photo-collage{margin-bottom:0}
@@ -214,4 +227,6 @@ body{min-width:0}
   .neighborhood-map--location .map-action{bottom:42px;left:16px;right:16px;justify-content:space-between;padding:13px 15px;font-size:.8125rem}
   .neighborhood-map--location .map-caption{bottom:14px;left:16px;right:16px;max-width:none;text-align:center;font-size:.6875rem}
   .footer-nav a.neighborhood-map--compact{max-width:360px}
+  .neighborhood-map-wrap--compact{max-width:360px}
+  .neighborhood-map-wrap:not(.neighborhood-map-wrap--compact)>.map-credit{bottom:2px;left:auto;right:5px;font-size:8px}
 }
