@@ -10,6 +10,8 @@ El carrusel muestra tres medios en escritorio y dos en móvil. Las flechas avanz
 
 En móvil se distinguen los dos grupos de alojamientos con fondos suaves y bordes. Las páginas de ubicación tienen una ruta de navegación y una portada diferenciada; la franja de banderas queda en Inicio. Instagram aparece en el encabezado. En el pie, WhatsApp e Instagram tienen botones circulares con nombres accesibles. Se mantiene WhatsApp flotante y se retira la invitación «Haz espacio para una pausa».
 
+Los enlaces a secciones de Inicio usan navegación nativa del navegador. Esto evita que el router acumule fragmentos como `#habitaciones#contenido` al regresar desde una ubicación. Las páginas de ubicación conservan la navegación de Next.js.
+
 ## Imagen para compartir
 
 `/imagen-social/v2` genera una imagen PNG de 1200 × 630 con el logo oficial, frase de marca y las dos ubicaciones publicadas. Usa las direcciones del contenido editable y una caché de una hora. Las páginas heredan la imagen general; cada página mantiene su opción de imagen propia en el panel. La URL nueva ayuda a separar esta imagen de la anterior en las cachés de redes sociales; una vista previa ya guardada por WhatsApp puede tardar en actualizarse.
