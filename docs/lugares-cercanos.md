@@ -17,8 +17,9 @@ Un lugar visible necesita una foto. Se publica con **Guardar y publicar**.
 Las fotos subidas utilizan la misma API protegida y el almacenamiento del CMS.
 Se validan y convierten a WebP, eliminando metadatos. Al reemplazar la foto de un
 lugar se limpian los créditos anteriores para no atribuir una imagen al autor
-equivocado. Las fotos iniciales tienen crédito y licencia visibles bajo el
-carrusel; conservarlos mientras se utilicen esas fotografías.
+equivocado. Las atribuciones y licencias se presentan en Términos y condiciones,
+accesible desde el footer, sin mostrar un bloque de créditos en los carruseles.
+Conservar estos datos mientras se utilicen las fotografías iniciales.
 
 ## Contenido inicial
 

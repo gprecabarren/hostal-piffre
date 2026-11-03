@@ -45,7 +45,6 @@ export default function NearbyCarousel({ location }: { location: Location }) {
           <div className="explore-copy"><p className="explore-category">{place.category}</p><h3>{place.title}</h3><p className="explore-description">{place.description}</p>{place.mapUrl ? <a href={place.mapUrl} target="_blank" rel="noopener noreferrer" aria-label={`${explore.directionsLabel}: ${place.title} desde ${location.name}`}><span>{explore.directionsLabel}</span><Icon name="arrowUp" /></a> : null}</div>
         </article></li>)}
       </ul>
-      <details className="explore-credits"><summary>Créditos de las fotografías</summary><ul>{places.filter(place => place.credit.author || place.credit.sourceUrl).map(place => <li key={place.id}><strong>{place.title}</strong> · {place.credit.author}{place.credit.sourceUrl ? <> · <a href={place.credit.sourceUrl} target="_blank" rel="noopener noreferrer">Fotografía original</a></> : null}{place.credit.licenseUrl ? <> · <a href={place.credit.licenseUrl} target="_blank" rel="noopener noreferrer">{place.credit.license}</a></> : place.credit.license ? ` · ${place.credit.license}` : ""}{place.credit.changes ? <span> {place.credit.changes}</span> : null}</li>)}</ul></details>
     </div>
   </section>;
 }

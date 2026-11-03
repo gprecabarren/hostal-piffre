@@ -230,3 +230,4 @@ body{min-width:0}
   .neighborhood-map-wrap--compact{max-width:360px}
   .neighborhood-map-wrap:not(.neighborhood-map-wrap--compact)>.map-credit{bottom:2px;left:auto;right:5px;font-size:8px}
 }
+.legal-photo-credits{margin-top:45px;padding-top:12px;border-top:1px solid var(--line)}.legal-photo-credits ul{padding-left:20px}.legal-photo-credits li{margin-bottom:16px;overflow-wrap:anywhere}.legal-photo-credits a{text-decoration:underline;text-underline-offset:3px}
