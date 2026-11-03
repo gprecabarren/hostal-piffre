@@ -51,6 +51,26 @@ export interface Room {
   kind: "room" | "apartment";
 }
 
+export interface NearbyPlace {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  photo: RoomPhoto;
+  mapUrl: string;
+  published: boolean;
+  credit: { author: string; sourceUrl: string; license: string; licenseUrl: string; changes: string };
+}
+
+export interface LocationExplore {
+  enabled: boolean;
+  eyebrow: string;
+  title: string;
+  description: string;
+  directionsLabel: string;
+  places: NearbyPlace[];
+}
+
 export interface Location {
   id: string;
   slug: string;
@@ -65,6 +85,7 @@ export interface Location {
   country: string;
   mapUrl: string;
   nearby: { title: string; description: string }[];
+  explore: LocationExplore;
   amenities: string[];
   photos: RoomPhoto[];
   seo: PageSeo;

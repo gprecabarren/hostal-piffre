@@ -1,0 +1,343 @@
+{
+  "providencia": {
+    "enabled": true,
+    "eyebrow": "TU ESTADÍA, MÁS ALLÁ DEL ALOJAMIENTO",
+    "title": "Sal a descubrir.\nVuelve a sentirte en casa.",
+    "description": "Cafés y parques para disfrutar Providencia, y grandes panoramas para seguir recorriendo Santiago. Elige tu próximo paseo desde Los Capitanes 1253.",
+    "directionsLabel": "Cómo llegar",
+    "places": [
+      {
+        "id": "barrio-italia",
+        "title": "Barrio Italia",
+        "category": "Cafés, diseño y sabores",
+        "description": "Patios interiores, tiendas de diseño y cafés para recorrer sin apuro. Una buena idea para una tarde de vitrineo y una mesa compartida.",
+        "photo": {
+          "url": "/images/places/barrio-italia.webp",
+          "alt": "Fachadas y locales de Barrio Italia, Santiago"
+        },
+        "mapUrl": "https://www.google.com/maps/dir/?api=1&origin=Los+Capitanes+1253%2C+Providencia%2C+Santiago%2C+Chile&destination=Barrio+Italia+Santiago",
+        "published": true,
+        "credit": {
+          "author": "Janitoalevic",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Barrio_Italia_Portada.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "changes": "Redimensionada y convertida a WebP; encuadre adaptable en la web."
+        }
+      },
+      {
+        "id": "ines-suarez",
+        "title": "Parque Inés de Suárez",
+        "category": "Naturaleza en Providencia",
+        "description": "Árboles, áreas verdes y espacios para descansar entre recorridos. Un paseo de barrio para disfrutar Providencia con tiempo y al aire libre.",
+        "photo": {
+          "url": "/images/places/ines-suarez.webp",
+          "alt": "Áreas verdes y árboles del Parque Inés de Suárez, Providencia"
+        },
+        "mapUrl": "https://www.google.com/maps/dir/?api=1&origin=Los+Capitanes+1253%2C+Providencia%2C+Santiago%2C+Chile&destination=Parque+In%C3%A9s+de+Su%C3%A1rez+Providencia",
+        "published": true,
+        "credit": {
+          "author": "TomasVial",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Parque_In%C3%A9s_de_Su%C3%A1rez_en_2025_03.jpg",
+          "license": "CC BY 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+          "changes": "Redimensionada y convertida a WebP; encuadre adaptable en la web."
+        }
+      },
+      {
+        "id": "teleferico",
+        "title": "Cerro San Cristóbal y teleférico",
+        "category": "Vistas de Santiago",
+        "description": "Una pausa en altura para mirar Santiago desde otra perspectiva. Planifica tu visita al teleférico y sus accesos en el Parque Metropolitano.",
+        "photo": {
+          "url": "/images/places/teleferico.webp",
+          "alt": "Cabinas del teleférico sobre el cerro San Cristóbal, Santiago"
+        },
+        "mapUrl": "https://www.google.com/maps/dir/?api=1&origin=Los+Capitanes+1253%2C+Providencia%2C+Santiago%2C+Chile&destination=Estaci%C3%B3n+Oasis+Telef%C3%A9rico+Santiago",
+        "published": true,
+        "credit": {
+          "author": "Sfs90",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Telef%C3%A9rico_Parque_Metropolitano.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "changes": "Redimensionada y convertida a WebP; encuadre adaptable en la web."
+        }
+      },
+      {
+        "id": "estadio-nacional",
+        "title": "Estadio Nacional",
+        "category": "Deporte y grandes eventos",
+        "description": "Si tu viaje incluye un partido o un concierto, ubica con anticipación este recinto de Ñuñoa. Revisa el acceso indicado en tu entrada y planifica el regreso.",
+        "photo": {
+          "url": "/images/places/estadio-nacional.webp",
+          "alt": "Vista del Estadio Nacional Julio Martínez Prádanos en Santiago"
+        },
+        "mapUrl": "https://www.google.com/maps/dir/?api=1&origin=Los+Capitanes+1253%2C+Providencia%2C+Santiago%2C+Chile&destination=Estadio+Nacional+Julio+Mart%C3%ADnez+Pr%C3%A1danos",
+        "published": true,
+        "credit": {
+          "author": "Rjcastillo",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Estadio_Nacional_-_A741105.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "changes": "Redimensionada y convertida a WebP; encuadre adaptable en la web."
+        }
+      },
+      {
+        "id": "baquedano",
+        "title": "Baquedano",
+        "category": "Punto de encuentro",
+        "description": "Una conexión entre las líneas 1 y 5 para seguir recorriendo la ciudad. Desde este sector puedes continuar hacia Parque Bustamante o los barrios del centro.",
+        "photo": {
+          "url": "/images/places/baquedano.webp",
+          "alt": "Andén de la estación Baquedano, Línea 1 del Metro de Santiago"
+        },
+        "mapUrl": "https://www.google.com/maps/dir/?api=1&origin=Los+Capitanes+1253%2C+Providencia%2C+Santiago%2C+Chile&destination=Metro+Baquedano+Santiago",
+        "published": true,
+        "credit": {
+          "author": "Ariel Cruz Pizarro from Santiago, Chile",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Baquedano_L1.jpg",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "changes": "Redimensionada y convertida a WebP; encuadre adaptable en la web."
+        }
+      },
+      {
+        "id": "metro-santa-isabel",
+        "title": "Metro Santa Isabel",
+        "category": "Conexión con la ciudad",
+        "description": "La Línea 5 conecta este sector con otros puntos de Santiago. Una referencia práctica para organizar tus paseos y acercarte a Barrio Italia.",
+        "photo": {
+          "url": "/images/places/metro-santa-isabel.webp",
+          "alt": "Estación Santa Isabel del Metro de Santiago"
+        },
+        "mapUrl": "https://www.google.com/maps/dir/?api=1&origin=Los+Capitanes+1253%2C+Providencia%2C+Santiago%2C+Chile&destination=Metro+Santa+Isabel+Santiago",
+        "published": true,
+        "credit": {
+          "author": "Rodrigo Fernández",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:M_Santa_Isabel_20180129_-fRF02.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "changes": "Redimensionada y convertida a WebP; encuadre adaptable en la web."
+        }
+      },
+      {
+        "id": "movistar-arena",
+        "title": "Santander Arena (ex Movistar Arena)",
+        "category": "Una noche de música",
+        "description": "Conocido antes como Movistar Arena, este recinto del Parque O’Higgins reúne conciertos y espectáculos. Consulta la cartelera y organiza tu traslado según el evento.",
+        "photo": {
+          "url": "/images/places/movistar-arena.webp",
+          "alt": "Exterior del actual Santander Arena, fotografiado cuando se llamaba Movistar Arena"
+        },
+        "mapUrl": "https://www.google.com/maps/dir/?api=1&origin=Los+Capitanes+1253%2C+Providencia%2C+Santiago%2C+Chile&destination=Santander+Arena+Santiago",
+        "published": true,
+        "credit": {
+          "author": "Alberto Brieba",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Movistar_arena_2018.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "changes": "Redimensionada y convertida a WebP; encuadre adaptable en la web."
+        }
+      },
+      {
+        "id": "lastarria",
+        "title": "Barrio Lastarria",
+        "category": "Arte y vida de barrio",
+        "description": "Librerías, cultura y terrazas para disfrutar el centro a pie. Combina el paseo con los alrededores del cerro Santa Lucía y el Parque Forestal.",
+        "photo": {
+          "url": "/images/places/lastarria.webp",
+          "alt": "Calle y arquitectura del Barrio Lastarria, Santiago"
+        },
+        "mapUrl": "https://www.google.com/maps/dir/?api=1&origin=Los+Capitanes+1253%2C+Providencia%2C+Santiago%2C+Chile&destination=Barrio+Lastarria+Santiago",
+        "published": true,
+        "credit": {
+          "author": "SvetlanaLom",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Barrio_Lastarria_3.JPG",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+          "changes": "Redimensionada y convertida a WebP; encuadre adaptable en la web."
+        }
+      }
+    ]
+  },
+  "santiago-centro": {
+    "enabled": true,
+    "eyebrow": "TU ESTADÍA, MÁS ALLÁ DEL ALOJAMIENTO",
+    "title": "La ciudad está\npara recorrerla.",
+    "description": "Desde Av. Vicuña Mackenna 625, combina los paseos del sector de Santa Isabel con barrios culturales, miradores y espectáculos en Santiago.",
+    "directionsLabel": "Cómo llegar",
+    "places": [
+      {
+        "id": "metro-santa-isabel",
+        "title": "Metro Santa Isabel",
+        "category": "Conexión con la ciudad",
+        "description": "La Línea 5 conecta este sector con otros puntos de Santiago. Una referencia práctica para organizar tus paseos y acercarte a Barrio Italia.",
+        "photo": {
+          "url": "/images/places/metro-santa-isabel.webp",
+          "alt": "Estación Santa Isabel del Metro de Santiago"
+        },
+        "mapUrl": "https://www.google.com/maps/dir/?api=1&origin=Av.+Vicu%C3%B1a+Mackenna+625%2C+Santiago%2C+Chile&destination=Metro+Santa+Isabel+Santiago",
+        "published": true,
+        "credit": {
+          "author": "Rodrigo Fernández",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:M_Santa_Isabel_20180129_-fRF02.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "changes": "Redimensionada y convertida a WebP; encuadre adaptable en la web."
+        }
+      },
+      {
+        "id": "parque-bustamante",
+        "title": "Parque Bustamante",
+        "category": "Un paseo al aire libre",
+        "description": "Un corredor verde para caminar, hacer una pausa y conectar con el ritmo del barrio. Una alternativa para disfrutar una mañana tranquila en Santiago.",
+        "photo": {
+          "url": "/images/places/parque-bustamante.webp",
+          "alt": "Árboles y senderos del Parque Bustamante, Santiago"
+        },
+        "mapUrl": "https://www.google.com/maps/dir/?api=1&origin=Av.+Vicu%C3%B1a+Mackenna+625%2C+Santiago%2C+Chile&destination=Parque+Bustamante+Santiago",
+        "published": true,
+        "credit": {
+          "author": "Tommy Boy",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Parque_Bustamante_8.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "changes": "Redimensionada y convertida a WebP; encuadre adaptable en la web."
+        }
+      },
+      {
+        "id": "barrio-italia",
+        "title": "Barrio Italia",
+        "category": "Cafés, diseño y sabores",
+        "description": "Patios interiores, tiendas de diseño y cafés para recorrer sin apuro. Una buena idea para una tarde de vitrineo y una mesa compartida.",
+        "photo": {
+          "url": "/images/places/barrio-italia.webp",
+          "alt": "Fachadas y locales de Barrio Italia, Santiago"
+        },
+        "mapUrl": "https://www.google.com/maps/dir/?api=1&origin=Av.+Vicu%C3%B1a+Mackenna+625%2C+Santiago%2C+Chile&destination=Barrio+Italia+Santiago",
+        "published": true,
+        "credit": {
+          "author": "Janitoalevic",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Barrio_Italia_Portada.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "changes": "Redimensionada y convertida a WebP; encuadre adaptable en la web."
+        }
+      },
+      {
+        "id": "baquedano",
+        "title": "Baquedano",
+        "category": "Punto de encuentro",
+        "description": "Una conexión entre las líneas 1 y 5 para seguir recorriendo la ciudad. Desde este sector puedes continuar hacia Parque Bustamante o los barrios del centro.",
+        "photo": {
+          "url": "/images/places/baquedano.webp",
+          "alt": "Andén de la estación Baquedano, Línea 1 del Metro de Santiago"
+        },
+        "mapUrl": "https://www.google.com/maps/dir/?api=1&origin=Av.+Vicu%C3%B1a+Mackenna+625%2C+Santiago%2C+Chile&destination=Metro+Baquedano+Santiago",
+        "published": true,
+        "credit": {
+          "author": "Ariel Cruz Pizarro from Santiago, Chile",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Baquedano_L1.jpg",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "changes": "Redimensionada y convertida a WebP; encuadre adaptable en la web."
+        }
+      },
+      {
+        "id": "santa-lucia",
+        "title": "Cerro Santa Lucía",
+        "category": "Historia y miradores",
+        "description": "Jardines, escalinatas y rincones históricos en pleno centro. Dedica un momento a recorrer sus senderos y descubrir la ciudad desde sus miradores.",
+        "photo": {
+          "url": "/images/places/santa-lucia.webp",
+          "alt": "Vista lateral del cerro Santa Lucía en Santiago"
+        },
+        "mapUrl": "https://www.google.com/maps/dir/?api=1&origin=Av.+Vicu%C3%B1a+Mackenna+625%2C+Santiago%2C+Chile&destination=Cerro+Santa+Luc%C3%ADa+Santiago",
+        "published": true,
+        "credit": {
+          "author": "Rjcastillo",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Vista_lateral_Cerro_Santa_Lucia.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "changes": "Redimensionada y convertida a WebP; encuadre adaptable en la web."
+        }
+      },
+      {
+        "id": "lastarria",
+        "title": "Barrio Lastarria",
+        "category": "Arte y vida de barrio",
+        "description": "Librerías, cultura y terrazas para disfrutar el centro a pie. Combina el paseo con los alrededores del cerro Santa Lucía y el Parque Forestal.",
+        "photo": {
+          "url": "/images/places/lastarria.webp",
+          "alt": "Calle y arquitectura del Barrio Lastarria, Santiago"
+        },
+        "mapUrl": "https://www.google.com/maps/dir/?api=1&origin=Av.+Vicu%C3%B1a+Mackenna+625%2C+Santiago%2C+Chile&destination=Barrio+Lastarria+Santiago",
+        "published": true,
+        "credit": {
+          "author": "SvetlanaLom",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Barrio_Lastarria_3.JPG",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+          "changes": "Redimensionada y convertida a WebP; encuadre adaptable en la web."
+        }
+      },
+      {
+        "id": "teleferico",
+        "title": "Cerro San Cristóbal y teleférico",
+        "category": "Vistas de Santiago",
+        "description": "Una pausa en altura para mirar Santiago desde otra perspectiva. Planifica tu visita al teleférico y sus accesos en el Parque Metropolitano.",
+        "photo": {
+          "url": "/images/places/teleferico.webp",
+          "alt": "Cabinas del teleférico sobre el cerro San Cristóbal, Santiago"
+        },
+        "mapUrl": "https://www.google.com/maps/dir/?api=1&origin=Av.+Vicu%C3%B1a+Mackenna+625%2C+Santiago%2C+Chile&destination=Estaci%C3%B3n+Oasis+Telef%C3%A9rico+Santiago",
+        "published": true,
+        "credit": {
+          "author": "Sfs90",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Telef%C3%A9rico_Parque_Metropolitano.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "changes": "Redimensionada y convertida a WebP; encuadre adaptable en la web."
+        }
+      },
+      {
+        "id": "movistar-arena",
+        "title": "Santander Arena (ex Movistar Arena)",
+        "category": "Una noche de música",
+        "description": "Conocido antes como Movistar Arena, este recinto del Parque O’Higgins reúne conciertos y espectáculos. Consulta la cartelera y organiza tu traslado según el evento.",
+        "photo": {
+          "url": "/images/places/movistar-arena.webp",
+          "alt": "Exterior del actual Santander Arena, fotografiado cuando se llamaba Movistar Arena"
+        },
+        "mapUrl": "https://www.google.com/maps/dir/?api=1&origin=Av.+Vicu%C3%B1a+Mackenna+625%2C+Santiago%2C+Chile&destination=Santander+Arena+Santiago",
+        "published": true,
+        "credit": {
+          "author": "Alberto Brieba",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Movistar_arena_2018.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "changes": "Redimensionada y convertida a WebP; encuadre adaptable en la web."
+        }
+      },
+      {
+        "id": "estadio-nacional",
+        "title": "Estadio Nacional",
+        "category": "Deporte y grandes eventos",
+        "description": "Si tu viaje incluye un partido o un concierto, ubica con anticipación este recinto de Ñuñoa. Revisa el acceso indicado en tu entrada y planifica el regreso.",
+        "photo": {
+          "url": "/images/places/estadio-nacional.webp",
+          "alt": "Vista del Estadio Nacional Julio Martínez Prádanos en Santiago"
+        },
+        "mapUrl": "https://www.google.com/maps/dir/?api=1&origin=Av.+Vicu%C3%B1a+Mackenna+625%2C+Santiago%2C+Chile&destination=Estadio+Nacional+Julio+Mart%C3%ADnez+Pr%C3%A1danos",
+        "published": true,
+        "credit": {
+          "author": "Rjcastillo",
+          "sourceUrl": "https://commons.wikimedia.org/wiki/File:Estadio_Nacional_-_A741105.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "changes": "Redimensionada y convertida a WebP; encuadre adaptable en la web."
+        }
+      }
+    ]
+  }
+}

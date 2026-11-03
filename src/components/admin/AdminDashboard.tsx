@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
-import type { SiteContent, Room, RoomPhoto, PageCopyKey, PageSeo, Location as SiteLocation } from "@/lib/types";
+import type { SiteContent, Room, RoomPhoto, PageCopyKey, PageSeo, NearbyPlace, LocationExplore, Location as SiteLocation } from "@/lib/types";
 import { pageCopyGroups, pageCopyFields } from "@/lib/copy";
 import { listSeoPages } from "@/lib/page-seo";
 import { AdminIcon, type AdminIconName } from "./AdminIcon";
@@ -222,6 +222,37 @@ export function GalleryEditor({ photos, ownerName, property = false, published =
   </fieldset>;
 }
 
+function NearbyEditor({ value, onChange, onUpload, busy, uploading }: {
+  value: LocationExplore; onChange: (value: LocationExplore) => void;
+  onUpload: (file: File, id: string) => void; busy: boolean; uploading: string;
+}) {
+  const patch = (id: string, fields: Partial<NearbyPlace>) => onChange({ ...value, places: value.places.map(place => place.id === id ? { ...place, ...fields } : place) });
+  const emptyCredit = { author: "", sourceUrl: "", license: "", licenseUrl: "", changes: "" };
+  return <Panel title="Carrusel · Descubre Santiago" description="Aparece al final de esta página de ubicación. Fotos, textos, rutas y orden independientes para cada dirección.">
+    <fieldset className="admin-fieldset" disabled={busy}>
+      <label className="admin-toggle-row"><span><strong>Mostrar el carrusel de lugares</strong><small>Los lugares en borrador no aparecen en la web.</small></span><input type="checkbox" checked={value.enabled} onChange={event => onChange({ ...value, enabled: event.target.checked })}/></label>
+      <TextField label="Etiqueta del carrusel" value={value.eyebrow} onChange={eyebrow => onChange({ ...value, eyebrow })} maxLength={150}/>
+      <TextField label="Título del carrusel" value={value.title} onChange={title => onChange({ ...value, title })} required multiline maxLength={180}/>
+      <TextField label="Introducción del carrusel" value={value.description} onChange={description => onChange({ ...value, description })} multiline maxLength={1200}/>
+      <TextField label="Texto del enlace al mapa" value={value.directionsLabel} onChange={directionsLabel => onChange({ ...value, directionsLabel })} required maxLength={80}/>
+      <div className="admin-gallery-toolbar"><strong>{value.places.length} de 20 lugares</strong><button type="button" className="admin-button admin-button-outline" disabled={busy || value.places.length >= 20} onClick={() => onChange({ ...value, places: [...value.places, { id: `lugar-${crypto.randomUUID()}`, title: "Nuevo lugar", category: "", description: "", photo: { url: "", alt: "Fotografía del lugar" }, mapUrl: "", published: false, credit: emptyCredit }] })}><AdminIcon name="plus" size={16}/>Agregar al carrusel</button></div>
+      {value.places.map((place, index) => <div className="admin-collection-card" key={place.id}>
+        <div className="admin-collection-heading"><strong>{String(index + 1).padStart(2, "0")} · {place.title}</strong><div><MoveControls label={place.title} index={index} total={value.places.length} disabled={busy} onMove={direction => onChange({ ...value, places: moveItem(value.places, index, direction) })}/><button type="button" className="admin-icon-button admin-danger" aria-label={`Quitar ${place.title} del carrusel`} onClick={() => onChange({ ...value, places: value.places.filter(item => item.id !== place.id) })}><AdminIcon name="trash" size={16}/></button></div></div>
+        <label className="admin-toggle-row"><span><strong>{place.published ? "Visible en el carrusel" : "Borrador"}</strong></span><input type="checkbox" checked={place.published} onChange={event => patch(place.id, { published: event.target.checked })}/></label>
+        <details className="admin-explore-details"><summary>Editar foto y detalles de {place.title}</summary>
+          <div className="admin-fields-grid"><TextField label="Nombre del lugar" value={place.title} onChange={title => patch(place.id, { title })} required maxLength={150}/><TextField label="Categoría o etiqueta" value={place.category} onChange={category => patch(place.id, { category })} maxLength={100}/></div>
+          <TextField label="Descripción del paseo" value={place.description} onChange={description => patch(place.id, { description })} multiline maxLength={1200}/>
+          <TextField label="Enlace de indicaciones" value={place.mapUrl} onChange={mapUrl => patch(place.id, { mapUrl })} type="url" hint="Puedes pegar una ruta de Google Maps desde tu alojamiento hasta este lugar. Evita indicar tiempos de traslado que dependan del tráfico."/>
+          <div className="admin-explore-photo"><PhotoEditor photo={place.photo} ownerName={place.title} index={0} total={1} busy={busy} cover={false} canRemove={Boolean(place.photo.url)} onChange={photo => patch(place.id, { photo, ...(photo.url !== place.photo.url ? { credit: emptyCredit } : {}) })} onUpload={files => { if (files[0]) onUpload(files[0], place.id); }} onMove={() => {}} onRemove={() => patch(place.id, { photo: { ...place.photo, url: "" }, published: false, credit: emptyCredit })}/></div>
+          {uploading === place.id ? <p role="status">Subiendo la fotografía…</p> : null}
+          <details className="admin-photo-details"><summary>Autor y licencia de esta foto</summary><p className="admin-muted-note">Las fotografías iniciales incluyen sus créditos. Si reemplazas una foto, se limpian sus créditos anteriores. Usa fotos propias o con permiso y completa los datos correspondientes.</p>{([{ key: "author", label: "Autor de la fotografía" }, { key: "sourceUrl", label: "Fuente de la fotografía" }, { key: "license", label: "Nombre de la licencia" }, { key: "licenseUrl", label: "Enlace de la licencia" }, { key: "changes", label: "Adaptaciones de la imagen" }] as const).map(field => <TextField key={field.key} label={field.label} value={place.credit[field.key]} onChange={text => patch(place.id, { credit: { ...place.credit, [field.key]: text } })} type={field.key.endsWith("Url") ? "url" : "text"} maxLength={field.key.endsWith("Url") ? 2048 : field.key === "license" ? 100 : 500}/>)}</details>
+        </details>
+      </div>)}
+      <p className="admin-muted-note">Los cambios se publican con «Guardar y publicar». Puedes retirar lugares de esta edición y deshacerlo con «Descartar cambios» antes de guardar. Las fotos se optimizan automáticamente al subirlas.</p>
+    </fieldset>
+  </Panel>;
+}
+
 export function AdminDashboard({ initialContent, status, user, signOutAction }: {
   initialContent: SiteContent; status: ContentStatus; user: { name?: string | null; email?: string | null }; signOutAction: () => Promise<void>;
 }) {
@@ -420,6 +451,28 @@ export function AdminDashboard({ initialContent, status, user, signOutAction }: 
       setNotice({ type: failures.length || !successful ? "error" : "success", text: `${summary}${omitted ? ` Se omitieron ${omitted} archivos por el límite de la galería.` : ""}${failures.length ? ` ${failures.slice(0, 3).join("; ")}${failures.length > 3 ? "; revisa también los demás archivos" : ""}.` : ""}` });
     } finally { uploadLock.current = false; setUploading(null); }
   }
+  async function uploadPlacePhoto(file: File, locationId: string, placeId: string) {
+    if (uploadLock.current || saving || !status.configured || status.error) return;
+    uploadLock.current = true;
+    setUploading({ target: `place:${locationId}:${placeId}`, current: 1, total: 1, name: file.name });
+    setNotice(null);
+    try {
+      if (!file.size || file.size > 4 * 1024 * 1024) throw new Error("La imagen debe pesar hasta 4 MB.");
+      const data = new FormData(); data.append("file", file);
+      const response = await fetch("/api/upload", { method: "POST", body: data });
+      const result = await response.json();
+      if (!response.ok || !result.url) throw new Error(result.error || "No se pudo subir la fotografía.");
+      editContent(previous => ({ ...previous, locations: previous.locations.map(location => location.id !== locationId ? location : {
+        ...location, explore: { ...location.explore, places: location.explore.places.map(place => place.id !== placeId ? place : {
+          ...place, photo: { url: result.url, alt: `Fotografía de ${place.title}` },
+          credit: { author: "", sourceUrl: "", license: "", licenseUrl: "", changes: "" },
+        }) },
+      }) }));
+      setNotice({ type: "success", text: "Fotografía subida. Revisa su descripción y créditos, y guarda para publicarla." });
+    } catch (error) {
+      setNotice({ type: "error", text: error instanceof Error ? error.message : "No se pudo subir la fotografía." });
+    } finally { uploadLock.current = false; setUploading(null); }
+  }
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy || !status.configured || status.error) return;
@@ -550,6 +603,7 @@ export function AdminDashboard({ initialContent, status, user, signOutAction }: 
             <Panel title={`Lugares y servicios cercanos · ${activeLocation.nearby.length} de 20`} description="Ayuda al huésped a conocer el barrio con información comprobada." aside={<button type="button" className="admin-button admin-button-outline" disabled={busy || activeLocation.nearby.length >= 20} onClick={() => updateLocation(activeLocation.id, { nearby: [...activeLocation.nearby, { title: "", description: "" }] })}><AdminIcon name="plus" size={16}/>Agregar lugar</button>}>
               {activeLocation.nearby.length ? activeLocation.nearby.map((nearby, index) => <div className="admin-collection-card" key={`${activeLocation.id}-${index}`}><div className="admin-collection-heading"><span>Lugar {index + 1}</span><div><MoveControls label={`lugar cercano ${index + 1} de ${activeLocation.name}`} index={index} total={activeLocation.nearby.length} disabled={busy} onMove={direction => updateLocation(activeLocation.id, { nearby: moveItem(activeLocation.nearby, index, direction) })}/><button type="button" className="admin-icon-button admin-danger" disabled={busy} aria-label={`Quitar lugar cercano ${index + 1}`} onClick={() => updateLocation(activeLocation.id, { nearby: activeLocation.nearby.filter((_, current) => current !== index) })}><AdminIcon name="trash" size={16}/></button></div></div><div className="admin-fields-grid"><TextField label={`Nombre del lugar ${index + 1}`} value={nearby.title} onChange={title => updateLocation(activeLocation.id, { nearby: activeLocation.nearby.map((item, current) => current === index ? { ...item, title } : item) })} required maxLength={150}/><TextField label={`Descripción del lugar ${index + 1}`} value={nearby.description} onChange={description => updateLocation(activeLocation.id, { nearby: activeLocation.nearby.map((item, current) => current === index ? { ...item, description } : item) })} required maxLength={1200}/></div></div>) : <p className="admin-muted-note">Aún no hay lugares cercanos añadidos para esta ubicación.</p>}
             </Panel>
+            <NearbyEditor key={activeLocation.id} value={activeLocation.explore} onChange={explore => updateLocation(activeLocation.id, { explore })} onUpload={(file, placeId) => void uploadPlacePhoto(file, activeLocation.id, placeId)} busy={busy || !status.configured || Boolean(status.error)} uploading={uploading?.target.startsWith(`place:${activeLocation.id}:`) ? uploading.target.split(":").slice(2).join(":") : ""}/>
             <Panel title="Fotografías de la ubicación" description="Muestra los espacios compartidos, el acceso o el entorno de esta dirección."><GalleryEditor key={activeLocation.id} photos={activeLocation.photos} ownerName={activeLocation.name} disabled={busy || !status.configured || Boolean(status.error)} progress={uploading?.target === `location:${activeLocation.id}` ? uploading : null} onChange={photos => updateGallery({ kind: "location", id: activeLocation.id }, photos)} onUpload={(files, replaceIndex) => void uploadPhotos(files, { kind: "location", id: activeLocation.id }, replaceIndex)}/></Panel>
             <Panel title="Visibilidad de esta ubicación en Google" description="Su título, descripción, URL canónica, imagen social y permisos de indexación se editan juntos en la configuración SEO."><button type="button" className="admin-button admin-button-outline" onClick={() => { setSelectedSeoKey(`location:${activeLocation.id}`); setSection("seo"); window.scrollTo({ top: 0, behavior: "instant" }); }}>Editar SEO de {activeLocation.name}<AdminIcon name="arrow" size={17}/></button></Panel>
           </> : null}

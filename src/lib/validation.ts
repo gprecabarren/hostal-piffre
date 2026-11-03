@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { defaultPageCopy, formatCopy, pageCopyFields, type PageCopyKey } from "./copy";
-import { defaultContent, defaultLocations } from "./defaults";
+import { defaultContent, defaultLocations, defaultExplore } from "./defaults";
 import { createPageSeo } from "./page-seo";
 import type { PageCopy, SiteContent } from "./types";
 
@@ -29,6 +29,18 @@ const imageUrl = z.union([
   z.string().max(2048).regex(/^\/(?!\/)[a-zA-Z0-9/_\-.]+$/).refine((value) => !value.split("/").includes("..")),
 ]);
 const photoSchema = z.object({ url: imageUrl, alt: text(250) }).strict();
+const optionalHttps = z.union([z.literal(""), httpsUrl]);
+const exploreSchema = z.object({
+  enabled: z.boolean(), eyebrow: text(150, 0), title: text(180), description: text(1200, 0),
+  directionsLabel: text(80),
+  places: z.array(z.object({
+    id: text(80).regex(/^[a-z0-9-]+$/), title: text(150), category: text(100, 0),
+    description: text(1200, 0), photo: photoSchema, mapUrl: optionalHttps, published: z.boolean(),
+    credit: z.object({ author: text(500, 0), sourceUrl: optionalHttps, license: text(100, 0), licenseUrl: optionalHttps, changes: text(500, 0) }).strict(),
+  }).strict().superRefine((place, context) => {
+    if (place.published && !place.photo.url) context.addIssue({ code: "custom", path: ["photo", "url"], message: "Agrega una foto o deja este lugar como borrador." });
+  })).max(20).refine(places => new Set(places.map(place => place.id)).size === places.length, "No repitas el identificador de un lugar."),
+}).strict();
 export const pageSeoSchema = z.object({
   title: text(160), description: text(500), keywords: z.array(text(100)).max(30),
   canonicalUrl: z.union([z.literal(""), httpsUrl]),
@@ -67,6 +79,7 @@ const locationSchema = z.object({
   address: text(250, 0), city: text(100), region: text(150), country: text(100),
   mapUrl: z.union([z.literal(""), httpsUrl]),
   nearby: z.array(z.object({ title: text(150), description: text(1200) }).strict()).max(20),
+  explore: exploreSchema,
   amenities: z.array(text(150)).max(20),
   photos: z.array(photoSchema).max(40),
   seo: pageSeoSchema,
@@ -188,6 +201,7 @@ export function normalizeSiteContent(value: unknown): SiteContent {
     copy: { ...defaultPageCopy, ...legacyCopy },
     locations: Array.isArray(locations) ? locations.map((location) => isRecord(location) ? {
       ...location,
+      explore: location.explore === undefined ? defaultExplore(typeof location.id === "string" ? location.id : "") : location.explore,
       seo: expandPageSeo(location.seo, `${typeof location.name === "string" ? location.name : "Alojamiento"} | ${siteName}`,
         typeof location.description === "string" && location.description ? location.description : description),
     } : location) : locations,

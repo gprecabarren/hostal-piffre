@@ -2,6 +2,14 @@ import type { Location, Room, RoomPhoto, SiteContent } from "./types";
 import { defaultPageCopy, formatCopy } from "./copy";
 import { createPageSeo } from "./page-seo";
 import photoSeed from "./photo-seed.json";
+import placesSeed from "./places-seed.json";
+
+export function defaultExplore(id: string): Location["explore"] {
+  return structuredClone((placesSeed as Record<string, Location["explore"]>)[id] || {
+    enabled: false, eyebrow: "DESCUBRE EL ENTORNO", title: "Un paseo por descubrir.",
+    description: "", directionsLabel: "Cómo llegar", places: [],
+  });
+}
 
 function seedPhotos(scope: "rooms" | "locations", id: string, fallback: RoomPhoto[] = []): RoomPhoto[] {
   const photographs = (photoSeed[scope] as Record<string, RoomPhoto[]>)[id];
@@ -50,7 +58,7 @@ const makeApartment = (number: number): Room => ({
 
 export const defaultLocations: Location[] = [
   {
-    id: "providencia", slug: "providencia", name: "Providencia",
+    id: "providencia", slug: "providencia", name: "Providencia", explore: defaultExplore("providencia"),
     eyebrow: "HABITACIONES EN PROVIDENCIA",
     title: "Providencia,", titleAccent: "a tu ritmo.",
     description: "Habitaciones en Los Capitanes 1253, Providencia, Santiago. Una ubicación para descansar y descubrir la ciudad con atención cercana.",
@@ -65,7 +73,7 @@ export const defaultLocations: Location[] = [
     seo: createPageSeo("Hostal en Providencia, Santiago | Alojamientos Piffre", "Conoce nuestras habitaciones en Providencia, Santiago. Alojamiento en Los Capitanes 1253 con atención cercana. Consulta disponibilidad por WhatsApp."),
   },
   {
-    id: "santiago-centro", slug: "santiago-centro", name: "Santiago Centro",
+    id: "santiago-centro", slug: "santiago-centro", name: "Santiago Centro", explore: defaultExplore("santiago-centro"),
     eyebrow: "DEPARTAMENTOS EN SANTIAGO CENTRO",
     title: "Santiago Centro,", titleAccent: "tu punto de partida.",
     description: "Departamentos en Avenida Vicuña Mackenna 625, Santiago Centro. Una ubicación para descubrir la ciudad y consultar directamente con tu anfitrión las condiciones de tu estadía.",

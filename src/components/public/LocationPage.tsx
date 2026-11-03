@@ -9,6 +9,7 @@ import { RoomPlaceholder } from "./artwork";
 import NeighborhoodMap from "./NeighborhoodMap";
 import PhotoLightbox from "./PhotoLightbox";
 import RoomCard from "./RoomCard";
+import NearbyCarousel from "./NearbyCarousel";
 import { ContactBlock, SiteFrame } from "./SiteChrome";
 import { locationPhotos, mapHref, publishedLocations, whatsappUrl } from "./content-helpers";
 
@@ -31,6 +32,7 @@ export default function LocationPage({ content, location }: { content: SiteConte
 
     <section className="place-nearby section-shell section-space" aria-labelledby="nearby-title"><div className="section-label reveal"><span>{c.locationEyebrow}</span><span>{location.name}</span></div><div className="place-nearby-heading reveal"><h2 id="nearby-title">{c.locationNearbyTitle}</h2><a href={mapHref(location)} target="_blank" rel="noopener noreferrer" className="text-link">{c.locationDirections}<Icon name="arrowUp" /></a></div><div className="nearby-grid">{location.nearby.map((place, index) => <article className="reveal" key={place.title}><span>{String(index + 1).padStart(2, "0")}</span><h3>{place.title}</h3><p>{place.description}</p></article>)}</div><div id="mapa" className="place-map-visual reveal"><NeighborhoodMap location={location} copy={c} /></div></section>
 
+    <NearbyCarousel location={location} />
     <nav className="other-locations section-shell" aria-label={c.navLocations}><a href="/#ubicaciones">{c.locationSeeAll}<Icon name="arrow" /></a>{publishedLocations(content).filter((place) => place.id !== location.id).map((place) => <a href={`/ubicaciones/${place.slug}#contenido`} key={place.id}>{place.name}<Icon name="arrowUp" /></a>)}</nav><ContactBlock content={content} />
   </main>{galleryOpen ? <PhotoLightbox photos={photos} title={location.name} copy={c} initialIndex={galleryIndex} onClose={() => setGalleryOpen(false)} /> : null}</SiteFrame>;
 }
