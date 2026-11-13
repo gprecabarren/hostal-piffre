@@ -6,7 +6,7 @@ import type { Location, SiteContent } from "@/lib/types";
 import { RoomPlaceholder } from "./artwork";
 import { Icon } from "./icons";
 import RoomCard from "./RoomCard";
-import { BrandLockup, ContactBlock, SiteFrame } from "./SiteChrome";
+import { BrandEmblem, ContactBlock, SiteFrame } from "./SiteChrome";
 import { locationPhotos, mapHref, publishedLocations, whatsappUrl } from "./content-helpers";
 
 function HeroCollage({ content, locations }: { content: SiteContent; locations: Location[] }) {
@@ -36,9 +36,7 @@ export default function Landing({ content }: { content: SiteContent }) {
     <section id="experiencia" className="experience-section section-shell section-space" aria-labelledby="experience-title">
       <div className="section-label reveal"><span>{c.experienceLabel}</span><span>{c.experienceNote}</span></div>
       <div className="experience-heading reveal">
-        <span className="brand experience-brand" aria-hidden="true">
-          <BrandLockup copy={c} imageSizes="(max-width: 650px) 59px, (max-width: 850px) 65px, (max-width: 1460px) 7.6vw, 111px" />
-        </span>
+        <BrandEmblem className="experience-emblem" sizes="(max-width: 650px) 150px, (max-width: 923px) 188px, (max-width: 1477px) 20.3vw, 300px" />
         <div><h2 id="experience-title">{content.about.title}</h2><p>{formatCopy(content.about.text, variables)}</p></div>
       </div>
       <div className="experience-grid">{content.amenities.map((amenity, index) => <div className="experience-item reveal" key={amenity.title}><Icon name={/lavander/i.test(amenity.title) ? "washer" : /wifi/i.test(amenity.title) ? "wifi" : /terraza/i.test(amenity.title) ? "sun" : "heart"} /><span className="experience-number">{String(index + 1).padStart(2, "0")}</span><h3>{amenity.title}</h3><p>{amenity.description}</p></div>)}</div>

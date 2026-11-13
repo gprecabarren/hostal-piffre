@@ -231,24 +231,40 @@ body{min-width:0}
   .neighborhood-map-wrap:not(.neighborhood-map-wrap--compact)>.map-credit{bottom:2px;left:auto;right:5px;font-size:8px}
 }
 .legal-photo-credits{margin-top:45px;padding-top:12px;border-top:1px solid var(--line)}.legal-photo-credits ul{padding-left:20px}.legal-photo-credits li{margin-bottom:16px;overflow-wrap:anywhere}.legal-photo-credits a{text-decoration:underline;text-underline-offset:3px}
-.experience-heading .experience-brand {
-  width: fit-content;
-  max-width: 100%;
-  padding: clamp(13px, 1.65vw, 24px);
-  gap: clamp(8px, 1vw, 15px);
-  border-radius: 6px;
-  background: var(--cream);
-  color: var(--forest);
-}
-.experience-brand .brand-symbol--official {
-  width: clamp(44px, 5.2vw, 76px);
+.experience-heading .experience-emblem {
+  display: block;
+  width: clamp(120px, 13vw, 192px);
   height: auto;
   aspect-ratio: 1;
-  flex: none;
+  transform: rotate(-8deg);
+  transform-origin: center;
 }
-.experience-brand .brand-text { font-size: clamp(2.15rem, 3.8vw, 3.8rem); }
+
+.experience-emblem > img {
+  width: 156%;
+  left: -28%;
+  top: -15%;
+}
+
 @media (max-width: 650px) {
-  .experience-heading .experience-brand { margin-bottom: 22px; }
-  .experience-brand .brand-symbol--official { width: 40px; }
-  .experience-brand .brand-text { font-size: 2.2rem; }
+  .experience-heading .experience-emblem {
+    width: 96px;
+    margin-bottom: 22px;
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .experience-emblem { transition: transform 1s; }
+  .experience-heading:hover .experience-emblem { transform: rotate(28deg); }
+}
+
+@media (hover: none) and (prefers-reduced-motion: no-preference) {
+  .experience-heading.is-visible .experience-emblem {
+    animation: experience-emblem-turn 1s ease 2 alternate;
+  }
+}
+
+@keyframes experience-emblem-turn {
+  from { transform: rotate(-8deg); }
+  to { transform: rotate(28deg); }
 }
