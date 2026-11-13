@@ -163,9 +163,12 @@ function expandPageSeo(value: unknown, title: string, description: string) {
   };
 }
 
-/** Adds only fields introduced after launch. Existing text, photos, links and order are preserved. */
-export function normalizeSiteContent(value: unknown): SiteContent {
+/** Updates legacy content while preserving edits made in the administration panel. */
+export function normalizeSiteContent(value: unknown, updatedAt?: string): SiteContent {
   if (!isRecord(value)) return siteContentSchema.parse(value);
+  // Apply the requested replacement to the previous saved listing only.
+  // Later edits may intentionally use the original URL again.
+  const savedBeforeAirbnbUpdate = Boolean(updatedAt && Date.parse(updatedAt) < Date.parse("2026-11-13T14:50:47Z"));
   const legacySeo = isRecord(value.seo) ? value.seo : {};
   const legacyCopy = isRecord(value.copy) ? value.copy : {};
   const legacyContact = isRecord(value.contact) ? value.contact : {};
@@ -207,9 +210,15 @@ export function normalizeSiteContent(value: unknown): SiteContent {
     } : location) : locations,
     visitorCountries: value.visitorCountries ?? [],
     paymentMethods: value.paymentMethods ?? [],
-    rooms: Array.isArray(value.rooms) ? value.rooms.map((room) => isRecord(room) ? {
-      published: false, whatsappUrl: "", vrboUrl: "", locationId: "providencia", kind: "room", ...room,
-    } : room) : value.rooms,
+    rooms: Array.isArray(value.rooms) ? value.rooms.map((room) => {
+      if (!isRecord(room)) return room;
+      const normalizedRoom = { published: false, whatsappUrl: "", vrboUrl: "", locationId: "providencia", kind: "room", ...room };
+      if (savedBeforeAirbnbUpdate && room.id === "departamento-1" && room.airbnbUrl === "https://www.airbnb.cl/rooms/1803933934369494949") {
+        const apartment = defaultContent.rooms.find(item => item.id === room.id);
+        if (apartment) return { ...normalizedRoom, airbnbUrl: apartment.airbnbUrl };
+      }
+      return normalizedRoom;
+    }) : value.rooms,
   };
   return siteContentSchema.parse(normalized);
 }

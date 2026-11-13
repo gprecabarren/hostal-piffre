@@ -30,7 +30,7 @@ const readContent = cache(async (): Promise<{ content: SiteContent; status: Cont
     const db = supabaseClient(process.env.SUPABASE_PUBLISHABLE_KEY);
     const { data, error } = await db.from("site_content").select("content,updated_at").eq("id", "main").maybeSingle();
     if (error || !data) throw new Error("El contenido aún no está disponible en Supabase.");
-    const content = normalizeSiteContent(data.content);
+    const content = normalizeSiteContent(data.content, data.updated_at);
     return { content, status: { configured: contentConfigured, persisted: true, updatedAt: data.updated_at } };
   } catch {
     // The public site remains available if the content service is unavailable.

@@ -41,6 +41,20 @@ test("a second Airbnb listing stays editable without assigning it to another pro
   assert.equal(legacy.rooms[2].published, false);
 });
 
+test("the previous default Airbnb URL gets the requested photo without overriding a customized listing", () => {
+  const saved = structuredClone(defaultContent);
+  const apartment = saved.rooms.find(room => room.id === "departamento-1")!;
+  apartment.airbnbUrl = "https://www.airbnb.cl/rooms/1803933934369494949";
+  const previousSave = "2026-11-02T22:00:00Z";
+  const upgraded = normalizeSiteContent(saved, previousSave).rooms.find(room => room.id === apartment.id)!;
+  assert.equal(new URL(upgraded.airbnbUrl).searchParams.get("photo_id"), "2874300596");
+  assert.equal(upgraded.airbnbAlternateUrl, apartment.airbnbAlternateUrl);
+  assert.equal(normalizeSiteContent(saved, "2026-11-14T00:00:00Z").rooms.find(room => room.id === apartment.id)!.airbnbUrl, apartment.airbnbUrl);
+
+  apartment.airbnbUrl = "https://www.airbnb.cl/rooms/246810";
+  assert.equal(normalizeSiteContent(saved, previousSave).rooms.find(room => room.id === apartment.id)!.airbnbUrl, apartment.airbnbUrl);
+});
+
 test("mutations require a matching Origin and reject cross-site or missing origins", () => {
   const request = (origin?: string, site?: string) => new Request("https://alojamientospiffre.cl/api/content", {
     method: "PUT", headers: { ...(origin ? { Origin: origin } : {}), ...(site ? { "Sec-Fetch-Site": site } : {}) },
