@@ -6,7 +6,7 @@ import type { Location, SiteContent } from "@/lib/types";
 import { RoomPlaceholder } from "./artwork";
 import { Icon } from "./icons";
 import RoomCard from "./RoomCard";
-import { ContactBlock, SiteFrame } from "./SiteChrome";
+import { BrandLockup, ContactBlock, SiteFrame } from "./SiteChrome";
 import { locationPhotos, mapHref, publishedLocations, whatsappUrl } from "./content-helpers";
 
 function HeroCollage({ content, locations }: { content: SiteContent; locations: Location[] }) {
@@ -33,7 +33,16 @@ export default function Landing({ content }: { content: SiteContent }) {
       return <section className="property-group" key={location.id} aria-labelledby={`group-${location.id}`}><div className="property-group-heading reveal"><div><p className="eyebrow">{properties.every((room) => room.kind === "apartment") ? c.roomsGroupApartments : c.roomsGroupRooms}</p><h3 id={`group-${location.id}`}><Icon name="pin" />{location.name}</h3><p><a className="address-map-link" href={mapHref(location)} target="_blank" rel="noopener noreferrer">{location.address}<Icon name="arrowUp" /><span className="sr-only">{c.mapOpen}</span></a></p></div><a href={`/ubicaciones/${location.slug}#contenido`} className="location-details-link">{c.locationCardCta}<span className="sr-only">: {location.name}</span><Icon name="page" /></a></div><div className={`room-grid room-grid--${Math.min(properties.length, 3)}`}>{properties.map((room, index) => <RoomCard room={room} index={index} content={content} key={room.id} />)}</div></section>;
     })}{!rooms.length ? <p className="rooms-empty">{c.roomsEmpty}</p> : null}</div><div className="rooms-footnote reveal"><Icon name="heart" /><p>{c.roomsHelpText}</p><a href={whatsappUrl(content)} target="_blank" rel="noopener noreferrer">{c.roomsHelpLink}<Icon name="arrowUp" /></a></div></section>
 
-    <section id="experiencia" className="experience-section section-shell section-space" aria-labelledby="experience-title"><div className="section-label reveal"><span>{c.experienceLabel}</span><span>{c.experienceNote}</span></div><div className="experience-heading reveal"><span className="experience-flower" aria-hidden="true">✳</span><div><h2 id="experience-title">{content.about.title}</h2><p>{formatCopy(content.about.text, variables)}</p></div></div><div className="experience-grid">{content.amenities.map((amenity, index) => <div className="experience-item reveal" key={amenity.title}><Icon name={/lavander/i.test(amenity.title) ? "washer" : /wifi/i.test(amenity.title) ? "wifi" : /terraza/i.test(amenity.title) ? "sun" : "heart"} /><span className="experience-number">{String(index + 1).padStart(2, "0")}</span><h3>{amenity.title}</h3><p>{amenity.description}</p></div>)}</div></section>
+    <section id="experiencia" className="experience-section section-shell section-space" aria-labelledby="experience-title">
+      <div className="section-label reveal"><span>{c.experienceLabel}</span><span>{c.experienceNote}</span></div>
+      <div className="experience-heading reveal">
+        <span className="brand experience-brand" aria-hidden="true">
+          <BrandLockup copy={c} imageSizes="(max-width: 650px) 59px, (max-width: 850px) 65px, (max-width: 1460px) 7.6vw, 111px" />
+        </span>
+        <div><h2 id="experience-title">{content.about.title}</h2><p>{formatCopy(content.about.text, variables)}</p></div>
+      </div>
+      <div className="experience-grid">{content.amenities.map((amenity, index) => <div className="experience-item reveal" key={amenity.title}><Icon name={/lavander/i.test(amenity.title) ? "washer" : /wifi/i.test(amenity.title) ? "wifi" : /terraza/i.test(amenity.title) ? "sun" : "heart"} /><span className="experience-number">{String(index + 1).padStart(2, "0")}</span><h3>{amenity.title}</h3><p>{amenity.description}</p></div>)}</div>
+    </section>
 
     <section id="preguntas" className="faq-section section-shell section-space" aria-labelledby="faq-title"><div className="section-label reveal"><span>{c.faqLabel}</span><span>{c.faqNote}</span></div><div className="faq-grid"><div className="faq-intro reveal"><h2 id="faq-title">{c.faqTitle}<br /><span>{c.faqTitleAccent}</span></h2><p>{c.faqIntro}</p><a href={whatsappUrl(content)} target="_blank" rel="noopener noreferrer" className="text-link">{c.faqCta}<Icon name="arrowUp" /></a></div><div className="faq-list reveal">{content.faq.map((item, index) => <details key={item.question}><summary><span className="faq-number">{String(index + 1).padStart(2, "0")}</span><span>{item.question}</span><Icon name="plus" /></summary><div className="faq-answer"><p>{item.answer}</p></div></details>)}</div></div></section>
     <ContactBlock content={content} />

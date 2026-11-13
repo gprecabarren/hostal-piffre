@@ -10,8 +10,24 @@ import { Icon } from "./icons";
 import NeighborhoodMap from "./NeighborhoodMap";
 import { publishedLocations, whatsappUrl } from "./content-helpers";
 
+export function BrandLockup({ copy, imageSizes }: {
+  copy: Pick<SiteContent["copy"], "brandPrefix" | "brandName">;
+  imageSizes?: string;
+}) {
+  return <>
+    <span className="brand-symbol brand-symbol--official" aria-hidden="true">
+      <Image src="/brand/logo.webp" width={720} height={906} sizes={imageSizes} alt="" />
+    </span>
+    <span className="brand-text">
+      <span>{copy.brandPrefix}</span>{copy.brandName}<span className="brand-period">.</span>
+    </span>
+  </>;
+}
+
 export function Brand({ content, footer = false }: { content: SiteContent; footer?: boolean }) {
-  return <a href="/#contenido" className={`brand${footer ? " brand--footer" : ""}`} aria-label={formatCopy(content.copy.brandAria, { sitio: content.site.name })}><span className="brand-symbol brand-symbol--official" aria-hidden="true"><Image src="/brand/logo.webp" width={720} height={906} alt="" /></span><span className="brand-text"><span>{content.copy.brandPrefix}</span>{content.copy.brandName}<span className="brand-period">.</span></span></a>;
+  return <a href="/#contenido" className={`brand${footer ? " brand--footer" : ""}`} aria-label={formatCopy(content.copy.brandAria, { sitio: content.site.name })}>
+    <BrandLockup copy={content.copy} />
+  </a>;
 }
 
 function Header({ content }: { content: SiteContent }) {

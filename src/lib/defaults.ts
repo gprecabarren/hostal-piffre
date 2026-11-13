@@ -50,7 +50,12 @@ const makeApartment = (number: number): Room => ({
   tag: "Santiago Centro, a tu ritmo",
   features: ["WiFi gratis", "Lavandería", "Santiago Centro"],
   photos: seedPhotos("rooms", `departamento-${number}`, Array.from({ length: 3 }, (_, index) => ({ url: "", alt: `Vista ${index + 1} del departamento ${number} en Santiago Centro` }))),
-  bookingUrl: "", airbnbUrl: `https://www.airbnb.cl/rooms/${["1803933934369494949", "1352459415299032010", "1781198657363884435"][number - 1]}`,
+  bookingUrl: "",
+  airbnbUrl: [
+    "https://www.airbnb.cl/rooms/1803933934369494949?photo_id=2874300596&source_impression_id=p3_718cdf3a-5198-4106-a5ce-9d6e923a5a25_1803933934369494949_1&previous_page_section_name=1000",
+    "https://www.airbnb.cl/rooms/1352459415299032010",
+    "https://www.airbnb.cl/rooms/1781198657363884435",
+  ][number - 1],
   ...(number === 1 ? { airbnbAlternateUrl: "https://www.airbnb.cl/rooms/1760307243286615072" } : {}),
   whatsappUrl: "", vrboUrl: "",
   locationId: "santiago-centro", kind: "apartment", published: true,
